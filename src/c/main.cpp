@@ -1,6 +1,7 @@
 #include "main.h"
 #include <iostream>
 #include <fstream>
+#include "PreProcessImages.cuh"
 
 std::vector<ImagesTiff*> gImageTiffs;
 
@@ -12,14 +13,19 @@ int main(int argc, char* argv[])
 
 	char q;
 
-	if (argc<3)
+	if (argc<2)
 	{
-		printf("Usage: %s listfile.txt numberOfGPUs\n",argv[0]);
+		printf("Usage: %s listfile.txt [unmixChan:chan[:chan[:chan]] [numberOfGPUs] \n",argv[0]);
 		std::cin >> q;
 		return 1;
 	}
 
-	printf("Running Param: %s %d...\n",argv[1], argv[2]);
+	printf("Running Param:");
+	for (int i=1; i<argc; ++i)
+	{
+		printf("%s",argv[i]);
+	}
+	printf("\n");
 
 	fileListLocation = argv[1];	
 
@@ -28,6 +34,31 @@ int main(int argc, char* argv[])
 		printf("%s does not exist!\n",fileListLocation.c_str());
 		std::cin >> q;
 		return 1;
+	}
+
+	if (argc>2)
+	{
+		std::string first = argv[2];
+		size_t ind = first.find_first_of(':');
+		if (ind==std::string::npos)
+			numGpus = atoi(first.c_str());
+		else
+		{
+			size_t start = 0;
+			while (start<first.size())
+			{
+				std::string s = first.substr(start,ind-start);
+				const char* numC = s.c_str();
+				int numI = atoi(numC);
+				unmixChannels.push_back(numI -1);
+				if (ind==std::string::npos)
+					break;
+
+				start = ind+1;
+				ind = first.find_first_of(':',start);
+			}
+		}
+
 	}
 
 	std::vector<std::string> metadataFiles;
@@ -71,7 +102,7 @@ int main(int argc, char* argv[])
 			delete im;
 	}
 
-	preProcessImages();
+	preProcessImages(root);
 
 	for (int i = 0; i < gImageTiffs.size() ; i++)
 		delete gImageTiffs[i];

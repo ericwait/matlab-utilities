@@ -1,6 +1,5 @@
 #include "ImagesTiff.h"
 #include <limits.h>
-#include "AlignImages.h"
 
 #include "tiffio.h"
 #include "tiff.h"
@@ -154,6 +153,11 @@ const double* ImageContainer::getDoubleConstROIData(Vec<unsigned int> startIndex
 	return image;
 }
 
+void ImageContainer::loadImage(const PixelType* copyImage)
+{
+	memcpy(image,copyImage,sizeof(PixelType)*dims.product());
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -189,7 +193,7 @@ void ImagesTiff::reset()
 	numberOfChannels = 1;
 	numberOfFrames = 1;
 	timeBetweenFrames = 1;
-	sizes = Vec<unsigned long long>(0,0,0);
+	sizes = Vec<unsigned int>(0,0,0);
 	pixelPhysicalSizes = Vec<double>(1.0,1.0,1.0);
 	positions = Vec<double>(0.0,0.0,0.0);
 	alligned = false;
@@ -410,13 +414,13 @@ void ImagesTiff::setupCharReader()
 
 	for (unsigned int frame=0; frame<this->getNumberOfFrames(); ++frame)
 	{
-// 		for (int chan=0; chan<this->getNumberOfChannels(); ++chan)
-// 		{
-		int chan = scanChannel;
+ 		for (int chan=0; chan<this->getNumberOfChannels(); ++chan)
+ 		{
+		//int chan = scanChannel;
 			sprintf_s(buffer,"Reading Image Data for Frame:%d/%d Channel:%d/%d",CToMat(frame),numberOfFrames,CToMat(chan),numberOfChannels);
 			updateWindowTitle(buffer);
 			reader(chan, frame);
-		//} 
+		} 
 	}
 	updateWindowTitle("");
 }

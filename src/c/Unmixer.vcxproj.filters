@@ -11,17 +11,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImagesTiff.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="ImagesTiff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -29,6 +18,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="winHead.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CudaKernalsLib\src\c\Common\CHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\CudaKernalsLib\src\c\Common\Defines.h">
@@ -42,22 +37,33 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ImagesTiff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="PreProcessImages.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PreProcessImages.cuh">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\CudaKernalsLib\src\c\Common\CudaUtilities.cuh">
+      <Filter>Header Files</Filter>
+    </None>
     <None Include="..\..\CudaKernalsLib\src\c\Common\CudaImageBuffer.cuh">
       <Filter>Header Files</Filter>
     </None>
     <None Include="..\..\CudaKernalsLib\src\c\Common\CudaKernals.cuh">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="..\..\CudaKernalsLib\src\c\Common\CudaUtilities.cuh">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="PreProcessImages.cuh">
-      <Filter>Header Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="PreProcessImages.cu">
-      <Filter>Source Files</Filter>
-    </CudaCompile>
   </ItemGroup>
 </Project>

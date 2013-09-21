@@ -3,7 +3,6 @@
 
 #include "winHead.h"
 #include "Utility.h"
-#include "AlignImages.h"
 #include "Vec.h"
 
 #define MAX_CHANNELS (6) //Make sure that this is synced with the .fx file
@@ -77,6 +76,7 @@ public:
 	void setHeight(unsigned int height){dims.y=height;}
 	void setDepth(unsigned int depth){dims.z=depth;}
 	void setName(std::string name){this->name=name;}
+	void loadImage(const PixelType* copyImage);
 
 private:
 	ImageContainer();
@@ -111,10 +111,10 @@ public:
 	std::string	getImagesPath() const {return imagesPath;}
 	unsigned char getNumberOfChannels() const {return numberOfChannels;}
 	unsigned int getNumberOfFrames() const {return numberOfFrames;}
-	Vec<unsigned long long> getSizes() const {return sizes;}
-	unsigned long long  getXSize() const {return sizes.x;}
-	unsigned long long  getYSize() const {return sizes.y;}
-	unsigned long long  getZSize() const {return sizes.z;}
+	Vec<unsigned int> getSizes() const {return sizes;}
+	unsigned int  getXSize() const {return sizes.x;}
+	unsigned int  getYSize() const {return sizes.y;}
+	unsigned int  getZSize() const {return sizes.z;}
 	Vec<double> getScales() const {return scales;}
 	double getXScale() const {return scales.x;}
 	double getYScale() const {return scales.y;}
@@ -170,7 +170,7 @@ private:
 	unsigned char	numberOfChannels;
 	unsigned short	numberOfFrames;
 	float			timeBetweenFrames;
-	Vec<unsigned long long> sizes;
+	Vec<unsigned int> sizes;
 	Vec<double>		pixelPhysicalSizes;
 	Vec<double>		scales;
 	Vec<double>		positions;
