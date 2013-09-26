@@ -3,9 +3,9 @@
 #include "CudaImageBuffer.cuh"
 
 int numGpus = 1;
-std::vector<int> unmixChannels;
+std::vector<std::vector<int>> unmixChannels;
 
-void preProcessImages(std::string proccesedPath)
+void preProcessImages(std::string root)
 {
 	//TODO: implement this for multiple frames
 	int gpuNumber = 0;
@@ -25,21 +25,13 @@ void preProcessImages(std::string proccesedPath)
 			//loop through all the images that are to be unmixed
 			for (int currentChannel=0; currentChannel<unmixChannels.size(); ++currentChannel)
 			{
-				CudaImageBuffer<PixelType>* curChan = &cudaBuffers[unmixChannels[currentChannel]];
-				for (int subtractChannel=0; subtractChannel<unmixChannels.size(); ++subtractChannel)
+				CudaImageBuffer<PixelType> curChan = cudaBuffers[currentChannel];
+				for (int subtractChannel=0; subtractChannel<unmixChannels[currentChannel].size(); ++subtractChannel)
 				{
-					if (subtractChannel==currentChannel)
-						continue;
-
-					curChan->addImageWith(&cudaBuffers[unmixChannels[subtractChannel]],-1.0);
+					curChan.unmix(&cudaBuffers[unmixChannels[currentChannel][subtractChannel]]);
 				}
-			}
-
-			//get image data from the card back into host memory
-			for (int chan=0; chan<gImageTiffs[curVolume]->getNumberOfChannels(); ++chan)
-			{
-				ImageContainer* hostBuffer = gImageTiffs[curVolume]->getImage(chan,frame);
-				hostBuffer->loadImage(cudaBuffers[chan].retrieveImage());
+				ImageContainer* hostBuffer = gImageTiffs[curVolume]->getImage(currentChannel,frame);
+				hostBuffer->loadImage(curChan.retrieveImage());
 			}
 		}
 	}
@@ -50,7 +42,7 @@ void preProcessImages(std::string proccesedPath)
 	char path[255];
 	for (int curVolume=0; curVolume<gImageTiffs.size(); ++curVolume)
 	{
-		sprintf_s(directry,"%s\\processed\\%s",proccesedPath,gImageTiffs[0]->getDatasetName().c_str());
+		sprintf_s(directry,"%s\\processed\\%s",root.c_str(),gImageTiffs[curVolume]->getDatasetName().c_str());
 		if (!pathCreate(directry))
 		{
 			fprintf(stderr,"Could not open %s!\n",directry);
@@ -61,7 +53,7 @@ void preProcessImages(std::string proccesedPath)
 		{
 			for (int chan=0; chan<gImageTiffs[curVolume]->getNumberOfChannels(); ++chan)
 			{
-				sprintf_s(path,"%s\\%s_c%d_t%04d_z%s",directry,gImageTiffs[0]->getDatasetName(),chan,frame,"%04d");
+				sprintf_s(path,"%s\\%s_c%d_t%04d_z%s",directry,gImageTiffs[curVolume]->getDatasetName().c_str(),chan+1,frame+1,"%04d");
 				writeImage(gImageTiffs[curVolume]->getImage(chan,frame),path);
 			}
 		}

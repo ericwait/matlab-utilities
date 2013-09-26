@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 
 	if (argc<2)
 	{
-		printf("Usage: %s listfile.txt [unmixChan:chan[:chan[:chan]] [numberOfGPUs] \n",argv[0]);
+		printf("Usage: %s listfile.txt [mainChan-subChan[,subChan...][:[mainChan-subChan[,subChan...]]]] [numberOfGPUs] \n",argv[0]);
 		std::cin >> q;
 		return 1;
 	}
@@ -47,10 +47,33 @@ int main(int argc, char* argv[])
 			size_t start = 0;
 			while (start<first.size())
 			{
-				std::string s = first.substr(start,ind-start);
-				const char* numC = s.c_str();
-				int numI = atoi(numC);
-				unmixChannels.push_back(numI -1);
+				std::string group = first.substr(start,ind-start);
+				size_t subInd =  group.find_first_of('-');
+				if (subInd==std::string::npos)
+				{
+					fprintf(stderr,"%s is not a correctly formed\n",group.c_str());
+					return 1;
+				}
+
+				std::string topS = group.substr(0,subInd);
+				int topNum = atoi(topS.c_str());
+
+				if (unmixChannels.size()<topNum)
+					unmixChannels.resize(topNum);
+
+				size_t groupStart = subInd+1;
+				while (groupStart<group.size())
+				{
+					size_t comInd = group.substr(groupStart,group.size()).find_first_of(',');
+					int subNum = atoi(group.substr(groupStart,comInd-groupStart).c_str());
+					unmixChannels[topNum-1].push_back(subNum-1);
+					
+					if (comInd==std::string::npos)
+						break;
+
+					groupStart += comInd+1;
+				}
+
 				if (ind==std::string::npos)
 					break;
 

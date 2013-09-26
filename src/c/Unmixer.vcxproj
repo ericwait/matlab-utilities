@@ -187,10 +187,10 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
-echo copy "$(SolutionDir)$(Platform)\$(Configuration)\*.exe" "$(SolutionDir)..\bin\."
-copy "$(SolutionDir)$(Platform)\$(Configuration)\*.exe" "$(SolutionDir)..\bin\."
-echo copy "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionDir)..\bin\."
-copy "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionDir)..\bin\."</Command>
+echo copy "$(SolutionDir)$(Platform)\$(Configuration)\*.exe" "$(SolutionDir)..\..\bin\."
+copy "$(SolutionDir)$(Platform)\$(Configuration)\*.exe" "$(SolutionDir)..\..\bin\."
+echo copy "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionDir)..\..\bin\."
+copy "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(SolutionDir)..\..\bin\."</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>

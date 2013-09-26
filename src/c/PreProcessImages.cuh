@@ -3,6 +3,6 @@
 #include <vector>
 
 extern int numGpus;
-extern std::vector<int> unmixChannels;
+extern std::vector<std::vector<int>> unmixChannels;
 
 void preProcessImages(std::string proccesedPath);
