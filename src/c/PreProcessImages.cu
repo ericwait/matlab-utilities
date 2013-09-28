@@ -28,7 +28,7 @@ void preProcessImages(std::string root)
 				CudaImageBuffer<PixelType> curChan = cudaBuffers[currentChannel];
 				for (int subtractChannel=0; subtractChannel<unmixChannels[currentChannel].size(); ++subtractChannel)
 				{
-					curChan.unmix(&cudaBuffers[unmixChannels[currentChannel][subtractChannel]]);
+					curChan.unmix(&cudaBuffers[unmixChannels[currentChannel][subtractChannel]],Vec<unsigned int>(5,5,5));
 				}
 				ImageContainer* hostBuffer = gImageTiffs[curVolume]->getImage(currentChannel,frame);
 				hostBuffer->loadImage(curChan.retrieveImage());
