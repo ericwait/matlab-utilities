@@ -11,30 +11,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImagesTiff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="winHead.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\CudaKernalsLib\src\c\Common\CHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\CudaKernalsLib\src\c\Common\Defines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\CudaKernalsLib\src\c\Common\Vec.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\CudaKernalsLib\src\c\Common\VecFuncs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <CudaCompile Include="PreProcessImages.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImagesTiff.cpp">
@@ -48,22 +27,41 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="PreProcessImages.cu">
-      <Filter>Source Files</Filter>
-    </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="PreProcessImages.cuh">
+    <ClInclude Include="ImagesTiff.h">
       <Filter>Header Files</Filter>
-    </None>
-    <None Include="..\..\CudaKernalsLib\src\c\Common\CudaUtilities.cuh">
+    </ClInclude>
+    <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
-    </None>
-    <None Include="..\..\CudaKernalsLib\src\c\Common\CudaImageBuffer.cuh">
+    </ClInclude>
+    <ClInclude Include="Utility.h">
       <Filter>Header Files</Filter>
-    </None>
-    <None Include="..\..\CudaKernalsLib\src\c\Common\CudaKernals.cuh">
+    </ClInclude>
+    <ClInclude Include="winHead.h">
       <Filter>Header Files</Filter>
-    </None>
+    </ClInclude>
+    <ClInclude Include="..\..\..\CudaKernalsLib\src\c\Common\CHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\CudaKernalsLib\src\c\Common\Defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\CudaKernalsLib\src\c\Common\Vec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\CudaKernalsLib\src\c\Common\VecFuncs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\CudaKernalsLib\src\c\Common\CudaImageBuffer.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\CudaKernalsLib\src\c\Common\CudaKernals.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\CudaKernalsLib\src\c\Common\CudaUtilities.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PreProcessImages.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
