@@ -10,17 +10,23 @@ void preProcessImages(std::string root)
 	//TODO: implement this for multiple frames
 	char directry[255];
 	char path[255];
-	int gpuNumber = 0;
-	std::vector<CudaImageBuffer<PixelType>> cudaBuffers;
-	cudaBuffers.resize(gImageTiffs[0]->getNumberOfChannels(),CudaImageBuffer<PixelType>(gImageTiffs[0]->getSizes(),gpuNumber));
+	int gpuNumber = 2;
+	std::vector<CudaImageBuffer<PixelType>*> cudaBuffers;
+	cudaBuffers.resize(gImageTiffs[0]->getNumberOfChannels());
+	
+	for (int i=0; i<gImageTiffs[0]->getNumberOfChannels(); ++i)
+	{
+		cudaBuffers[i] = new CudaImageBuffer<PixelType>(gImageTiffs[0]->getSizes());
+	}
+
 	float sigma = 50.0f;
-	Vec<float>sigmas(sigma,sigma,sigma/3.0);
+	Vec<float>sigmas(sigma,sigma,sigma/3.0f);
 	time_t start, end;
 
 	for (int curVolume=0; curVolume<gImageTiffs.size(); ++curVolume)
 	{
 		time(&start);
-		printf("(%04.2f%% of %d) Working on %s, ",(float)curVolume/gImageTiffs.size()*100.0f,gImageTiffs.size(),
+		printf("(%04.2f%% of %d) Working on %s\n",(float)curVolume/gImageTiffs.size()*100.0f,gImageTiffs.size(),
 			gImageTiffs[curVolume]->getDatasetName().c_str());
 
 		for (unsigned int frame=0; frame<gImageTiffs[curVolume]->getNumberOfFrames(); ++frame)
@@ -29,22 +35,31 @@ void preProcessImages(std::string root)
 			//load all of the channel data onto the card
 			for (int chan=0; chan<gImageTiffs[curVolume]->getNumberOfChannels(); ++chan)
 			{
-				cudaBuffers[chan].loadImage(gImageTiffs[curVolume]->getConstImageData(chan,frame));
+				cudaBuffers[chan]->loadImage(gImageTiffs[curVolume]->getConstImageData(chan,frame));
+				//PixelType* tempImage = cudaBuffers[chan]->retrieveImage();
 			}
 
 			for (int chan=0; chan<gImageTiffs[curVolume]->getNumberOfChannels(); ++chan)
 			{
 				printf("%d...",chan);
-				cudaBuffers[chan].contrastEnhancement(sigmas,Vec<unsigned int>(5,5,3));
+				cudaBuffers[chan]->contrastEnhancement(sigmas,Vec<unsigned int>(5,5,3));
 
 				if (!unmixChannels.empty())
 				{
 					for (int subtractChannel=0; subtractChannel<unmixChannels[chan].size(); ++subtractChannel)
-						cudaBuffers[chan].unmix(&cudaBuffers[unmixChannels[chan][subtractChannel]],Vec<unsigned int>(5,5,3));
+						cudaBuffers[chan]->unmix(cudaBuffers[unmixChannels[chan][subtractChannel]],Vec<unsigned int>(5,5,3));
 				}
 
+// 				sprintf_s(directry,"%s\\processed\\%s",root.c_str(),gImageTiffs[curVolume]->getDatasetName().c_str());
+// 				if (!pathCreate(directry))
+// 				{
+// 					fprintf(stderr,"Could not open %s!\n",directry);
+// 					continue;
+// 				}
+// 				sprintf_s(path,"%s\\%s_c%d_t%04d_z%s",directry,gImageTiffs[curVolume]->getDatasetName().c_str(),chan+1,frame+1,"%04d");
+// 				writeImage(cudaBuffers[chan]->retrieveImage(),gImageTiffs[curVolume]->getSizes(),path);
 				ImageContainer* hostBuffer = gImageTiffs[curVolume]->getImage(chan,frame);
-				hostBuffer->loadImage(cudaBuffers[chan].retrieveImage());
+				hostBuffer->loadImage(cudaBuffers[chan]->retrieveImage());
 			}
 			time(&end);
 			double tm = difftime(end,start);
