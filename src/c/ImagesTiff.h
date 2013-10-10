@@ -101,7 +101,7 @@ void writeImage(const ImageContainer* image, std::string fileName);
 class ImagesTiff
 {
 public:
-	ImagesTiff(const std::string imagesFolder);
+	ImagesTiff(const char* imagesFolder);
 	~ImagesTiff(){clear();}
 
 	//Getters
@@ -156,7 +156,7 @@ private:
 	void reset();
 	void sizeImageBuffer();
 	void emptyImageBuffers();
-	bool readMetadata(std::string metadataFile);
+	bool readMetadata(const char* metadataFile);
 	void setMetadata(std::map<std::string,std::string> metadata);
 	void setScales();
 	void setupCharReader();

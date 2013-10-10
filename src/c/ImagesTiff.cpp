@@ -163,7 +163,7 @@ void ImageContainer::loadImage(const PixelType* copyImage)
 //////////////////////////////////////////////////////////////////////////
 //ImagesTiff
 //////////////////////////////////////////////////////////////////////////
-ImagesTiff::ImagesTiff(const std::string metaDataFile)
+ImagesTiff::ImagesTiff(const char* metaDataFile)
 {
 	size_t separator = 0;
 	clear();
@@ -175,8 +175,9 @@ ImagesTiff::ImagesTiff(const std::string metaDataFile)
 	}
 
 	std::string imPath;
-	separator = metaDataFile.find_last_of("\\");
-	imPath = metaDataFile.substr(0,separator);
+	std::string mdf = metaDataFile;
+	separator = mdf.find_last_of("\\");
+	imPath = mdf.substr(0,separator);
 
 	setImagesPath(imPath);
 
@@ -199,13 +200,13 @@ void ImagesTiff::reset()
 	alligned = false;
 }
 
-bool ImagesTiff::readMetadata(std::string metadataFile)
+bool ImagesTiff::readMetadata(const char* metadataFile)
 {
 	size_t separator = 0;
-	if(!fileExists(metadataFile.c_str()))
+	if(!fileExists(metadataFile))
 		return false;
 	std::map<std::string,std::string> metaData;
-	std::ifstream file(metadataFile.c_str());
+	std::ifstream file(metadataFile);
 	if (file.is_open())
 	{
 		while(file.good())

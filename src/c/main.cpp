@@ -111,16 +111,27 @@ int main(int argc, char* argv[])
 	gImageTiffs.reserve(metadataFiles.size());
 	for (int i=0; i<metadataFiles.size(); ++i)
 	{
-		std::string mf = root;
-		mf += "\\";
-		mf += metadataFiles[i];
-		mf += "\\";
-		mf += metadataFiles[i];
-		mf += ".txt";
-		printf("%s\n",mf.c_str());
+		char mf[255];
+		sprintf_s(mf,"%s\\%s\\%s.txt",root.c_str(),metadataFiles[i].c_str(),metadataFiles[i].c_str());
+		printf("%s\n",mf);
 		ImagesTiff* im = new ImagesTiff(mf);
 		if (im->getDatasetName()!="" && im->getNumberOfChannels()!=0 && im->getNumberOfFrames()!=0)
+		{
 			gImageTiffs.push_back(im);
+			char cmf[255];
+			sprintf_s(cmf,"%s\\processed\\%s\\.",root.c_str(),metadataFiles[i].c_str());
+			if (pathCreate(cmf))
+			{
+				char cmd[520];
+				sprintf_s(cmd,"copy /Y \"%s\" \"%s\"",mf,cmf);
+				printf("%s\n",cmd);
+				system(cmd);
+			}
+			else
+			{
+				fprintf(stderr,"Could not copy %s\\%s.txt!\n",cmf,metadataFiles[i].c_str());
+			}
+		}
 		else
 			delete im;
 	}
