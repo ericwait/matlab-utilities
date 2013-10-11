@@ -5,18 +5,17 @@
 int numGpus = 1;
 std::vector<std::vector<int>> unmixChannels;
 
-void preProcessImages(std::string root)
+void preProcessImages(std::string root, int device)
 {
 	//TODO: implement this for multiple frames
 	char directry[255];
 	char path[255];
-	int gpuNumber = 2;
 	std::vector<CudaImageBuffer<PixelType>*> cudaBuffers;
 	cudaBuffers.resize(gImageTiffs[0]->getNumberOfChannels());
 	
 	for (int i=0; i<gImageTiffs[0]->getNumberOfChannels(); ++i)
 	{
-		cudaBuffers[i] = new CudaImageBuffer<PixelType>(gImageTiffs[0]->getSizes());
+		cudaBuffers[i] = new CudaImageBuffer<PixelType>(gImageTiffs[0]->getSizes(),device);
 	}
 
 	float sigma = 50.0f;

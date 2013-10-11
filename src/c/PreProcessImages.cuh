@@ -5,4 +5,4 @@
 extern int numGpus;
 extern std::vector<std::vector<int>> unmixChannels;
 
-void preProcessImages(std::string proccesedPath);
+void preProcessImages(std::string proccesedPath, int device=0);
