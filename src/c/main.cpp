@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 			delete im;
 	}
 
-	preProcessImages(root);
+	preProcessImages(root,1);
 
 	for (int i = 0; i < gImageTiffs.size() ; i++)
 		delete gImageTiffs[i];
