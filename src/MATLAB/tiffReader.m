@@ -29,9 +29,9 @@ if (~exist('zList','var') || isempty(zList))
 end
 
 if (bytes==1)
-    im = zeros(imageData.yDim,imageData.xDim,length(zList),length(chanList),length(timeList),'uint8');
+    im = zeros(imageData.yDim,imageData.xDim,length(zList),length(timeList),length(chanList),'uint8');
 elseif (bytes==8)
-    im = zeros(imageData.yDim,imageData.xDim,length(zList),length(chanList),length(timeList));
+    im = zeros(imageData.yDim,imageData.xDim,length(zList),length(timeList),length(chanList));
 end
 
 fprintf('(');
@@ -44,18 +44,28 @@ end
 fprintf(') %5.2fMB\n', (imageData.xDim*imageData.yDim*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
 
 for c=1:length(chanList)
+    fprintf('C=%d\n\t',c);
     for t=1:length(timeList)
+        fprintf('T=%d\n\t\tZ=',t);
         for z=1:length(zList)
-            try
-            if (bytes==1)
-                im(:,:,z,t,c) = uint8(imread(fullfile(path,sprintf('%s_c%d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
-            elseif (bytes==8)
-                im(:,:,z,t,c) = imread(fullfile(path,sprintf('%s_c%d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z)),'tif'));
+            if (mod(z,10)==0)
+                fprintf('%d,',z);
             end
+            try
+                imTemp = imread(fullfile(path,sprintf('%s_c%d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif');
+                if (max(size(imTemp) ~= [imageData.yDim imageData.xDim]))
+                    disp('dif');
+                end
+                if (bytes==1)
+                    im(:,:,z,t,c) = uint8(imTemp);
+                elseif (bytes==8)
+                    im(:,:,z,t,c) = imtemp;
+                end
             catch err
                 fprintf('\n****%s: %s\n',fullfile(path,sprintf('%s_c%d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),err.identifier);
             end
         end
+        fprintf('\n');
     end
 end
 end
