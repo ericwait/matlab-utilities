@@ -1,9 +1,10 @@
 function [im, imageData] = tiffReader(type,chanList,timeList,zList,path)
-if (~exist('path','var') || isempty(path))
-    path = uigetdir();
+
+if (~exist('path','var'))
+    path = [];
 end
 
-imageData = readMetaData(path);
+[imageData,path] = readMetaData(path);
 if (isempty(imageData))
     return
 end

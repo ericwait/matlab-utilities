@@ -1,8 +1,15 @@
-function imageData = readMetaData(root)
+function [imageData,rootDir] = readMetaData(root)
 
-if (~exist('root','var'))
+if (~exist('root','var') || isempty(root))
     rootDir = uigetdir('');
-    if rootDir==0, return, end
+    if rootDir==0,
+        [fileName,rootDir,filterIndex] = uigetfile('.txt');
+        if (filterIndex~=0)
+            fileHandle = fopen(fullfile(rootDir,fileName));
+            imageData = readfile(fileHandle);
+        end
+        return
+    end
 elseif (~isempty(strfind(root,'.txt')))
     fileHandle = fopen(root);
     imageData = readfile(fileHandle);
