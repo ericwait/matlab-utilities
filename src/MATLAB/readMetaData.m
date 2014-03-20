@@ -1,69 +1,57 @@
-function readMetaData(filePath)
-global imageData
+function imageData = readMetaData(root)
 
-if (~exist('filePath','var') || isempty(filePath))
-    [fileName,pathName,~] = uigetfile('.txt');
-    if (fileName==0)
-        return
-    end
-    filePath = fullfile(pathName,fileName);
+if (~exist('root','var'))
+    rootDir = uigetdir('');
+    if rootDir==0, return, end
+elseif (~isempty(strfind(root,'.txt')))
+    fileHandle = fopen(root);
+    imageData = readfile(fileHandle);
+    return
+else
+    rootDir = root;
 end
 
 imageData = [];
+dlist = dir(rootDir);
 
-fileHandle = fopen(filePath,'r');
-if fileHandle<=0
-    error('Could not open file!\n');
-end
-
-tline = fgetl(fileHandle);
-
-while(tline~=-1)
-    data = textscan(tline,'%s', 'delimiter',':','whitespace','\n');
-    switch data{1}{1}
-        case 'DatasetName'
-            imageData.DatasetName = data{1}{2};
-        case 'NumberOfChannels'
-            imageData.NumberOfChannels = str2double(data{1}{2});
-        case 'ChannelColors'
-            colors = textscan(data{1}{2},'%s','delimiter',',');
-            for i=1:length(colors{1})
-                imageData.ChannelColors{i} = colors{1}{i};
-            end
-        case 'NumberOfFrames'
-            imageData.NumberOfFrames = str2double(data{1}{2});
-        case 'XDimension'
-            imageData.xDim = str2double(data{1}{2});
-        case 'YDimension'
-            imageData.yDim = str2double(data{1}{2});
-        case 'ZDimension'
-            imageData.zDim = str2double(data{1}{2});
-        case 'XPixelPhysicalSize'
-            imageData.XPixelPhysicalSize = str2double(data{1}{2});
-        case 'YPixelPhysicalSize'
-            imageData.YPixelPhysicalSize = str2double(data{1}{2});
-        case 'ZPixelPhysicalSize'
-            imageData.ZPixelPhysicalSize = str2double(data{1}{2});
-        case 'XPosition'
-            imageData.XPosition = str2double(data{1}{2});
-        case 'YPosition'
-            imageData.YPosition = str2double(data{1}{2});
-        case 'ZPosition'
-            imageData.XDistanceUnits = data{1}{2};
-        case 'XDistanceUnits'
-            imageData.YDistanceUnits = data{1}{2};
-        case 'YDistanceUnits'
-            imageData.ZDistanceUnits = data{1}{2};
-        case 'XLength'
-            imageData.XLength = str2double(data{1}{2});
-        case 'YLength'
-            imageData.YLength = str2double(data{1}{2});
-        case 'ZLength'
-            imageData.ZLength = str2double(data{1}{2});
+for i=1:length(dlist)
+    if (strcmp('..',dlist(i).name))
+        continue;
     end
     
-    tline = fgetl(fileHandle);
+    dSublist = dir(fullfile(rootDir,dlist(i).name,'*.txt'));
+    if isempty(dSublist), continue, end
+    
+    for j=1:length(dSublist)
+        fileHandle = fopen(fullfile(rootDir,dlist(i).name,dSublist(j).name));
+        imageDatum = readfile(fileHandle);
+        
+        if (isempty(imageDatum)), continue, end
+        
+        if (isempty(imageData))
+            imageData = imageDatum;
+        else
+            imageData(length(imageData)+1) = imageDatum;
+        end
+    end
 end
+end
+
+function imageDatum = readfile(fileHandle)
+imageDatum = {};
+
+if fileHandle<=0, return, end
+
+data = textscan(fileHandle,'%s %s', 'delimiter',':','whitespace','\n');
 fclose(fileHandle);
 
+if isempty(data), return, end
+
+for k=1:length(data{1})
+    val = str2double(data{2}{k});
+    if (isnan(val))
+        val = data{2}{k};
+    end
+    imageDatum.(data{1}{k}) = val;
+end
 end
