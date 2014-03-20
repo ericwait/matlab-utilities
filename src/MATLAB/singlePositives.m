@@ -22,13 +22,13 @@ for stain=1:length(datasets)
             if (dif<=10)
                 factors(chan,stain,1) = 0;
             end
-            fprintf('\tS:%d C:%d dif=%f\n',stain,chan,dif);
-            figure
-            hold on
-            plot(imStain(:,1),imChan(:),'.b');
-            plot([0 255],factors(chan,stain,1)*[0 255]+factors(chan,stain,2),'--g');
-            xlabel(sprintf('(%d) %s',stain,datasets{stain}));
-            ylabel(sprintf('(%d) %s',chan,datasets{chan}));
+%             fprintf('\tS:%d C:%d dif=%f\n',stain,chan,dif);
+%             figure
+%             hold on
+%             plot(imStain(:,1),imChan(:),'.b');
+%             plot([0 255],factors(chan,stain,1)*[0 255]+factors(chan,stain,2),'--g');
+%             xlabel(sprintf('(%d) %s',stain,datasets{stain}));
+%             ylabel(sprintf('(%d) %s',chan,datasets{chan}));
         end
     end
 end
