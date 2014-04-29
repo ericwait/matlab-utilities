@@ -13,6 +13,8 @@ if (~exist('root','var') || isempty(root))
 elseif (~isempty(strfind(root,'.txt')))
     fileHandle = fopen(root);
     imageData = readfile(fileHandle);
+    pos = strfind(root,'\');
+    rootDir = root(1:pos(end));
     return
 else
     rootDir = root;
