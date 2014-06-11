@@ -44,7 +44,7 @@ else
     error('Unsupported Type');
 end
 
-im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(timeList),length(chanList),type);
+im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),type);
 
 fprintf('Type:%s ',type);
 fprintf('(');
@@ -56,30 +56,30 @@ end
 
 fprintf(') %5.2fMB\n', (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
 
-for c=1:length(chanList)
-    for t=1:length(timeList)
+for t=1:length(timeList)
+    for c=1:length(chanList)
         for z=1:length(zList)
             try
             if (strcmp(type,'uint8'))
-                im(:,:,z,t,c) = uint8(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
+                im(:,:,z,c,t) = uint8(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
 
             elseif (strcmp(type,'uint16'))
-                im(:,:,z,t,c) = uint16(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
+                im(:,:,z,c,t) = uint16(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
 
             elseif (strcmp(type,'int16'))
-                im(:,:,z,t,c) = int16(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
+                im(:,:,z,c,t) = int16(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
 
             elseif (strcmp(type,'uint32'))
-                im(:,:,z,t,c) = uint32(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
+                im(:,:,z,c,t) = uint32(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
 
             elseif (strcmp(type,'int32'))
-                im(:,:,z,t,c) = int32(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
+                im(:,:,z,c,t) = int32(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
 
             elseif (strcmp(type,'single'))
-                im(:,:,z,t,c) = single(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
+                im(:,:,z,c,t) = single(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
 
             elseif (strcmp(type,'double'))
-                im(:,:,z,t,c) = imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif');
+                im(:,:,z,c,t) = imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif');
 
             end
             catch err
