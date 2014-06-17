@@ -1,6 +1,6 @@
 function [im, imageData] = tiffReader(type,chanList,timeList,zList,path)
 
-if (~exist('path','var'))
+if (~exist('path','var') || ~exist(path,'file'))
     path = [];
 end
 
@@ -44,6 +44,11 @@ else
     error('Unsupported Type');
 end
 
+imType = imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(1),timeList(1),zList(1))),'tif');
+typ = whos('imType');
+clear imType
+
+imtemp = zeros(imageData.YDimension,imageData.XDimension,length(zList),typ.class);
 im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),type);
 
 fprintf('Type:%s ',type);
@@ -60,33 +65,14 @@ for t=1:length(timeList)
     for c=1:length(chanList)
         for z=1:length(zList)
             try
-            if (strcmp(type,'uint8'))
-                im(:,:,z,c,t) = uint8(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
-
-            elseif (strcmp(type,'uint16'))
-                im(:,:,z,c,t) = uint16(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
-
-            elseif (strcmp(type,'int16'))
-                im(:,:,z,c,t) = int16(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
-
-            elseif (strcmp(type,'uint32'))
-                im(:,:,z,c,t) = uint32(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
-
-            elseif (strcmp(type,'int32'))
-                im(:,:,z,c,t) = int32(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
-
-            elseif (strcmp(type,'single'))
-                im(:,:,z,c,t) = single(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif'));
-
-            elseif (strcmp(type,'double'))
-                im(:,:,z,c,t) = imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif');
-
-            end
+                imtemp(:,:,z) = imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'tif');
             catch err
                 fprintf('\n****%s: %s\n',fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),err.identifier);
             end
         end
-        %fprintf('\n');
+        im(:,:,:,c,t) = imageConvert(imtemp,type);
     end
 end
+
+clear imtemp
 end
