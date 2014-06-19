@@ -1,4 +1,6 @@
 function [im, imageData] = tiffReader(type,chanList,timeList,zList,path)
+im = [];
+imageData = [];
 
 if (~exist('path','var') || ~exist(path,'file'))
     path = [];
@@ -6,6 +8,7 @@ end
 
 [imageData,path] = readMetaData(path);
 if (isempty(imageData))
+    warning('No image read!');
     return
 end
 

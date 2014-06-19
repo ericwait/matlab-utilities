@@ -1,5 +1,8 @@
 function [imageData,rootDir] = readMetaData(root)
 
+imageData = [];
+rootDir = [];
+
 if (~exist('root','var') || isempty(root))
     rootDir = uigetdir('');
     if rootDir==0,
