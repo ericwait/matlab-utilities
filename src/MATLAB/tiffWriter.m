@@ -75,7 +75,7 @@ end
 for c=1:channels
     for t=1:frames
         for z=1:stacks
-            fileName = sprintf('%s_c%d_t%04d_z%04d.tif',prefix,c,t,z);
+            fileName = sprintf('%s_c%02d_t%04d_z%04d.tif',prefix,c,t,z);
             imwrite(imUint(:,:,z,t,c),fileName,'tif','Compression','lzw');
         end
     end
