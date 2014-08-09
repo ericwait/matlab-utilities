@@ -1,5 +1,9 @@
 function createMetadata(root,imageData)
 
+if (~exist(root,'dir'))
+    mkdir(root);
+end
+
 fileName = fullfile(root,[imageData.DatasetName '.txt']);
 fprintf('Creating Metadata %s...',fileName);
 
@@ -11,8 +15,12 @@ fprintf(fileHandle,'NumberOfChannels:%d\n',imageData.NumberOfChannels);
 
 if (isfield(imageData,'ChannelColors'))
     fprintf(fileHandle,'ChannelColors:');
-    for i=1:length(imageData.ChannelColors)
-        fprintf(fileHandle,'%s,',imageData.ChannelColors{i});
+    if (size(imageData.ChannelColors,1)==1)
+        fprintf(fileHandle,'%s,',imageData.ChannelColors);
+    else
+        for i=1:length(imageData.ChannelColors)
+            fprintf(fileHandle,'%s,',imageData.ChannelColors{i});
+        end
     end
     fprintf(fileHandle,'\n');
 end
