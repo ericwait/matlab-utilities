@@ -1,43 +1,64 @@
-function readMicroscopeData()
-[orgFileName,orgPathName,~] = uigetfile('*.*','Select Microscope Data');
-if (orgFileName==0), return, end
+function readMicroscopeData(dirIn, fileNameIn, dirOut,overwrite)
+if (~exist('dirIn','var') || ~exist('fileNameIn','var') || isempty(dirIn) || isempty(fileNameIn))
+    [orgFileName,orgPathName,~] = uigetfile('*.*','Select Microscope Data');
+    if (orgFileName==0), return, end
+else
+    orgPathName = dirIn;
+    orgFileName = fileNameIn;
+end
 ind = strfind(orgFileName,'.');
 orgName = orgFileName(1:ind-1);
 
-disp('Select output directory...');
-outDir = uigetdir('.','Select Output Directory');
-if (outDir==0), return, end
+if (~exist('dirOut','var') || isempty(dirOut))
+    disp('Select output directory...');
+    outDir = uigetdir('.','Select Output Directory');
+    if (outDir==0), return, end
+else
+    outDir = dirOut;
+end
 
-data = bfopen(fullfile(orgPathName,orgFileName));
+if (~exist('overwrite','var') || isempty(overwrite))
+    overwrite = 0;
+end
+
+[~,~,id] = mkdir(fullfile(outDir,orgName));
+if (strcmp(id,'MATLAB:MKDIR:DirectoryExists') && overwrite==0)
+    disp('exists');
+    return;
+end
+
+try
+    data = bfopen(fullfile(orgPathName,orgFileName));
+catch err
+    disp(err.message);
+    return
+end
+
 if (isempty(data)), error('Could not read file!'), end
 
-mkdir(fullfile(outDir,orgName));
-
 for series=1:size(data,1)
-%     labels = data{series,1}{1,2};
-%     labelsParsed = strsplit(labels,';');
-%     if (numel(labelsParsed)<2), continue, end
-%     imageData.DatasetName = labelsParsed{2};
     metadata = data{series,4};
     imageData.DatasetName = char(metadata.getImageName(series-1));
     imageData.XDimension = safeGetValue(metadata.getPixelsSizeX(series-1));
     imageData.YDimension = safeGetValue(metadata.getPixelsSizeY(series-1));
     imageData.ZDimension = safeGetValue(metadata.getPixelsSizeZ(series-1));
-    imageData.NumberOfChannels = safeGetValue(metadata.getPixelsSizeC(series-1));
+    imageData.NumberOfChannels = metadata.getChannelCount(series-1);
     imageData.NumberOfFrames = safeGetValue(metadata.getPixelsSizeT(series-1));
     imageData.XPixelPhysicalSize = safeGetValue(metadata.getPixelsPhysicalSizeX(series-1));
     imageData.YPixelPhysicalSize = safeGetValue(metadata.getPixelsPhysicalSizeY(series-1));
     imageData.ZPixelPhysicalSize = safeGetValue(metadata.getPixelsPhysicalSizeZ(series-1));
-    imageData.XPosition = double(metadata.getPlanePositionX(series-1,0));
-    imageData.YPosition = double(metadata.getPlanePositionY(series-1,0));
-    imageData.ZPosition = double(metadata.getPlanePositionZ(series-1,0));
+    if (metadata.getPlaneCount(series-1)>0)
+        imageData.XPosition = double(metadata.getPlanePositionX(series-1,0));
+        imageData.YPosition = double(metadata.getPlanePositionY(series-1,0));
+        imageData.ZPosition = double(metadata.getPlanePositionZ(series-1,0));
+    end
     
     imageData.ChannelColors = char(metadata.getChannelName(series-1,0));
     for c=1:imageData.NumberOfChannels-1
         imageData.ChannelColors = [imageData.ChannelColors; {char(metadata.getChannelName(series-1,c))}];
     end
     
-    im = zeros(imageData.XDimension,imageData.YDimension,imageData.ZDimension,imageData.NumberOfChannels,...
+    im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,...
         imageData.NumberOfFrames,char(metadata.getPixelsType(series-1)));
     
     order = char(metadata.getPixelsDimensionOrder(series-1));
