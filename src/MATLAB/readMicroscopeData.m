@@ -58,6 +58,8 @@ for series=1:size(data,1)
         imageData.ChannelColors = [imageData.ChannelColors; {char(metadata.getChannelName(series-1,c))}];
     end
     
+    imageData.TimeStampDeltas = zeros(imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames);
+    
     im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,...
         imageData.NumberOfFrames,char(metadata.getPixelsType(series-1)));
     
@@ -66,7 +68,12 @@ for series=1:size(data,1)
     for t=1:imageData.NumberOfFrames
         for z=1:imageData.ZDimension
             for c=1:imageData.NumberOfChannels
-                im(:,:,z,c,t) = imData{calcPlaneInd(order,z,c,t,imageData),1};
+                ind = calcPlaneInd(order,z,c,t,imageData);
+                im(:,:,z,c,t) = imData{ind,1};
+                delta = metadata.getPlaneDeltaT(series-1,ind-1);
+                if (~isempty(delta)) %hack for lsm
+                    imageData.TimeStampDeltas(z,c,t) = delta;
+                end
             end
         end
     end
