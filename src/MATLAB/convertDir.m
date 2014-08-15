@@ -1,4 +1,4 @@
-function convertDir(dirPath,outDir,overwrite)
+function convertDir(dirPath,outDir,overwrite,includeTif)
 %convertDir Recursivly converts microscope data to tiff files plus metadata
 %           text
 %   Walks through the dirPath and converts all microscope data found in the
@@ -19,6 +19,10 @@ if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
 end
 
+if (~exist('includeTif','var') || isempty(includeTif))
+    includeTif = 0;
+end
+
 folderList = dir(dirPath);
 for i=1:length(folderList)
     if (strcmp(folderList(i).name,'.') || strcmp(folderList(i).name,'..')), continue, end
@@ -29,7 +33,7 @@ for i=1:length(folderList)
         ind = strfind(folderList(i).name,'.');
         exten = folderList(i).name(ind(end)+1:end);
         if (strcmpi(exten,'lif') || strcmpi(exten,'lsm') || strcmpi(exten,'zvi') ||...
-                strcmpi(exten,'oif') || strcmpi(exten,'tif'))
+                strcmpi(exten,'oif') || (strcmpi(exten,'tif') && includeTif))
             fprintf('%s ...\n',fullfile(dirPath,folderList(i).name));
             tic
             readMicroscopeData(dirPath,folderList(i).name,outDir,overwrite);
