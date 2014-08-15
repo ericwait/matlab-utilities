@@ -44,9 +44,21 @@ for series=1:size(data,1)
     imageData.ZDimension = safeGetValue(metadata.getPixelsSizeZ(series-1));
     imageData.NumberOfChannels = metadata.getChannelCount(series-1);
     imageData.NumberOfFrames = safeGetValue(metadata.getPixelsSizeT(series-1));
+    
     imageData.XPixelPhysicalSize = safeGetValue(metadata.getPixelsPhysicalSizeX(series-1));
+    if imageData.XPixelPhysicalSize==0
+        imageData.XPixelPhysicalSize = 1;
+    end
+    
     imageData.YPixelPhysicalSize = safeGetValue(metadata.getPixelsPhysicalSizeY(series-1));
+    if imageData.YPixelPhysicalSize==0
+        imageData.YPixelPhysicalSize = 1;
+    end
+    
     imageData.ZPixelPhysicalSize = safeGetValue(metadata.getPixelsPhysicalSizeZ(series-1));
+    if imageData.ZPixelPhysicalSize==0
+        imageData.ZPixelPhysicalSize = 1;
+    end
     if (metadata.getPlaneCount(series-1)>0)
         imageData.XPosition = double(metadata.getPlanePositionX(series-1,0));
         imageData.YPosition = double(metadata.getPlanePositionY(series-1,0));
