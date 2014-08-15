@@ -99,13 +99,13 @@ end
 switch order(4)
     case 'Z'
         ind = ind + (z-1)*mul;
-        mul = imageData.ZDimension;
+        mul = imageData.ZDimension*mul;
     case 'C'
         ind = ind + (c-1)*mul;
-        mul = imageData.NumberOfChannels;
+        mul = imageData.NumberOfChannels*mul;
     case 'T'
         ind = ind + (t-1)*mul;
-        mul = imageData.NumberOfFrames;
+        mul = imageData.NumberOfFrames*mul;
 end
 
 switch order(5)
