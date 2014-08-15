@@ -16,7 +16,9 @@ fprintf(fileHandle,'NumberOfChannels:%d\n',imageData.NumberOfChannels);
 if (isfield(imageData,'ChannelColors'))
     fprintf(fileHandle,'ChannelColors:');
     if (size(imageData.ChannelColors,1)==1)
-        fprintf(fileHandle,'%s,',imageData.ChannelColors);
+        if (~isempty(imageData.ChannelColors))
+            fprintf(fileHandle,'%s,',imageData.ChannelColors);
+        end
     else
         for i=1:length(imageData.ChannelColors)
             fprintf(fileHandle,'%s,',imageData.ChannelColors{i});
