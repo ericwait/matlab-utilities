@@ -27,6 +27,8 @@ if (strcmp(id,'MATLAB:MKDIR:DirectoryExists') && overwrite==0)
     return;
 end
 
+fprintf('%s\n-->%s\n',fullfile(orgPathName,orgFileName),fullfile(outDir,orgName));
+
 try
     data = bfopen(fullfile(orgPathName,orgFileName));
 catch err
