@@ -1,4 +1,4 @@
-function [im, imageData] = tiffReader(type,chanList,timeList,zList,path)
+function [im, imageData] = tiffReader(outType,chanList,timeList,zList,path)
 im = [];
 imageData = [];
 
@@ -22,26 +22,26 @@ if (~exist('zList','var') || isempty(zList))
     zList = 1:imageData.ZDimension;
 end
 
-if (~exist('type','var') || isempty(type))
+if (~exist('outType','var') || isempty(outType))
     imInfo = imfinfo(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'tif');
     bytes = imInfo.BitDepth/8;
     if (imInfo.BitDepth==8)
-        type = 'uint8';
+        outType = 'uint8';
     elseif (imInfo.BitDepth==16)
-        type = 'uint16';
+        outType = 'uint16';
     elseif (imInfo.BitDepth==32)
-        type = 'uint32';
+        outType = 'uint32';
     else
-        type = 'double';
+        outType = 'double';
     end
-elseif (strcmp(type,'double'))
+elseif (strcmp(outType,'double'))
     bytes=8;
-    type = 'double';
-elseif (strcmp(type,'uint32') || strcmp(type,'int32') || strcmp(type,'single'))
+    outType = 'double';
+elseif (strcmp(outType,'uint32') || strcmp(outType,'int32') || strcmp(outType,'single'))
     bytes=4;
-elseif (strcmp(type,'uint16') || strcmp(type,'int16'))
+elseif (strcmp(outType,'uint16') || strcmp(outType,'int16'))
     bytes=2;
-elseif (strcmp(type,'uint8'))
+elseif (strcmp(outType,'uint8'))
     bytes=1;
 else
     error('Unsupported Type');
@@ -52,9 +52,9 @@ typ = whos('imType');
 clear imType
 
 imtemp = zeros(imageData.YDimension,imageData.XDimension,length(zList),typ.class);
-im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),type);
+im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
 
-fprintf('Type:%s ',type);
+fprintf('Type:%s ',outType);
 fprintf('(');
 fprintf('%d',size(im,2));
 fprintf(',%d',size(im,1));
@@ -73,7 +73,7 @@ for t=1:length(timeList)
                 fprintf('\n****%s: %s\n',fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),err.identifier);
             end
         end
-        im(:,:,:,c,t) = imageConvert(imtemp,type);
+        im(:,:,:,c,t) = imageConvert(imtemp,outType);
     end
 end
 
