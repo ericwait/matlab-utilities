@@ -12,7 +12,7 @@ else
         case 'uint8'
             imtemp = imageIn ./ (2^8-1);
         case 'uint16'
-            if (max(imageIn(:))==2^12-1)
+            if (max(imageIn(:))<=2^12-1)
                 imtemp = imageIn ./(2^12-1);
             else
                 imtemp = imageIn ./ (2^16-1);
