@@ -63,6 +63,15 @@ end
 if (isfield(imageData,'ZLength'))
     fprintf(fileHandle,'ZLength:%f\n',imageData.ZLength);
 end
+if (isfield(imageData,'TimeStampDeltas'))
+    for t=1:imageData.NumberOfFrames
+        for z=1:imageData.ZDimension
+            for c=1:imageData.NumberOfChannels
+                fprintf(fileHandle,'TimeStampDelta(%d,%d,%d):%f\n',c,t,z,imageData.TimeStampDeltas(z,c,t));
+            end
+        end
+    end
+end
 fclose(fileHandle);
 
 fprintf('Done\n');

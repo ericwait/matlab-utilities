@@ -64,6 +64,14 @@ for k=1:length(data{1})
     if (isnan(val))
         val = data{2}{k};
     end
-    imageDatum.(data{1}{k}) = val;
+    if (any(strfind(data{1}{k},'TimeStampDelta')))
+        if (~isfield(imageDatum,'TimeStampDeltas'))
+            imageDatum.TimeStampDeltas = zeros(imageDatum.ZDimension,imageDatum.NumberOfChannels,imageDatum.NumberOfFrames);
+        end
+        plane = textscan(data{1}{k},'TimeStampDeltas(%d,%d,%d)%s');
+        imageDatum.TimeStampDeltas(plane{1},plane{2},plane{3}) = val;
+    else
+        imageDatum.(data{1}{k}) = val;
+    end
 end
 end
