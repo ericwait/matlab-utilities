@@ -67,15 +67,48 @@ for series=1:size(data,1)
         imageData.ZPosition = double(metadata.getPlanePositionZ(series-1,0));
     end
     
-    imageData.ChannelColors = char(metadata.getChannelName(series-1,0));
-    for c=1:imageData.NumberOfChannels-1
-        imageData.ChannelColors = [imageData.ChannelColors; {char(metadata.getChannelName(series-1,c))}];
+    imageData.ChannelColors = {};
+    for c=0:imageData.NumberOfChannels-1
+        if (~isempty(char(metadata.getChannelName(series-1,c))))
+            imageData.ChannelColors = [imageData.ChannelColors; {char(metadata.getChannelName(series-1,c))}];
+        end
     end
     
     imageData.TimeStampDeltas = zeros(imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames);
     
-    im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,...
-        imageData.NumberOfFrames,char(metadata.getPixelsType(series-1)));
+    switch char(metadata.getPixelsType(series-1))
+        case 'uint8'
+            bit = 8;
+        case 'uint16'
+            bit = 16;
+        case 'uint32'
+            bit = 32;
+        case 'int32'
+            bit = 32;
+        case 'single'
+            bit = 32;
+        case 'double'
+            bit = 64;
+        otherwise
+            error('Unknown bit depth!');
+    end
+    
+    bitsNeeded = imageData.YDimension*imageData.XDimension*imageData.ZDimension*imageData.NumberOfChannels*...
+        imageData.NumberOfFrames*bit;
+    [~, systemview] = memory;
+    if (systemview.PhysicalMemory.Available - bitsNeeded < 0)
+        perPlane = 1;
+    else
+        perPlane = 0;
+    end
+    
+    if (perPlane)
+        createMetadata(fullfile(outDir,orgName,imageData.DatasetName),imageData);
+        im = zeros(imageData.YDimension,imageData.XDimension,char(metadata.getPixelsType(series-1)));
+    else
+        im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,...
+            imageData.NumberOfFrames,char(metadata.getPixelsType(series-1)));
+    end
     
     order = char(metadata.getPixelsDimensionOrder(series-1));
     imData = data{series,1};
@@ -83,17 +116,25 @@ for series=1:size(data,1)
         for z=1:imageData.ZDimension
             for c=1:imageData.NumberOfChannels
                 ind = calcPlaneInd(order,z,c,t,imageData);
-                im(:,:,z,c,t) = imData{ind,1};
-                delta = metadata.getPlaneDeltaT(series-1,ind-1);
-                if (~isempty(delta)) %hack for lsm
-                    imageData.TimeStampDeltas(z,c,t) = delta;
+                if perPlane
+                    fileName = sprintf('%s_c%02d_t%04d_z%04d.tif',fullfile(outDir,orgName,imageData.DatasetName,...
+                        imageData.DatasetName),c,t,z);
+                    imwrite(image2uint(imData{ind,1}),fileName,'tif','Compression','lzw');
+                else
+                    im(:,:,z,c,t) = imData{ind,1};
+                    delta = metadata.getPlaneDeltaT(series-1,ind-1);
+                    if (~isempty(delta)) %hack for lsm
+                        imageData.TimeStampDeltas(z,c,t) = delta;
+                    end
                 end
             end
         end
     end
     
-    tiffWriter(im,fullfile(outDir,orgName,imageData.DatasetName,imageData.DatasetName),imageData)
-    clear im
+    if ~perPlane
+        tiffWriter(im,fullfile(outDir,orgName,imageData.DatasetName,imageData.DatasetName),imageData)
+        clear im
+    end
 end
 end
 
