@@ -27,6 +27,10 @@ else
             imtemp = (imageIn+abs(min(imageIn(:)))) ./ max(imageIn(:));
         case 'double'
             imtemp = (imageIn+abs(min(imageIn(:)))) ./ max(imageIn(:));
+        case 'logical'
+            imtemp = imageIn;
+        otherwise
+            error('Unkown type of image to convert!');
     end
     
     switch typ
@@ -52,6 +56,10 @@ else
             imageOut = single(imtemp);
         case 'double'
             imageOut = imtemp;
+        case 'logical'
+            imageOut = imtemp>0;
+        otherwise
+            error('Unkown type of image to convert to!');
     end
     clear imtemp
 end
