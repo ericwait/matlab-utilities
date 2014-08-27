@@ -74,6 +74,11 @@ for series=1:size(data,1)
         end
     end
     
+    imageData.StartCaptureDate = safeGetValue(metadata.getImageAcquisitionDate(series-1));
+    ind = find(imageData.StartCaptureDate,':');
+    if (~isempty(ind))
+        imageData.StartCaptureDate(ind) = '.';
+    end
     imageData.TimeStampDeltas = zeros(imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames);
     
     switch char(metadata.getPixelsType(series-1))

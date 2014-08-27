@@ -65,6 +65,11 @@ end
 if (isfield(imageData,'ZLength'))
     fprintf(fileHandle,'ZLength:%f\n',imageData.ZLength);
 end
+
+if (isfield(imageData,'StartCaptureDate'))
+    fprintf(fileHandle,'StartCaptureDate:%s\n',imageData.StartCaptureDate);
+end
+
 if (isfield(imageData,'TimeStampDeltas'))
     for t=1:imageData.NumberOfFrames
         for z=1:imageData.ZDimension
