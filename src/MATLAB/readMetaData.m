@@ -18,6 +18,7 @@ elseif (~isempty(strfind(root,'.txt')))
     imageData = readfile(fileHandle);
     pos = strfind(root,'\');
     rootDir = root(1:pos(end));
+    imageData.imageDir = rootDir;
     return
 else
     rootDir = root;
@@ -46,7 +47,9 @@ for i=1:length(dlist)
             imageData(length(imageData)+1) = imageDatum;
         end
     end
+    imageData.imageDir = fullfile(rootDir,dlist(i).name);
 end
+rootDir = imageData.imageDir;
 end
 
 function imageDatum = readfile(fileHandle)
