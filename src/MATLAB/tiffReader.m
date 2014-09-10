@@ -73,7 +73,13 @@ for t=1:length(timeList)
                 fprintf('\n****%s: %s\n',fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),err.identifier);
             end
         end
-        im(:,:,:,c,t) = imageConvert(imtemp,outType);
+        w = whos('imtemp');
+        
+        if (strcmpi(w.class,outType))
+            im(:,:,:,c,t) = imtemp;
+        else
+            im(:,:,:,c,t) = imageConvert(imtemp,outType);
+        end
     end
 end
 
