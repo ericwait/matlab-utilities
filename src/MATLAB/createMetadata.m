@@ -15,10 +15,9 @@ fprintf(fileHandle,'NumberOfChannels:%d\n',imageData.NumberOfChannels);
 
 if (isfield(imageData,'ChannelColors'))
     fprintf(fileHandle,'ChannelColors:');
-    if (size(imageData.ChannelColors,1)==1)
-        if (~isempty(imageData.ChannelColors))
-            fprintf(fileHandle,'%s,',imageData.ChannelColors);
-        end
+
+    if (size(imageData.ChannelColors,1)==1 && ~iscell(imageData.ChannelColors))
+        fprintf(fileHandle,'%s,',imageData.ChannelColors);
     else
         for i=1:length(imageData.ChannelColors)
             fprintf(fileHandle,'%s,',imageData.ChannelColors{i});
