@@ -47,7 +47,11 @@ for i=1:length(dlist)
             imageData(length(imageData)+1) = imageDatum;
         end
     end
-    imageData.imageDir = fullfile(rootDir,dlist(i).name);
+    if strcmpi('.',dlist(i).name)
+        imageData.imageDir = rootDir;
+    else
+        imageData.imageDir = fullfile(rootDir,dlist(i).name);
+    end
 end
 rootDir = imageData.imageDir;
 end
@@ -77,4 +81,5 @@ for k=1:length(data{1})
         imageDatum.(data{1}{k}) = val;
     end
 end
+imageData.imageDir = '.';
 end
