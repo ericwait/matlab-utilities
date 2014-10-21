@@ -36,7 +36,7 @@ for t=1:frames
     end
 end
 
-fprintf('Wrote %s_c%d_t%d_z%d.tif\n',prefix,channels,frames,stacks);
+fprintf('Wrote %s_c%02d_t%d_z%d.tif\n',prefix,channels,frames,stacks);
 
 end
 
