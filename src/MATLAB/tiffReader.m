@@ -22,6 +22,28 @@ if (~exist('zList','var') || isempty(zList))
     zList = 1:imageData.ZDimension;
 end
 
+if (~exist(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'file'))
+    if (exist(fullfile(path,sprintf('%s_c%d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'file'))
+        answer = questdlg('Files need a zero padded channel, rename?','Rename','Yes','No','Yes');
+        switch answer
+            case 'Yes'
+                for c=1:imageData.NumberOfChannels
+                    for t=1:imageData.NumberOfFrames
+                        for z=1:imageData.ZDimension
+                            movefile(fullfile(path,sprintf('%s_c%d_t%04d_z%04d.tif',imageData.DatasetName,c,t,z)),...
+                                fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,c,t,z)));
+                        end
+                    end
+                end
+            case 'No'
+                warning('Unable to read images');
+                return
+        end
+    else
+        error('Unable to read images');
+    end
+end
+
 if (~exist('outType','var') || isempty(outType))
     imInfo = imfinfo(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'tif');
     bytes = imInfo.BitDepth/8;
