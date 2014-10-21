@@ -1,3 +1,9 @@
+% TIFFREADER takes the optional arguments of:
+% outType = the data type of image that you would like
+% chanList = a list of the channels you would like to recive
+% timeList = a list of frames that you would like to recive
+% zList = a list of the stacks that you would like to recive
+% path = the path to the meta data file
 function [im, imageData] = tiffReader(outType,chanList,timeList,zList,path)
 im = [];
 imageData = [];
