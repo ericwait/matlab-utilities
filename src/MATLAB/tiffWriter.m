@@ -27,13 +27,11 @@ else
     stacks = sizes(3);
 end
 
-imUint = image2uint(im);
-
 for t=1:frames
     for c=1:channels
         for z=1:stacks
             fileName = sprintf('%s_c%02d_t%04d_z%04d.tif',prefix,c,t,z);
-            imwrite(imUint(:,:,z,c,t),fileName,'tif','Compression','lzw');
+            imwrite(im(:,:,z,c,t),fileName,'tif','Compression','lzw');
         end
     end
 end
