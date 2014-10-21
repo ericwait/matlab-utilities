@@ -1,4 +1,4 @@
-function readMicroscopeData(dirIn, fileNameIn, dirOut,overwrite)
+function readMicroscopeData(dirIn, fileNameIn, dirOut, overwrite)
 if (~exist('dirIn','var') || ~exist('fileNameIn','var') || isempty(dirIn) || isempty(fileNameIn))
     [orgFileName,orgPathName,~] = uigetfile('*.*','Select Microscope Data');
     if (orgFileName==0), return, end
@@ -141,6 +141,7 @@ for series=1:size(data,1)
         clear im
     end
 end
+system(sprintf('dir /B /O:N %s > %s',fullfile(outDir,orgName),fullfile(outDir,orgName,'list.txt')));
 end
 
 function ind = calcPlaneInd(order,z,c,t,imageData)
