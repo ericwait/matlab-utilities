@@ -30,7 +30,11 @@ while (true)
     fprintf('%d)%s, ',length(singlePosFiles),singlePosFiles(end).name);
 end
 
-if isempty(singlePosFiles), disp('No Files...Exiting!'), return, end
+if isempty(singlePosFiles), disp('No Files...Exiting!')
+    factors = [];
+    unmixFactors = [];
+    return
+end
 
 qstring = '';
 for i=1:length(singlePosFiles)
