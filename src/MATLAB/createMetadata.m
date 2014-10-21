@@ -28,8 +28,6 @@ end
 
 fprintf(fileHandle,'NumberOfFrames:%d\n',imageData.NumberOfFrames);
 
-% fprintf(fileHandle,'XDimension:%d\n',imageData.yDim);
-% fprintf(fileHandle,'YDimension:%d\n',imageData.xDim);
 fprintf(fileHandle,'XDimension:%d\n',imageData.XDimension);
 fprintf(fileHandle,'YDimension:%d\n',imageData.YDimension);
 fprintf(fileHandle,'ZDimension:%d\n',imageData.ZDimension);
