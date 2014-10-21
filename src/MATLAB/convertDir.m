@@ -32,7 +32,7 @@ for i=1:length(folderList)
     else
         ind = strfind(folderList(i).name,'.');
         exten = folderList(i).name(ind(end)+1:end);
-        if (strcmpi(exten,'lif') || strcmpi(exten,'lsm') || strcmpi(exten,'zvi') ||...
+        if (strcmpi(exten,'lif') || strcmpi(exten,'lsm') || strcmpi(exten,'zvi') || strcmpi(exten,'nd2') ||...
                 strcmpi(exten,'oif') || (strcmpi(exten,'tif') && includeTif))
             fprintf('%s ...\n',fullfile(dirPath,folderList(i).name));
             tic
