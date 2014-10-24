@@ -4,12 +4,17 @@
 % timeList = a list of frames that you would like to recive
 % zList = a list of the stacks that you would like to recive
 % path = the path to the meta data file
-function [im, imageData] = tiffReader(outType,chanList,timeList,zList,path)
+% quite = if set to 1 then size stats will not be printed
+function [im, imageData] = tiffReader(outType,chanList,timeList,zList,path,quite)
 im = [];
 imageData = [];
 
 if (~exist('path','var') || ~exist(path,'file'))
     path = [];
+end
+
+if (~exist('quite','var') || isempty(quite))
+    quite = 0;
 end
 
 [imageData,path] = readMetaData(path);
@@ -82,15 +87,17 @@ clear imType
 imtemp = zeros(imageData.YDimension,imageData.XDimension,length(zList),typ.class);
 im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
 
-fprintf('Type:%s ',outType);
-fprintf('(');
-fprintf('%d',size(im,2));
-fprintf(',%d',size(im,1));
-for i=3:length(size(im))
-    fprintf(',%d',size(im,i));
+if (quite~=1)
+    fprintf('Type:%s ',outType);
+    fprintf('(');
+    fprintf('%d',size(im,2));
+    fprintf(',%d',size(im,1));
+    for i=3:length(size(im))
+        fprintf(',%d',size(im,i));
+    end
+    
+    fprintf(') %5.2fMB\n', (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
 end
-
-fprintf(') %5.2fMB\n', (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
 
 for t=1:length(timeList)
     for c=1:length(chanList)
