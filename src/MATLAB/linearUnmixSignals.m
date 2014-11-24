@@ -1,4 +1,4 @@
-function [ factors, unmixFactors ] = linearUnmixSignals(showPlots)
+function [ factors, unmixFactors ] = linearUnmixSignals(showPlots,zeroChannels)
 %LINEARUNMIXSIGNALS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -54,6 +54,9 @@ maxVal = [];
 factors = zeros(length(singlePosFiles),length(singlePosFiles),2);
 for stain=1:length(singlePosFiles)
     imSinglePos = tiffReader('single',[],[],[],singlePosFiles(stain).path);
+    if (~isempty(zeroChannels) && ~any(zeroChannels==stain))
+        imSinglePos(:,:,:,zeroChannels) = zeros(size(imSinglePos(:,:,:,zeroChannels)),'like',imSinglePos);
+    end
     imStain = imSinglePos(:,:,:,stain,:);
     imStain = [imStain(:) ones(length(imStain(:)),1)];
     for chan=1:length(singlePosFiles)
