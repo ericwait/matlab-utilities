@@ -13,7 +13,6 @@ end
 [ factors, unmixFactors ] = linearUnmixSignals(showPlots,removeChannels);
 if isempty(factors)
     warning('Mixed factors are empty!');
-    toc
     return
 end
 
@@ -35,19 +34,30 @@ else
     return
 end
 
-tic
-for i=1:length(folderList)
-    %%read in a mixed image
-    [imMixed, imageData] = tiffReader([],[],[],[],folderList{i});
-    
-    %% unmix
-    cudaOut = CudaMex_d('LinearUnmixing',imMixed,unmixFactors);
-    
-    w = whos('imMixed');
+[imMixedTest, ~] = tiffReader([],[],[],[],folderList{1});
+w = whos('imMixedTest');
+clear('imMixedTest');
 
-    tiffWriter(imageConvert(cudaOut,w.class),...
-        fullfile(sprintf('%s%s',imageData.imageDir,'_unmixed'),imageData.DatasetName),imageData);
+delete(gcp('nocreate'));
+
+parpool(2)
+
+tic
+spmd
+    for i=1:numlabs:length(folderList)
+        %%read in a mixed image
+        [imMixed, imageData] = tiffReader([],[],[],[],folderList{i});
+        
+        %% unmix
+        cudaOut = CudaMex('LinearUnmixing',imMixed,unmixFactors);
+        
+        tiffWriter(imageConvert(cudaOut,w.class),...
+            fullfile(sprintf('%s%s',imageData.imageDir,'_unmixed'),imageData.DatasetName),imageData);
+    end
 end
-toc
+tm = toc;
+fprintf('Unmixing took %s for %d images, avg %s\n',printTime(tm),length(folderList),printTime(tm/length(folderList)));
+
+delete(gcp);
 end
 
