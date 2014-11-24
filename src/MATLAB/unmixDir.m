@@ -51,7 +51,7 @@ spmd
         %% unmix
         cudaOut = CudaMex('LinearUnmixing',imMixed,unmixFactors);
         
-        tiffWriter(imageConvert(cudaOut,w.class),...
+        tiffWriter(imageConvertNorm(cudaOut,[],w.class,0),...
             fullfile(sprintf('%s%s',imageData.imageDir,'_unmixed'),imageData.DatasetName),imageData);
     end
 end
