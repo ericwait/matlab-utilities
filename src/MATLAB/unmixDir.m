@@ -1,4 +1,4 @@
-function [ factors, unmixFactors ] = unmixDir(showPlots, folderList)
+function [ factors, unmixFactors ] = unmixDir(showPlots, folderList, removeChannels)
 %UNMIXDIR Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,8 +6,11 @@ function [ factors, unmixFactors ] = unmixDir(showPlots, folderList)
 if ~exist('showPlots','var') || isempty(showPlots)
     showPlots = 0;
 end
+if ~exist('removeChannels')
+    removeChannels = [];
+end
 
-[ factors, unmixFactors ] = linearUnmixSignals(showPlots);
+[ factors, unmixFactors ] = linearUnmixSignals(showPlots,removeChannels);
 if isempty(factors)
     warning('Mixed factors are empty!');
     toc
