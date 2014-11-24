@@ -1,5 +1,9 @@
 function tiffWriter(im,prefix,imageData)
 
+idx = strfind(prefix,'"');
+prefix(idx) = [];
+idx = strfind(imageData.DatasetName,'"');
+imageData.DatasetName(idx) = [];
 if (exist('imageData','var') && ~isempty(imageData))
     idx = strfind(prefix,'\');
     if (isempty(idx))
