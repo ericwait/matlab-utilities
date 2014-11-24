@@ -37,7 +37,7 @@ for i=1:length(folderList)
             fprintf('%s ...\n',fullfile(dirPath,folderList(i).name));
             tic
             readMicroscopeData(dirPath,folderList(i).name,outDir,overwrite);
-            fprintf('took %f sec\n\n',toc);
+            fprintf('took %s\n\n',printTime(toc));
         end
     end
 end
