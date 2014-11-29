@@ -3,57 +3,22 @@ function [imageData,rootDir] = readMetaData(root)
 imageData = [];
 rootDir = [];
 
-if (~exist('root','var') || isempty(root))
-    rootDir = uigetdir('');
-    if rootDir==0,
-        [fileName,rootDir,filterIndex] = uigetfile('.txt');
-        if (filterIndex~=0)
-            fileHandle = fopen(fullfile(rootDir,fileName));
-            imageData = readfile(fileHandle);
-        end
+if (~exist('root','var') || isempty(root)|| isempty(strfind(root,'.txt')))
+    [fileName,rootDir,filterIndex] = uigetfile(fullfile(root,'.txt'));
+    if (filterIndex==0)
         return
     end
-elseif (~isempty(strfind(root,'.txt')))
-    fileHandle = fopen(root);
-    imageData = readfile(fileHandle);
+    root = fullfile(rootDir,fileName);
+end
+
+fileHandle = fopen(root);
+imageData = readfile(fileHandle);
+if (isempty(rootDir))
     pos = strfind(root,'\');
     rootDir = root(1:pos(end));
-    imageData.imageDir = rootDir;
-    return
-else
-    rootDir = root;
 end
 
-imageData = [];
-dlist = dir(rootDir);
-
-for i=1:length(dlist)
-    if (strcmp('..',dlist(i).name))
-        continue;
-    end
-    
-    dSublist = dir(fullfile(rootDir,dlist(i).name,'*.txt'));
-    if isempty(dSublist), continue, end
-    
-    for j=1:length(dSublist)
-        fileHandle = fopen(fullfile(rootDir,dlist(i).name,dSublist(j).name));
-        imageDatum = readfile(fileHandle);
-        
-        if (isempty(imageDatum)), continue, end
-        
-        if (isempty(imageData))
-            imageData = imageDatum;
-        else
-            imageData(length(imageData)+1) = imageDatum;
-        end
-    end
-    if strcmpi('.',dlist(i).name)
-        imageData.imageDir = rootDir;
-    else
-        imageData.imageDir = fullfile(rootDir,dlist(i).name);
-    end
-end
-rootDir = imageData.imageDir;
+imageData.imageDir = rootDir;
 end
 
 function imageDatum = readfile(fileHandle)
@@ -77,7 +42,7 @@ for k=1:length(data{1})
         end
         plane = textscan(data{1}{k},'TimeStampDeltas(%d,%d,%d)%s');
         imageDatum.TimeStampDeltas(plane{1},plane{2},plane{3}) = val;
-    else
+    elseif (~isempty(val))
         imageDatum.(data{1}{k}) = val;
     end
 end
