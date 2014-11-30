@@ -1,5 +1,9 @@
-function [ imageOut ] = imageConvertNorm( imageIn, imageData, typ, normalize)
-%IMAGECONVERT converts image from current type into the specified type
+% IMAGECONVERT converts image from current type into the specified type
+% If normalize==1 then the passed in image will be set between [0,1] prior
+% to conversion.
+% Assumes a 5D image of (rows,col,z,channels,time)
+
+function [ imageOut ] = imageConvertNorm(imageIn, typ, normalize)
 
 if (~exist('normalize','var') || isempty(normalize))
     normalize = 0;
@@ -8,8 +12,8 @@ end
 imageOut = zeros(size(imageIn),typ);
 
 if (normalize)
-    for t=1:imageData.NumberOfFrames
-        for c=1:imageData.NumberOfChannels
+    for t=1:size(imageIn,5)
+        for c=1:size(imageIn,4)
             imTemp = double(imageIn(:,:,:,c,t));
             imTemp = imTemp-min(imTemp(:));
             imTemp = imTemp./max(imTemp(:));
