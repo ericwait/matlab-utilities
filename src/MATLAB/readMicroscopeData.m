@@ -98,23 +98,23 @@ for series=1:size(data,1)
             error('Unknown bit depth!');
     end
     
-    bitsNeeded = imageData.YDimension*imageData.XDimension*imageData.ZDimension*imageData.NumberOfChannels*...
-        imageData.NumberOfFrames*bit;
-    [~, systemview] = memory;
-    if (systemview.PhysicalMemory.Available - bitsNeeded < 0)
-        perPlane = 1;
-    else
+%     bitsNeeded = imageData.YDimension*imageData.XDimension*imageData.ZDimension*imageData.NumberOfChannels*...
+%         imageData.NumberOfFrames*bit;
+%     [~, systemview] = memory;
+%     if (systemview.PhysicalMemory.Available - bitsNeeded < 0)
+%         perPlane = 1;
+%     else
         perPlane = 0;
-    end
-    
-    if (perPlane)
-        createMetadata(fullfile(outDir,orgName,imageData.DatasetName),imageData);
+%     end
+%     
+%     if (perPlane)
+%         createMetadata(fullfile(outDir,orgName,imageData.DatasetName),imageData);
         im = zeros(imageData.YDimension,imageData.XDimension,char(metadata.getPixelsType(series-1)));
-    else
-        im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,...
-            imageData.NumberOfFrames,char(metadata.getPixelsType(series-1)));
-    end
-    
+%     else
+%         im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,...
+%             imageData.NumberOfFrames,char(metadata.getPixelsType(series-1)));
+%     end
+%     
     order = char(metadata.getPixelsDimensionOrder(series-1));
     imData = data{series,1};
     for t=1:imageData.NumberOfFrames
