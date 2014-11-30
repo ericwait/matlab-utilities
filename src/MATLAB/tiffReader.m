@@ -1,50 +1,79 @@
-% TIFFREADER takes the optional arguments of:
-% outType = the data type of image that you would like
-% chanList = a list of the channels you would like to recive
-% timeList = a list of frames that you would like to recive
-% zList = a list of the stacks that you would like to recive
-% path = the path to the meta data file
-% quite = if set to 1 then size stats will not be printed
-% im = image created from reading in all of the data and can be indexed as
-% (Y,X,Z,C,T) : c = channel, t = frame
-function [im, imageData] = tiffReader(outType,chanList,timeList,zList,path,quite)
+% [IM, IMAGEDATA] = TIFFREADER(PATH, TIMELIST, CHANLIST, ZLIST, OUTTYPE, NORMALIZE, QUITE)
+% ALL arguments are optional; pass in empty [] for the arguments that come
+% prior to the one you would like to populate.
+%
+% PATH = the path to the meta data file
+% TIMELIST = a list of frames that you would like to recive
+% CHANLIST = a list of the channels you would like to recive
+% ZLIST = a list of the stacks that you would like to recive
+% OUTTYPE = the data type of image that you would like
+% NORMALIZE = normalize each image per channel per frame. Meaning that for
+%   each frame, every channel will be normalized independently.
+% QUITE = if set to 1 then size stats will not be printed
+%
+% Outputs:
+% IM = is a 5-D image of either the orginal type or the type requested.
+% The data and can be indexed as (Y,X,Z,C,T) : c = channel, t = frame.
+% IMAGEDATA = Optionaly the metadata can be the second output argument
+
+function [im, varargout] = tiffReader(path, timeList, chanList, zList, outType, normalize, quite)
 im = [];
-imageData = [];
 
- if (exist('tifflib') ~= 3)
-     tifflibLocation = which('/private/tifflib');
-     if (isempty(tifflibLocation))
-         error('tifflib does not exits on this machine!');
-     end
-     copyfile(tifflibLocation,'.');
- end
-
-if (~exist('path','var') || ~exist(path,'file'))
-    path = [];
+if (exist('tifflib') ~= 3)
+    tifflibLocation = which('/private/tifflib');
+    if (isempty(tifflibLocation))
+        error('tifflib does not exits on this machine!');
+    end
+    copyfile(tifflibLocation,'.');
 end
 
+if (~exist('path','var') || isempty(path))
+    path = [];
+end
+if (~exist('timeList','var') || isempty(timeList))
+    timeList = [];
+end
+if (~exist('chanList','var') || isempty(chanList))
+    chanList = [];
+end
+if (~exist('zList','var') || isempty(zList))
+    zList = [];
+end
+if (~exist('outType','var') || isempty(outType))
+    outType = [];
+end
+if (~exist('normalize','var') || isempty(normalize))
+    normalize = false;
+else
+    normalize = logical(normalize);
+end
 if (~exist('quite','var') || isempty(quite))
-    quite = 0;
+    quite = false;
+else
+    quite = logical(quite);
 end
 
 [imageData,path] = readMetaData(path);
 if (isempty(imageData))
     warning('No image read!');
+    if (nargout)
+        varargout{1} = [];
+    end
     return
 end
 
-if (~exist('chanList','var') || isempty(chanList))
+if (isempty(chanList))
     chanList = 1:imageData.NumberOfChannels;
 end
-if (~exist('timeList','var') || isempty(timeList))
+if (isempty(timeList))
     timeList = 1:imageData.NumberOfFrames;
 end
-if (~exist('zList','var') || isempty(zList))
+if (isempty(zList))
     zList = 1:imageData.ZDimension;
 end
 
 imInfo = imfinfo(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'tif');
-if (~exist('outType','var') || isempty(outType))
+if (isempty(outType))
     bytes = imInfo(1).BitDepth/8;
     if (imInfo(1).BitDepth==8)
         outType = 'uint8';
@@ -117,6 +146,12 @@ end
 
 im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
 
+convert = false;
+if (~strcmpi(inType,outType) || normalize)
+    convert = true;
+    tempIm = zeros(imageData.YDimension,imageData.XDimension,length(zList),inType);
+end
+
 if (quite~=1)
     fprintf('Type:%s ',outType);
     fprintf('(');
@@ -129,8 +164,6 @@ if (quite~=1)
     fprintf(') %5.2fMB\n', (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
 end
 
-% fHand = tifflib('open',fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'r');
-% rowsPerStrip = tifflib('getField',fHand,Tiff.TagID.RowsPerStrip);
 tiffObj = Tiff(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'r');
 
 for t=1:imageData.NumberOfFrames
@@ -144,18 +177,27 @@ for t=1:imageData.NumberOfFrames
             stack = find(zList==z);
             if (isempty(stack)), continue, end
             
-%             tifflib('setDirectory',fHand,z + (c-1)*imageData.ZDimension + (t-1)*imageData.NumberOfChannels*imageData.ZDimension);
-%             rowsPerStrip = min(rowsPerStrip,imageData.YDimension);
-%             for r = 1:rowsPerStrip:imageData.YDimension
-%                 rowIdx = r:min(imageData.YDimension,r+rowsPerStrip-1);
-%                 stripNum = tifflib('computeStrip',fHand,r);
-%                 im(rowIdx,:,stack,chan,frame) = tifflib('readEncodedStrip',stripNum,fHand);
-%             end
             curDir = z + (c-1)*imageData.ZDimension + (t-1)*imageData.NumberOfChannels*imageData.ZDimension;
             tiffObj.setDirectory(curDir);
-            im(:,:,stack,chan,frame) = tiffObj.read();
+            if (convert)
+                tempIm(:,:,stack) = tiffObj.read();
+            else
+                im(:,:,stack,chan,frame) = tiffObj.read();
+            end
+        end
+        
+        if (convert)
+            im(:,:,:,chan,frame) = imageConvertNorm(tempIm,outType,normalize);
         end
     end
 end
 tiffObj.close();
+
+if (convert)
+    clear tempIm;
+end
+
+if (nargout)
+    varargout{1} = imageData;
+end
 end
