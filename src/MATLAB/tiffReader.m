@@ -11,6 +11,14 @@ function [im, imageData] = tiffReader(outType,chanList,timeList,zList,path,quite
 im = [];
 imageData = [];
 
+ if (exist('tifflib') ~= 3)
+     tifflibLocation = which('/private/tifflib');
+     if (isempty(tifflibLocation))
+         error('tifflib does not exits on this machine!');
+     end
+     copyfile(tifflibLocation,'.');
+ end
+
 if (~exist('path','var') || ~exist(path,'file'))
     path = [];
 end
@@ -35,36 +43,14 @@ if (~exist('zList','var') || isempty(zList))
     zList = 1:imageData.ZDimension;
 end
 
-if (~exist(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'file'))
-    if (exist(fullfile(path,sprintf('%s_c%d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'file'))
-        answer = questdlg('Files need a zero padded channel, rename?','Rename','Yes','No','Yes');
-        switch answer
-            case 'Yes'
-                for c=1:imageData.NumberOfChannels
-                    for t=1:imageData.NumberOfFrames
-                        for z=1:imageData.ZDimension
-                            movefile(fullfile(path,sprintf('%s_c%d_t%04d_z%04d.tif',imageData.DatasetName,c,t,z)),...
-                                fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,c,t,z)));
-                        end
-                    end
-                end
-            case 'No'
-                warning('Unable to read images');
-                return
-        end
-    else
-        error('Unable to read images');
-    end
-end
-
+imInfo = imfinfo(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'tif');
 if (~exist('outType','var') || isempty(outType))
-    imInfo = imfinfo(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'tif');
-    bytes = imInfo.BitDepth/8;
-    if (imInfo.BitDepth==8)
+    bytes = imInfo(1).BitDepth/8;
+    if (imInfo(1).BitDepth==8)
         outType = 'uint8';
-    elseif (imInfo.BitDepth==16)
+    elseif (imInfo(1).BitDepth==16)
         outType = 'uint16';
-    elseif (imInfo.BitDepth==32)
+    elseif (imInfo(1).BitDepth==32)
         outType = 'uint32';
     else
         outType = 'double';
@@ -79,13 +65,55 @@ elseif (strcmp(outType,'uint16') || strcmp(outType,'int16'))
 elseif (strcmp(outType,'uint8'))
     bytes=1;
 else
-    error('Unsupported Type');
+    error('Unsupported output type!');
 end
 
-imType = imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(1),timeList(1),zList(1))),'tif');
-typ = whos('imType');
-clear imType
-inType = typ.class;
+switch imInfo(1).SampleFormat
+    case 'Unsigned integer'
+        frmt = 1;
+    case 'Integer'
+        frmt = 2;
+    case 'IEEEFP'
+        frmt = 3;
+    otherwise
+        error('Unsupported input type!');
+end
+switch imInfo(1).BitDepth
+    case 8
+        if (frmt==1)
+            inType = 'uint8';
+        elseif (frmt==2)
+            inType = 'int8';
+        else
+            error('Unsupported input type!');
+        end
+    case 16
+        if (frmt==1)
+            inType = 'uint16';
+        elseif (frmt==2)
+            inType = 'int16';
+        else
+            error('Unsupported input type!');
+        end
+    case 32
+        if (frmt==1)
+            inType = 'uint32';
+        elseif (frmt==2)
+            inType = 'int32';
+        elseif (frmt==3)
+            inType = 'single';
+        else
+            error('Unsupported input type!');
+        end
+    case 64
+        if (frmt==3)
+            inType = 'double';
+        else
+            error('Unsupported input type!');
+        end
+    otherwise
+        error('Unsupported input type!');
+end
 
 im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
 
@@ -101,25 +129,33 @@ if (quite~=1)
     fprintf(') %5.2fMB\n', (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
 end
 
-datasetName = imageData.DatasetName;
-for t=1:length(timeList)
-    frame = timeList(t);
-    for c=1:length(chanList)
-        chan = chanList(c);
+% fHand = tifflib('open',fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'r');
+% rowsPerStrip = tifflib('getField',fHand,Tiff.TagID.RowsPerStrip);
+tiffObj = Tiff(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'r');
+
+for t=1:imageData.NumberOfFrames
+    frame = find(timeList==t);
+    if (isempty(frame)), continue, end
+    for c=1:imageData.NumberOfChannels
+        chan = find(chanList==c);
+        if (isempty(chan)), continue, end
         
-        for z=1:length(zList)
-            try
-                if (strcmpi(inType,outType))
-                    im(:,:,z,c,t) = imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',datasetName,chan,frame,zList(z))),'tif');
-                else
-                    im(:,:,z,c,t) = imageConvert(imread(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',datasetName,chan,frame,zList(z))),'tif'),outType);
-                end
-            catch err
-                fprintf('\n****%s: %s\n',fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',datasetName,chan,frame,zList(z))),err.identifier);
-            end
+        for z=1:imageData.ZDimension
+            stack = find(zList==z);
+            if (isempty(stack)), continue, end
+            
+%             tifflib('setDirectory',fHand,z + (c-1)*imageData.ZDimension + (t-1)*imageData.NumberOfChannels*imageData.ZDimension);
+%             rowsPerStrip = min(rowsPerStrip,imageData.YDimension);
+%             for r = 1:rowsPerStrip:imageData.YDimension
+%                 rowIdx = r:min(imageData.YDimension,r+rowsPerStrip-1);
+%                 stripNum = tifflib('computeStrip',fHand,r);
+%                 im(rowIdx,:,stack,chan,frame) = tifflib('readEncodedStrip',stripNum,fHand);
+%             end
+            curDir = z + (c-1)*imageData.ZDimension + (t-1)*imageData.NumberOfChannels*imageData.ZDimension;
+            tiffObj.setDirectory(curDir);
+            im(:,:,stack,chan,frame) = tiffObj.read();
         end
     end
 end
-
-clear imtemp
+tiffObj.close();
 end
