@@ -86,7 +86,7 @@ switch w.class
 end
 
 fileName = sprintf('%s.tif',prefix);
-tiffObj = Tiff(fileName,'w');
+tiffObj = Tiff(fileName,'w8');
 first = 1;
 for t=1:frames
     for c=1:channels
