@@ -1,5 +1,13 @@
-function [ imageOut ] = imageConvertNorm( imageIn, imageData, typ, normalize)
-%IMAGECONVERT converts image from current type into the specified type
+% [ imageOut ] = imageConvertNorm(IMAGEIN, OUTCLASS, NORMALIZE)
+% IMAGECONVERT converts image from current type into the specified type
+% OUTCLASS
+% If normalize==true then each channel/frame will be set between [0,1] prior
+% to conversion, meaning that normalization happens on a frame by frame as
+% well as a channel by channel bases.
+% Assumes a 5D image of (rows,col,z,channels,time). Non-existent dimensions
+% should be singleton.
+
+function [ imageOut ] = imageConvertNorm(imageIn, typ, normalize)
 
 if (~exist('normalize','var') || isempty(normalize))
     normalize = 0;
