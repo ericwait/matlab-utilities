@@ -155,7 +155,11 @@ end
 im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
 
 if (quite~=1)
-    fprintf('Type:%s ',outType);
+    if (strcmpi(inType,outType))
+        fprintf('Type:%s ',outType);
+    else
+        fprintf('Type:%s->%s ',inType,outType);
+    end
     fprintf('(');
     fprintf('%d',size(im,2));
     fprintf(',%d',size(im,1));
@@ -163,7 +167,13 @@ if (quite~=1)
         fprintf(',%d',size(im,i));
     end
     
-    fprintf(') %5.2fMB\n', (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
+    if (strcmpi(inType,outType))
+        fprintf(') %5.2fMB\n', (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
+    else
+        fprintf(') %5.2fMB->%5.2fMB\n',...
+            (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*(imInfo(1).BitDepth/8))/(1024*1024),...
+            (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
+    end
 end
 
 tiffObj = Tiff(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'r');
