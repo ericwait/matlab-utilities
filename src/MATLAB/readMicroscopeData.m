@@ -98,48 +98,25 @@ for series=1:size(data,1)
             error('Unknown bit depth!');
     end
     
-%     bitsNeeded = imageData.YDimension*imageData.XDimension*imageData.ZDimension*imageData.NumberOfChannels*...
-%         imageData.NumberOfFrames*bit;
-%     [~, systemview] = memory;
-%     if (systemview.PhysicalMemory.Available - bitsNeeded < 0)
-%         perPlane = 1;
-%     else
-        perPlane = 0;
-%     end
-%     
-%     if (perPlane)
-%         createMetadata(fullfile(outDir,orgName,imageData.DatasetName),imageData);
-        im = zeros(imageData.YDimension,imageData.XDimension,char(metadata.getPixelsType(series-1)));
-%     else
-%         im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,...
-%             imageData.NumberOfFrames,char(metadata.getPixelsType(series-1)));
-%     end
-%     
+    im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames,char(metadata.getPixelsType(series-1)));
+  
     order = char(metadata.getPixelsDimensionOrder(series-1));
     imData = data{series,1};
     for t=1:imageData.NumberOfFrames
         for z=1:imageData.ZDimension
             for c=1:imageData.NumberOfChannels
                 ind = calcPlaneInd(order,z,c,t,imageData);
-                if perPlane
-                    fileName = sprintf('%s_c%02d_t%04d_z%04d.tif',fullfile(outDir,orgName,imageData.DatasetName,...
-                        imageData.DatasetName),c,t,z);
-                    imwrite(image2uint(imData{ind,1}),fileName,'tif','Compression','lzw');
-                else
-                    im(:,:,z,c,t) = imData{ind,1};
-                    delta = metadata.getPlaneDeltaT(series-1,ind-1);
-                    if (~isempty(delta)) %hack for lsm
-                        imageData.TimeStampDeltas(z,c,t) = delta;
-                    end
+                im(:,:,z,c,t) = imData{ind,1};
+                delta = metadata.getPlaneDeltaT(series-1,ind-1);
+                if (~isempty(delta)) %hack for lsm
+                    imageData.TimeStampDeltas(z,c,t) = delta;
                 end
             end
         end
     end
     
-    if ~perPlane
-        tiffWriter(im,fullfile(outDir,orgName,imageData.DatasetName,imageData.DatasetName),imageData)
-        clear im
-    end
+    tiffWriter(im,fullfile(outDir,orgName,imageData.DatasetName,imageData.DatasetName),imageData)
+    clear im
 end
 system(sprintf('dir /B /O:N %s > %s',fullfile(outDir,orgName),fullfile(outDir,orgName,'list.txt')));
 end
