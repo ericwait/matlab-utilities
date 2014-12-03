@@ -145,6 +145,8 @@ switch imInfo(1).BitDepth
 end
 
 im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
+imageData.Type = inType;
+imageData.ImInfo = imInfo;
 
 convert = false;
 if (~strcmpi(inType,outType) || normalize)
