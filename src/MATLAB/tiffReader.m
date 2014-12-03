@@ -143,8 +143,6 @@ switch imInfo(1).BitDepth
     otherwise
         error('Unsupported input type!');
 end
-
-im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
 imageData.Type = inType;
 imageData.ImInfo = imInfo;
 
@@ -153,6 +151,8 @@ if (~strcmpi(inType,outType) || normalize)
     convert = true;
     tempIm = zeros(imageData.YDimension,imageData.XDimension,length(zList),inType);
 end
+
+im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
 
 if (quite~=1)
     fprintf('Type:%s ',outType);
