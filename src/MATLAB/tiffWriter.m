@@ -140,7 +140,7 @@ else
                 if ~first, tiffObj.writeDirectory(); end
                 tiffObj.setTag(tags);
                 if (isT(t) && isC(c) && isZ(z))
-                    tiffObj.write(squeeze(im(:,:,zList(zInd(z)),chanList(cInd(c)),timeList(tInd(t)))));
+                    tiffObj.write(squeeze(im(:,:,zInd(z),cInd(c),tInd(t))));
                 else
                     tiffObj.write(imZero);
                 end
