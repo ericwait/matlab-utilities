@@ -102,7 +102,7 @@ switch imInfo(1).SampleFormat
         frmt = 1;
     case 'Integer'
         frmt = 2;
-    case 'IEEEFP'
+    case 'IEEE floating point'
         frmt = 3;
     otherwise
         error('Unsupported input type!');
