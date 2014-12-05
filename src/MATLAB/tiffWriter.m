@@ -113,7 +113,8 @@ tic
 fileName = sprintf('%s.tif',prefix);
 if (exist(fileName,'file'))
     imInfo = imfinfo(fileName,'tif');
-    if (length(imInfo)~=frames*channels*stacks || imInfo(1).Width~=imageData.XDimension || imInfo(1).Height~=imageData.YDimension)
+    if (length(imInfo)~=imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.ZDimension...
+            || imInfo(1).Width~=imageData.XDimension || imInfo(1).Height~=imageData.YDimension)
         error('Existing image dimensions do not match the passed in dimensions!');
     end
     tiffObj = Tiff(fileName,'r+');
