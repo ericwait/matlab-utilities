@@ -72,6 +72,17 @@ if (isempty(zList))
     zList = 1:imageData.ZDimension;
 end
 
+if (~exist(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'file'))
+    if (exist(fullfile(path,sprintf('%s_c01_t0001_z0001.tif',imageData.DatasetName)),'file'))
+        im = makeBigTiff(imageData,path);
+        im = im(:,:,zList,chanList,timeList);
+        if ( ~isempty(outType) && ~strcmp(class(im),outType))
+            im = imageConvertNorm(im,outType,normalize);
+        end
+        return
+    end
+end    
+
 imInfo = imfinfo(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'tif');
 if (isempty(outType))
     bytes = imInfo(1).BitDepth/8;
