@@ -73,7 +73,8 @@ if (isempty(zList))
 end
 
 if (~exist(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'file'))
-    if (exist(fullfile(path,sprintf('%s_c01_t0001_z0001.tif',imageData.DatasetName)),'file'))
+    if (exist(fullfile(path,sprintf('%s_c01_t0001_z0001.tif',imageData.DatasetName)),'file') &&...
+            ~exist(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'file'))
         im = makeBigTiff(imageData,path);
         im = im(:,:,zList,chanList,timeList);
         if ( ~isempty(outType) && ~strcmp(class(im),outType))
