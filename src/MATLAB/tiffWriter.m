@@ -110,47 +110,16 @@ switch w.class
         error('Image type unsupported!');
 end
 tic
-fileName = sprintf('%s.tif',prefix);
-if (exist(fileName,'file'))
-    imInfo = imfinfo(fileName,'tif');
-    if (length(imInfo)~=imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.ZDimension...
-            || imInfo(1).Width~=imageData.XDimension || imInfo(1).Height~=imageData.YDimension)
-        error('Existing image dimensions do not match the passed in dimensions!');
-    end
-    tiffObj = Tiff(fileName,'r+');
-    for t=1:length(timeList)
-        for c=1:length(chanList)
-            for z=1:length(zList)
-                curDir = zList(z) + (chanList(c)-1)*imageData.ZDimension + (timeList(t)-1)*imageData.NumberOfChannels*imageData.ZDimension;
-                tiffObj.setDirectory(curDir);
-                tiffObj.write(squeeze(im(:,:,z,c,t)));
-            end
-        end
-    end
-else
-    tiffObj = Tiff(fileName,'w8');
-    first = 1;
-    imZero = zeros(imageData.YDimension,imageData.XDimension,w.class);
-    [isT, tInd] = ismember(1:imageData.NumberOfFrames,timeList);
-    [isC, cInd] = ismember(1:imageData.NumberOfChannels,chanList);
-    [isZ, zInd] = ismember(1:imageData.ZDimension,zList);
-    for t=1:imageData.NumberOfFrames
-        for c=1:imageData.NumberOfChannels
-            for z=1:imageData.ZDimension
-                if ~first, tiffObj.writeDirectory(); end
-                tiffObj.setTag(tags);
-                if (isT(t) && isC(c) && isZ(z))
-                    tiffObj.write(squeeze(im(:,:,zInd(z),cInd(c),tInd(t))));
-                else
-                    tiffObj.write(imZero);
-                end
-                if first, first = 0; end
-            end
+for t=1:length(timeList)
+    for c=1:length(chanList)
+        for z=1:length(zList)
+            tiffObj = Tiff([prefix,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))],'w');
+            tiffObj.setTag(tags);
+            tiffObj.write(im(:,:,zList(z),chanList(c),timeList(t)),tags);
+            tiffObj.close();
         end
     end
 end
-
-tiffObj.close();
 
 fprintf('Wrote %.0fMB in %s\n',...
     ((tags.BitsPerSample/8)*imageData.XDimension*imageData.YDimension*imageData.ZDimension*imageData.NumberOfChannels*imageData.NumberOfFrames)/(1024*1024),...

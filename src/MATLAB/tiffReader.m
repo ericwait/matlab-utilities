@@ -1,4 +1,4 @@
-% [IM, IMAGEDATA] = TIFFREADER(PATH, TIMELIST, CHANLIST, ZLIST, OUTTYPE, NORMALIZE, QUITE)
+% [IM, IMAGEDATA] = TIFFREADER(PATH, TIMELIST, CHANLIST, ZLIST, OUTTYPE, NORMALIZE, QUIET)
 % ALL arguments are optional; pass in empty [] for the arguments that come
 % prior to the one you would like to populate.
 %
@@ -9,14 +9,14 @@
 % OUTTYPE = the data type of image that you would like
 % NORMALIZE = normalize each image per channel per frame. Meaning that for
 %   each frame, every channel will be normalized independently.
-% QUITE = if set to 1 then size stats will not be printed
+% QUIET = if set to 1 then size stats will not be printed
 %
 % Outputs:
 % IM = is a 5-D image of either the orginal type or the type requested.
 % The data and can be indexed as (Y,X,Z,C,T) : c = channel, t = frame.
 % IMAGEDATA = Optionaly the metadata can be the second output argument
 
-function [im, varargout] = tiffReader(path, timeList, chanList, zList, outType, normalize, quite)
+function [im, varargout] = tiffReader(path, timeList, chanList, zList, outType, normalize, quiet)
 im = [];
 
 if (exist('tifflib') ~= 3)
@@ -47,10 +47,10 @@ if (~exist('normalize','var') || isempty(normalize))
 else
     normalize = logical(normalize);
 end
-if (~exist('quite','var') || isempty(quite))
-    quite = false;
+if (~exist('quiet','var') || isempty(quiet))
+    quiet = false;
 else
-    quite = logical(quite);
+    quiet = logical(quiet);
 end
 
 [imageData,path] = readMetaData(path);
@@ -70,21 +70,17 @@ if (isempty(timeList))
 end
 if (isempty(zList))
     zList = 1:imageData.ZDimension;
+end 
+
+if (~exist(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'file'))
+    warning('No image read!');
+    if (nargout)
+        varargout{1} = [];
+    end
+    return
 end
 
-if (~exist(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'file'))
-    if (exist(fullfile(path,sprintf('%s_c01_t0001_z0001.tif',imageData.DatasetName)),'file') &&...
-            ~exist(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'file'))
-        im = makeBigTiff(imageData,path);
-        im = im(:,:,zList,chanList,timeList);
-        if ( ~isempty(outType) && ~strcmp(class(im),outType))
-            im = imageConvertNorm(im,outType,normalize);
-        end
-        return
-    end
-end    
-
-imInfo = imfinfo(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'tif');
+imInfo = imfinfo(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'tif');
 if (isempty(outType))
     bytes = imInfo(1).BitDepth/8;
     if (imInfo(1).BitDepth==8)
@@ -109,15 +105,19 @@ else
     error('Unsupported output type!');
 end
 
-switch imInfo(1).SampleFormat
-    case 'Unsigned integer'
-        frmt = 1;
-    case 'Integer'
-        frmt = 2;
-    case 'IEEE floating point'
-        frmt = 3;
-    otherwise
-        error('Unsupported input type!');
+if (isfield(imInfo,'SampleFormat'))
+    switch imInfo(1).SampleFormat
+        case 'Unsigned integer'
+            frmt = 1;
+        case 'Integer'
+            frmt = 2;
+        case 'IEEE floating point'
+            frmt = 3;
+        otherwise
+            error('Unsupported input type!');
+    end
+else
+    frmt = 1;
 end
 switch imInfo(1).BitDepth
     case 8
@@ -166,7 +166,7 @@ end
 
 im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
 
-if (quite~=1)
+if (quiet~=1)
     if (strcmpi(inType,outType))
         fprintf('Type:%s ',outType);
     else
@@ -188,34 +188,23 @@ if (quite~=1)
     end
 end
 
-tiffObj = Tiff(fullfile(path,sprintf('%s.tif',imageData.DatasetName)),'r');
-
-for t=1:imageData.NumberOfFrames
-    frame = find(timeList==t);
-    if (isempty(frame)), continue, end
-    for c=1:imageData.NumberOfChannels
-        chan = find(chanList==c);
-        if (isempty(chan)), continue, end
-        
-        for z=1:imageData.ZDimension
-            stack = find(zList==z);
-            if (isempty(stack)), continue, end
-            
-            curDir = z + (c-1)*imageData.ZDimension + (t-1)*imageData.NumberOfChannels*imageData.ZDimension;
-            tiffObj.setDirectory(curDir);
+for t=1:length(timeList)
+    for c=1:length(chanList)
+        for z=1:length(zList)
+            tiffObj = Tiff(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'r');
             if (convert)
-                tempIm(:,:,stack) = tiffObj.read();
+                tempIm(:,:,z) = tiffObj.read();
             else
-                im(:,:,stack,chan,frame) = tiffObj.read();
+                im(:,:,z,c,t) = tiffObj.read();
             end
+            tiffObj.close();
         end
         
         if (convert)
-            im(:,:,:,chan,frame) = imageConvertNorm(tempIm,outType,normalize);
+            im(:,:,:,c,t) = imageConvertNorm(tempIm,outType,normalize);
         end
     end
 end
-tiffObj.close();
 
 if (convert)
     clear tempIm;
