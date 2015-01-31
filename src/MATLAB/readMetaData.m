@@ -3,7 +3,11 @@ function [imageData,rootDir] = readMetaData(root)
 imageData = [];
 rootDir = [];
 
-if (~exist('root','var') || isempty(root)|| isempty(strfind(root,'.txt')))
+if (~exist('root','var') || isempty(root))
+    root = [];
+end
+
+if (isempty(strfind(root,'.txt')))
     [fileName,rootDir,filterIndex] = uigetfile(fullfile(root,'.txt'));
     if (filterIndex==0)
         return
@@ -46,5 +50,5 @@ for k=1:length(data{1})
         imageDatum.(data{1}{k}) = val;
     end
 end
-imageData.imageDir = '.';
+imageDatum.imageDir = '.';
 end

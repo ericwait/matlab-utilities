@@ -16,8 +16,8 @@ end
 imageOut = zeros(size(imageIn),typ);
 
 if (normalize)
-    for t=1:imageData.NumberOfFrames
-        for c=1:imageData.NumberOfChannels
+    for t=1:size(imageIn,5)
+        for c=1:size(imageIn,4)
             imTemp = double(imageIn(:,:,:,c,t));
             imTemp = imTemp-min(imTemp(:));
             imTemp = imTemp./max(imTemp(:));
