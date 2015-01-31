@@ -17,16 +17,16 @@ if isempty(factors)
 end
 
 if (~exist('folderList','var') || isempty(folderList))
-    [FileName,PathName,~] = uigetfile('*.txt');
+    [FileName,PathName,~] = uigetfile('*.txt','Select List File','list.txt');
     
     if FileName~=0
-        fHand = fopen(fullfile(PathName,FileName));
+        fHand = fopen(fullfile(PathName,FileName),'rt');
         files = textscan(fHand,'%s','delimiter','\n');
         fclose(fHand);
         
-        folderList = fullfile(PathName,files{1,1}(1));
+        folderList = [char(fullfile(PathName,files{1,1}(1),files{1,1}(1))), '.txt'];
         for i=2:length(files{1,1})
-            folderList = [folderList; {char(fullfile(PathName,files{1,1}(i)))}];
+            folderList = [folderList; {fullfile(PathName,char(files{1,1}(i)),[char(files{1,1}(1)),'.txt'])}];
         end
     end
 else
@@ -34,25 +34,25 @@ else
     return
 end
 
-[imMixedTest, ~] = tiffReader([],[],[],[],folderList{1});
+[imMixedTest, ~] = tiffReader(fullfile(PathName,files{1}{1},[files{1}{1},'.txt']));
 w = whos('imMixedTest');
 clear('imMixedTest');
 
 delete(gcp('nocreate'));
 
-parpool(2)
+parpool(4)
 
 tic
 spmd
-    for i=1:numlabs:length(folderList)
+    for i=labindex:numlabs:length(folderList)
         %%read in a mixed image
-        [imMixed, imageData] = tiffReader([],[],[],[],folderList{i});
+        [imMixed, imageData] = tiffReader(fullfile(PathName,files{1}{i},[files{1}{i},'.txt']),[],[],[],[],[],1);
         
         %% unmix
         cudaOut = CudaMex('LinearUnmixing',imMixed,unmixFactors);
         
-        tiffWriter(imageConvertNorm(cudaOut,[],w.class,0),...
-            fullfile(sprintf('%s%s',imageData.imageDir,'_unmixed'),imageData.DatasetName),imageData);
+        tiffWriter(imageConvertNorm(cudaOut,w.class,0),...
+            fullfile(imageData.imageDir,'..',[imageData.DatasetName,'_unmixed'],imageData.DatasetName),imageData);
     end
 end
 tm = toc;

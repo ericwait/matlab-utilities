@@ -53,7 +53,7 @@ maxVal = [];
 
 factors = zeros(length(singlePosFiles),length(singlePosFiles),2);
 for stain=1:length(singlePosFiles)
-    imSinglePos = tiffReader('single',[],[],[],singlePosFiles(stain).path);
+    imSinglePos = tiffReader(singlePosFiles(stain).path,[],[],[],'single',0,1);
     if (~isempty(zeroChannels) && ~any(zeroChannels==stain))
         imSinglePos(:,:,:,zeroChannels) = zeros(size(imSinglePos(:,:,:,zeroChannels)),'like',imSinglePos);
     end
