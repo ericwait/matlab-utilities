@@ -118,7 +118,7 @@ for series=1:size(data,1)
     tiffWriter(im,fullfile(outDir,orgName,imageData.DatasetName,imageData.DatasetName),imageData)
     clear im
 end
-system(sprintf('dir /B /O:N %s > %s',fullfile(outDir,orgName),fullfile(outDir,orgName,'list.txt')));
+system(sprintf('dir /B /ON "%s" > "%s"',fullfile(outDir,orgName),fullfile(outDir,orgName,'list.txt')));
 end
 
 function ind = calcPlaneInd(order,z,c,t,imageData)
