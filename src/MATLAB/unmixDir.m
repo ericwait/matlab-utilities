@@ -1,4 +1,4 @@
-function [ factors, unmixFactors ] = unmixDir(showPlots, folderList, removeChannels)
+function [ factors, unmixFactors ] = unmixDir(showPlots, removeChannels)
 %UNMIXDIR Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -16,18 +16,16 @@ if isempty(factors)
     return
 end
 
-if (~exist('folderList','var') || isempty(folderList))
-    [FileName,PathName,~] = uigetfile('*.txt','Select List File','list.txt');
+[FileName,PathName,~] = uigetfile('*.txt','Select List File','list.txt');
+
+if FileName~=0
+    fHand = fopen(fullfile(PathName,FileName),'rt');
+    files = textscan(fHand,'%s','delimiter','\n');
+    fclose(fHand);
     
-    if FileName~=0
-        fHand = fopen(fullfile(PathName,FileName),'rt');
-        files = textscan(fHand,'%s','delimiter','\n');
-        fclose(fHand);
-        
-        folderList = [char(fullfile(PathName,files{1,1}(1),files{1,1}(1))), '.txt'];
-        for i=2:length(files{1,1})
-            folderList = [folderList; {fullfile(PathName,char(files{1,1}(i)),[char(files{1,1}(1)),'.txt'])}];
-        end
+    folderList = [char(fullfile(PathName,files{1,1}(1),files{1,1}(1))), '.txt'];
+    for i=2:length(files{1,1})
+        folderList = [folderList; {fullfile(PathName,char(files{1,1}(i)),[char(files{1,1}(1)),'.txt'])}];
     end
 else
     warning('No files to unmix!');
