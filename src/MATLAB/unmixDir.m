@@ -44,7 +44,10 @@ tic
 spmd
     for i=labindex:numlabs:length(folderList)
         %%read in a mixed image
-        [imMixed, imageData] = tiffReader(fullfile(PathName,files{1}{i},[files{1}{i},'.txt']),[],[],[],[],[],1);
+        [imMixed, imageData] = tiffReader(fullfile(PathName,files{1}{i},[files{1}{i},'.txt']),[],[],[],[],0,1);
+        if (isempty(imMixed))
+            error('Could not read "%s"!',fullfile(PathName,files{1}{i},[files{1}{i},'.txt']));
+        end
         
         %% unmix
         cudaOut = CudaMex('LinearUnmixing',imMixed,unmixFactors);
