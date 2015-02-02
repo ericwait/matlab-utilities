@@ -36,13 +36,24 @@ end
 w = whos('imMixedTest');
 clear('imMixedTest');
 
-delete(gcp('nocreate'));
+maxWorkers = 4;
 
-parpool(4)
+poolObj = gcp('nocreate');
+if (~isempty(poolObj))
+    oldWorkers = poolObj.NumWorkers;
+    if (oldWorkers~=maxWorkers)
+        delete(poolObj);
+        parpool(maxWorkers);
+    end
+else
+    oldWorkers = 0;
+    parpool(maxWorkers);
+end
 
 tic
 spmd
     for i=labindex:numlabs:length(folderList)
+%    for i=1:length(folderList)
         %%read in a mixed image
         [imMixed, imageData] = tiffReader(fullfile(PathName,files{1}{i},[files{1}{i},'.txt']),[],[],[],[],0,1);
         if (isempty(imMixed))
@@ -71,6 +82,11 @@ system(sprintf('dir /B /ON "%s" > "%s"',fullfile(imData.imageDir,'..','_unmixed'
 tm = toc;
 fprintf('Unmixing took %s for %d images, avg %s\n',printTime(tm),length(folderList),printTime(tm/length(folderList)));
 
-delete(gcp);
+if (oldWorkers~=maxWorkers)
+    delete(gcp);
+    if (oldWorkers>0)
+        parpool(oldWorkers);
+    end
+end
 end
 
