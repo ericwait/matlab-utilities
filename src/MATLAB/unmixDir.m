@@ -49,6 +49,17 @@ spmd
         %% unmix
         cudaOut = CudaMex('LinearUnmixing',imMixed,unmixFactors);
         
+        cudaOut(cudaOut<0) = 0;
+        
+        for c=1:imageData.NumberOfChannels
+            mixedChan = imMixed(:,:,:,c,:);
+            maxMixedVal = max(mixedChan(:));
+            unMixedChan = cudaOut(:,:,:,c,:);
+            maxUnMixedVal = max(unMixedChan(:));
+            difFac = single(maxMixedVal) / maxUnMixedVal;
+            cudaOut(:,:,:,c,:) =  cudaOut(:,:,:,c,:) * difFac / single(maxMixedVal);
+        end
+        
         tiffWriter(imageConvertNorm(cudaOut,w.class,0),...
             fullfile(imageData.imageDir,'..',[imageData.DatasetName,'_unmixed'],imageData.DatasetName),imageData);
     end
