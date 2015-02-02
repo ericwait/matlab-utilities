@@ -32,7 +32,7 @@ else
     return
 end
 
-[imMixedTest, ~] = tiffReader(fullfile(PathName,files{1}{1},[files{1}{1},'.txt']));
+[imMixedTest, imData] = tiffReader(fullfile(PathName,files{1}{1},[files{1}{1},'.txt']));
 w = whos('imMixedTest');
 clear('imMixedTest');
 
@@ -53,6 +53,7 @@ spmd
             fullfile(imageData.imageDir,'..',[imageData.DatasetName,'_unmixed'],imageData.DatasetName),imageData);
     end
 end
+system(sprintf('dir /B /ON "%s" > "%s"',fullfile(imData.imageDir,'..','_unmixed','.'),fullfile(imData.imageDir,'..','_unmixed','list.txt')));
 tm = toc;
 fprintf('Unmixing took %s for %d images, avg %s\n',printTime(tm),length(folderList),printTime(tm/length(folderList)));
 
