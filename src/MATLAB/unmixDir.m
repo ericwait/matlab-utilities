@@ -61,7 +61,7 @@ spmd
         end
         
         tiffWriter(imageConvertNorm(cudaOut,w.class,0),...
-            fullfile(imageData.imageDir,'..',[imageData.DatasetName,'_unmixed'],imageData.DatasetName),imageData);
+            fullfile(imageData.imageDir,'..','_unmixed',imageData.DatasetName,imageData.DatasetName),imageData);
     end
 end
 system(sprintf('dir /B /ON "%s" > "%s"',fullfile(imData.imageDir,'..','_unmixed','.'),fullfile(imData.imageDir,'..','_unmixed','list.txt')));
