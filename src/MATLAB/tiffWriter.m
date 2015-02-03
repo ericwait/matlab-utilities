@@ -1,5 +1,5 @@
 % TIFFREADER(IM, PREFIX, IMAGEDATA, TIMELIST, CHANLIST, ZLIST)
-% TIMELIST, CHANLIST, and ZLIST are optional; pass in empty [] for the 
+% TIMELIST, CHANLIST, and ZLIST are optional; pass in empty [] for the
 % arguments that come prior to the one you would like to populate.
 %
 % IM = the image data to write. Assumes a 5-D image in the format
@@ -9,8 +9,12 @@
 % fill the whole image, the rest will be filled in with black (zeros)
 % frames.
 
-% PREFIX = filepath in the format ('c:\path\FilePrefix')
-% IMAGEDATA = metadata that will be written to accompany the image
+% PREFIX = filepath in the format ('c:\path\FilePrefix') unless there is no
+% imagedata in which case it should be ('c:\path)
+% IMAGEDATA = metadata that will be written to accompany the image.  If you
+% want this generated from the image data only, this paramater should be
+% just a string representing the dataset name.  See PREFIX above in such
+% case.
 % TIMELIST = a list of frames that the fifth dimention represents
 % CHANLIST = the channels that the input image represents
 % ZLIST = the z slices that the input image represents
@@ -23,6 +27,38 @@ if (exist('tifflib') ~= 3)
         error('tifflib does not exits on this machine!');
     end
     copyfile(tifflibLocation,'.');
+end
+
+if (exist('imageData','var') && ~isempty(imageData) && isfield(imageData,'DatasetName'))
+    idx = strfind(prefix,'"');
+    prefix(idx) = [];
+    idx = strfind(imageData.DatasetName,'"');
+    imageData.DatasetName(idx) = [];
+    idx = strfind(prefix,'\');
+    if (isempty(idx))
+        idx = length(prefix);
+    end
+    createMetadata(prefix(1:idx(end)),imageData);
+else
+    if isstruct(imageData)
+        error('ImageData struct is malformed!');
+    end
+    dName = imageData;
+    imageData = [];
+    imageData.DatasetName = dName;
+    
+    imageData.YDimension = size(im,1);
+    imageData.XDimension = size(im,2);
+    imageData.ZDimension = size(im,3);
+    imageData.NumberOfChannels = size(im,4);
+    imageData.NumberOfFrames = size(im,5);
+    
+    imageData.XPixelPhysicalSize = 1.0;
+    imageData.YPixelPhysicalSize = 1.0;
+    imageData.ZPixelPhysicalSize = 1.0;
+    
+    createMetadata(prefix,imageData);
+    prefix = fullfile(prefix,imageData.DatasetName);
 end
 
 if (~exist('timeList','var') || isempty(timeList))
@@ -56,18 +92,6 @@ else
 end
 if (size(im,3)~=length(zList))
     error('There are %d z images and %d z images to be written!',size(im,3),length(zList));
-end
-
-idx = strfind(prefix,'"');
-prefix(idx) = [];
-idx = strfind(imageData.DatasetName,'"');
-imageData.DatasetName(idx) = [];
-if (exist('imageData','var') && ~isempty(imageData))
-    idx = strfind(prefix,'\');
-    if (isempty(idx))
-        idx = length(prefix);
-    end
-    createMetadata(prefix(1:idx(end)),imageData);
 end
 
 w = whos('im');
