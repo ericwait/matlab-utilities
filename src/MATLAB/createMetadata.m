@@ -4,7 +4,7 @@ if (~exist(root,'dir'))
     mkdir(root);
 end
 
-if (~exist('quiet',var') || isempty(quiet))
+if (~exist('quiet','var') || isempty(quiet))
     quiet = 0;
 end
 
