@@ -1,11 +1,18 @@
-function createMetadata(root,imageData)
+function createMetadata(root,imageData,quiet)
 
 if (~exist(root,'dir'))
     mkdir(root);
 end
 
+if (~exist('quiet',var') || isempty(quiet))
+    quiet = 0;
+end
+
 fileName = fullfile(root,[imageData.DatasetName '.txt']);
-fprintf('Creating Metadata %s...',fileName);
+
+if (~quiet)
+    fprintf('Creating Metadata %s...',fileName);
+end
 
 fileHandle = fopen(fileName,'wt');
 
@@ -15,7 +22,7 @@ fprintf(fileHandle,'NumberOfChannels:%d\n',imageData.NumberOfChannels);
 
 if (isfield(imageData,'ChannelColors'))
     fprintf(fileHandle,'ChannelColors:');
-
+    
     if (size(imageData.ChannelColors,1)==1 && ~iscell(imageData.ChannelColors))
         fprintf(fileHandle,'%s,',imageData.ChannelColors);
     else
@@ -78,5 +85,7 @@ if (isfield(imageData,'TimeStampDeltas'))
 end
 fclose(fileHandle);
 
-fprintf('Done\n');
+if (~quiet)
+    fprintf('Done\n');
+end
 end

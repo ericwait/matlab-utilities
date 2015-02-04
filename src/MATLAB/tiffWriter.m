@@ -19,7 +19,7 @@
 % CHANLIST = the channels that the input image represents
 % ZLIST = the z slices that the input image represents
 
-function tiffWriter(im, prefix, imageData, timeList, chanList, zList)
+function tiffWriter(im, prefix, imageData, timeList, chanList, zList,quiet)
 
 if (exist('tifflib') ~= 3)
     tifflibLocation = which('/private/tifflib');
@@ -27,6 +27,10 @@ if (exist('tifflib') ~= 3)
         error('tifflib does not exits on this machine!');
     end
     copyfile(tifflibLocation,'.');
+end
+
+if (~exist('quiet','var') || isempty(quiet))
+    quiet = 0;
 end
 
 if (exist('imageData','var') && ~isempty(imageData) && isfield(imageData,'DatasetName'))
@@ -38,7 +42,7 @@ if (exist('imageData','var') && ~isempty(imageData) && isfield(imageData,'Datase
     if (isempty(idx))
         idx = length(prefix);
     end
-    createMetadata(prefix(1:idx(end)),imageData);
+    createMetadata(prefix(1:idx(end)),imageData,quiet);
 else
     if isstruct(imageData)
         error('ImageData struct is malformed!');
@@ -145,9 +149,10 @@ for t=1:length(timeList)
     end
 end
 
-fprintf('Wrote %.0fMB in %s\n',...
-    ((tags.BitsPerSample/8)*imageData.XDimension*imageData.YDimension*imageData.ZDimension*imageData.NumberOfChannels*imageData.NumberOfFrames)/(1024*1024),...
-    printTime(toc));
-
+if (~quiet)
+    fprintf('Wrote %.0fMB in %s\n',...
+        ((tags.BitsPerSample/8)*imageData.XDimension*imageData.YDimension*imageData.ZDimension*imageData.NumberOfChannels*imageData.NumberOfFrames)/(1024*1024),...
+        printTime(toc));
+end
 end
 
