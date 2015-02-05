@@ -32,11 +32,23 @@ else
     return
 end
 
+[numDevices,mem] = CudaMex('DeviceCount');
+
 [imMixedTest, imData] = tiffReader(fullfile(PathName,files{1}{1},[files{1}{1},'.txt']));
 w = whos('imMixedTest');
+numImOnDevice = floor(max([mem.available]/(numel(imMixedTest)*(32 + 8)),1)*2); 
+
 clear('imMixedTest');
 
-maxWorkers = 4;
+maxWorkers = sum(numImOnDevice(:));
+workersDevice = zeros(1,maxWorkers);
+n = 1;
+for i=1:numDevices
+    for j=1:numImOnDevice(i)
+        workersDevice(n) = i;
+        n = n + 1;
+    end
+end
 
 poolObj = gcp('nocreate');
 if (~isempty(poolObj))
@@ -55,13 +67,14 @@ spmd
     for i=labindex:numlabs:length(folderList)
 %    for i=1:length(folderList)
         %%read in a mixed image
+        tic
         [imMixed, imageData] = tiffReader(fullfile(PathName,files{1}{i},[files{1}{i},'.txt']),[],[],[],[],0,1);
         if (isempty(imMixed))
             error('Could not read "%s"!',fullfile(PathName,files{1}{i},[files{1}{i},'.txt']));
         end
         
         %% unmix
-        cudaOut = CudaMex('LinearUnmixing',imMixed,unmixFactors);
+        cudaOut = CudaMex('LinearUnmixing',imMixed,unmixFactors,workersDevice(labindex));
         
         cudaOut(cudaOut<0) = 0;
         
@@ -75,7 +88,10 @@ spmd
         end
         
         tiffWriter(imageConvertNorm(cudaOut,w.class,0),...
-            fullfile(imageData.imageDir,'..','_unmixed',imageData.DatasetName,imageData.DatasetName),imageData);
+            fullfile(imageData.imageDir,'..','_unmixed',imageData.DatasetName,imageData.DatasetName),imageData,...
+            [],[],[],1);
+        
+        fprintf('Finished %s in %s\n',imageData.DatasetName,printTime(toc));
     end
 end
 system(sprintf('dir /B /ON "%s" > "%s"',fullfile(imData.imageDir,'..','_unmixed','.'),fullfile(imData.imageDir,'..','_unmixed','list.txt')));
