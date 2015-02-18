@@ -1,4 +1,4 @@
-% TIFFREADER(IM, PREFIX, IMAGEDATA, TIMELIST, CHANLIST, ZLIST)
+% TIFFWRITER(IM, PREFIX, IMAGEDATA, TIMELIST, CHANLIST, ZLIST, QUIET)
 % TIMELIST, CHANLIST, and ZLIST are optional; pass in empty [] for the
 % arguments that come prior to the one you would like to populate.
 %
@@ -18,8 +18,9 @@
 % TIMELIST = a list of frames that the fifth dimention represents
 % CHANLIST = the channels that the input image represents
 % ZLIST = the z slices that the input image represents
+% QUITE = suppress printing out progress
 
-function tiffWriter(im, prefix, imageData, timeList, chanList, zList,quiet)
+function tiffWriter(im, prefix, imageData, timeList, chanList, zList, quiet)
 
 if (exist('tifflib') ~= 3)
     tifflibLocation = which('/private/tifflib');
