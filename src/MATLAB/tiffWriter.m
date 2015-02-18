@@ -134,6 +134,13 @@ switch w.class
     case 'double'
         tags.SampleFormat = Tiff.SampleFormat.IEEEFP;
         tags.BitsPerSample = 64;
+    case 'logical'
+        imtemp = zeros(size(im),'uint8');
+        imtemp(im) = 255;
+        im = imtemp;
+        clear imtemp
+        tags.SampleFormat = Tiff.SampleFormat.UInt;
+        tags.BitsPerSample = 8;
     otherwise
         error('Image type unsupported!');
 end
