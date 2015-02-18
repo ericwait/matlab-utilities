@@ -150,7 +150,7 @@ for t=1:length(timeList)
         for z=1:length(zList)
             tiffObj = Tiff([prefix,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))],'w');
             tiffObj.setTag(tags);
-            tiffObj.write(im(:,:,zList(z),chanList(c),timeList(t)),tags);
+            tiffObj.write(im(:,:,z,c,t),tags);
             tiffObj.close();
         end
     end
