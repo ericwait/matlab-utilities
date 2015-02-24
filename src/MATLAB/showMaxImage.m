@@ -7,7 +7,7 @@ if (~exist('maxAcross','var') || isempty(maxAcross))
     maxAcross = 3;
 end
 
-imagesc(max(im,[],maxAcross));
+imagesc(squeeze(max(im,[],maxAcross)));
 colormap gray
 axis image
 end
