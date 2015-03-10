@@ -30,10 +30,9 @@ for i=1:length(folderList)
     if (folderList(i).isdir)
         convertDir(fullfile(dirPath,folderList(i).name),outDir,overwrite,includeTiff);
     else
-        ind = strfind(folderList(i).name,'.');
-        exten = folderList(i).name(ind(end)+1:end);
-        if (strcmpi(exten,'lif') || strcmpi(exten,'lsm') || strcmpi(exten,'zvi') || strcmpi(exten,'nd2') ||...
-                strcmpi(exten,'oif') || (strcmpi(exten,'tif') && includeTiff))
+        [~,~,exten] = fileparts(folderList(i).name);
+        if (strcmpi(exten,'.lif') || strcmpi(exten,'.lsm') || strcmpi(exten,'.zvi') || strcmpi(exten,'.nd2') ||...
+                strcmpi(exten,'.oif') || strcmpi(exten,'.czi') || (strcmpi(exten,'.tif') && includeTiff))
             fprintf('%s ...\n',fullfile(dirPath,folderList(i).name));
             tic
             readMicroscopeData(dirPath,folderList(i).name,outDir,overwrite);

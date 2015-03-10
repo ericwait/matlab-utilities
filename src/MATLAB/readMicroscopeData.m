@@ -6,8 +6,9 @@ else
     orgPathName = dirIn;
     orgFileName = fileNameIn;
 end
-ind = strfind(orgFileName,'.');
-orgName = orgFileName(1:ind-1);
+[pathstr,orgName,ext] = fileparts(orgFileName);
+% ind = strfind(orgFileName,'.');
+% orgName = orgFileName(1:ind-1);
 
 if (~exist('dirOut','var') || isempty(dirOut))
     disp('Select output directory...');
@@ -21,8 +22,9 @@ if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
 end
 
-[~,~,id] = mkdir(fullfile(outDir,orgName));
-if (strcmp(id,'MATLAB:MKDIR:DirectoryExists') && overwrite==0)
+if (~exist(fullfile(outDir,orgName),'dir'))
+    mkdir(fullfile(outDir,orgName));
+elseif (~overwrite)
     disp('exists');
     return;
 end
@@ -39,86 +41,78 @@ end
 if (isempty(data)), error('Could not read file!'), end
 
 for series=1:size(data,1)
-    metadata = data{series,4};
-    imageData.DatasetName = char(metadata.getImageName(series-1));
-    imageData.XDimension = safeGetValue(metadata.getPixelsSizeX(series-1));
-    imageData.YDimension = safeGetValue(metadata.getPixelsSizeY(series-1));
-    imageData.ZDimension = safeGetValue(metadata.getPixelsSizeZ(series-1));
-    imageData.NumberOfChannels = metadata.getChannelCount(series-1);
-    imageData.NumberOfFrames = safeGetValue(metadata.getPixelsSizeT(series-1));
+    orgMetadata = data{series,2};
+    omeMetadata = data{series,4};
+    imageData.DatasetName = char(omeMetadata.getImageName(series-1));
+    imageData.XDimension = safeGetValue(omeMetadata.getPixelsSizeX(series-1));
+    imageData.YDimension = safeGetValue(omeMetadata.getPixelsSizeY(series-1));
+    imageData.ZDimension = safeGetValue(omeMetadata.getPixelsSizeZ(series-1));
+    imageData.NumberOfChannels = omeMetadata.getChannelCount(series-1);
+    imageData.NumberOfFrames = safeGetValue(omeMetadata.getPixelsSizeT(series-1));
     
-    imageData.XPixelPhysicalSize = safeGetValue(metadata.getPixelsPhysicalSizeX(series-1));
+    imageData.XPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeX(series-1));
     if imageData.XPixelPhysicalSize==0
         imageData.XPixelPhysicalSize = 1;
     end
     
-    imageData.YPixelPhysicalSize = safeGetValue(metadata.getPixelsPhysicalSizeY(series-1));
+    imageData.YPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeY(series-1));
     if imageData.YPixelPhysicalSize==0
         imageData.YPixelPhysicalSize = 1;
     end
     
-    imageData.ZPixelPhysicalSize = safeGetValue(metadata.getPixelsPhysicalSizeZ(series-1));
+    imageData.ZPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeZ(series-1));
     if imageData.ZPixelPhysicalSize==0
         imageData.ZPixelPhysicalSize = 1;
     end
-    if (metadata.getPlaneCount(series-1)>0)
-        imageData.XPosition = double(metadata.getPlanePositionX(series-1,0));
-        imageData.YPosition = double(metadata.getPlanePositionY(series-1,0));
-        imageData.ZPosition = double(metadata.getPlanePositionZ(series-1,0));
+    
+    if (strcmp(ext,'.czi'))
+        imageData.XPosition = orgMetadata.get('Global Information|Image|S|Scene|Position|X #1');
+        imageData.YPosition = orgMetadata.get('Global Information|Image|S|Scene|Position|Y #1');
+        imageData.ZPosition = orgMetadata.get('Global Information|Image|S|Scene|Position|Z #1');
+    elseif (omeMetadata.getPlaneCount(series-1)>0)
+        imageData.XPosition = double(omeMetadata.getPlanePositionX(series-1,0));
+        imageData.YPosition = double(omeMetadata.getPlanePositionY(series-1,0));
+        imageData.ZPosition = double(omeMetadata.getPlanePositionZ(series-1,0));
     end
     
     imageData.ChannelColors = {};
     for c=0:imageData.NumberOfChannels-1
-        if (~isempty(char(metadata.getChannelName(series-1,c))))
-            imageData.ChannelColors = [imageData.ChannelColors; {char(metadata.getChannelName(series-1,c))}];
+        if (~isempty(char(omeMetadata.getChannelName(series-1,c))))
+            imageData.ChannelColors = [imageData.ChannelColors; {char(omeMetadata.getChannelName(series-1,c))}];
         end
     end
     
-    imageData.StartCaptureDate = safeGetValue(metadata.getImageAcquisitionDate(series-1));
-    ind = find(imageData.StartCaptureDate,':');
+    imageData.StartCaptureDate = safeGetValue(omeMetadata.getImageAcquisitionDate(series-1));
+    ind = strfind(imageData.StartCaptureDate,':');
     if (~isempty(ind))
         imageData.StartCaptureDate(ind) = '.';
     end
-    imageData.TimeStampDeltas = zeros(imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames);
     
-    switch char(metadata.getPixelsType(series-1))
-        case 'uint8'
-            bit = 8;
-        case 'uint16'
-            bit = 16;
-        case 'uint32'
-            bit = 32;
-        case 'int32'
-            bit = 32;
-        case 'single'
-            bit = 32;
-        case 'double'
-            bit = 64;
-        otherwise
-            error('Unknown bit depth!');
-    end
-    
-    im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames,char(metadata.getPixelsType(series-1)));
+    im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames,char(omeMetadata.getPixelsType(series-1)));
+    imageData.TimeStampDeltas = 0;
   
-    order = char(metadata.getPixelsDimensionOrder(series-1));
+    order = char(omeMetadata.getPixelsDimensionOrder(series-1));
     imData = data{series,1};
     for t=1:imageData.NumberOfFrames
         for z=1:imageData.ZDimension
             for c=1:imageData.NumberOfChannels
                 ind = calcPlaneInd(order,z,c,t,imageData);
                 im(:,:,z,c,t) = imData{ind,1};
-                delta = metadata.getPlaneDeltaT(series-1,ind-1);
-                if (~isempty(delta)) %hack for lsm
+                delta = omeMetadata.getPlaneDeltaT(series-1,ind-1);
+                if (~isempty(delta))
                     imageData.TimeStampDeltas(z,c,t) = delta;
                 end
             end
         end
     end
+    if (imageData.TimeStampDeltas==0 || length(imageData.TimeStampDeltas)<2)
+        imageData = rmfield(imageData,'TimeStampDeltas');
+    end
     
-    tiffWriter(im,fullfile(outDir,orgName,imageData.DatasetName,imageData.DatasetName),imageData)
+    tiffWriter(im,fullfile(outDir,orgName,imageData.DatasetName),imageData)
     clear im
 end
-system(sprintf('dir /B /ON "%s" > "%s"',fullfile(outDir,orgName),fullfile(outDir,orgName,'list.txt')));
+%system(sprintf('dir /B /ON "%s" > "%s"',fullfile(outDir,orgName),fullfile(outDir,orgName,'list.txt')));
 end
 
 function ind = calcPlaneInd(order,z,c,t,imageData)
