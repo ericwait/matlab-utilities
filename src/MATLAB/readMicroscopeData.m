@@ -22,6 +22,11 @@ if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
 end
 
+if (strcmp(ext,'.czi'))
+    ind = strfind(dirIn,'\');
+    outDir = fullfile(dirOut,dirIn(ind(end):end));
+end
+
 if (~exist(fullfile(outDir,orgName),'dir'))
     mkdir(fullfile(outDir,orgName));
 elseif (~overwrite)
