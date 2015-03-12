@@ -110,7 +110,10 @@ for series=1:size(data,1)
             end
         end
     end
-    if (imageData.TimeStampDeltas==0 || length(imageData.TimeStampDeltas)<2)
+    
+    if (size(imageData.TimeStampDeltas,1)~=imageData.ZDimension ||...
+            size(imageData.TimeStampDeltas,2)~=imageData.NumberOfChannels || ...
+            size(imageData.TimeStampDeltas,1)~=imageData.NumberOfFrames)
         imageData = rmfield(imageData,'TimeStampDeltas');
     end
     
