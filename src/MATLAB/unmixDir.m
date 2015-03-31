@@ -16,25 +16,28 @@ if isempty(factors)
     return
 end
 
-[FileName,PathName,~] = uigetfile('*.txt','Select List File','list.txt');
+% [FileName,PathName,~] = uigetfile('*.txt','Select List File','list.txt');
+% 
+% if FileName~=0
+%     fHand = fopen(fullfile(PathName,FileName),'rt');
+%     files = textscan(fHand,'%s','delimiter','\n');
+%     fclose(fHand);
+%     
+%     folderList = [char(fullfile(PathName,files{1,1}(1),files{1,1}(1))), '.txt'];
+%     for i=2:length(files{1,1})
+%         folderList = [folderList; {fullfile(PathName,char(files{1,1}(i)),[char(files{1,1}(1)),'.txt'])}];
+%     end
+% else
+%     warning('No files to unmix!');
+%     return
+% end
 
-if FileName~=0
-    fHand = fopen(fullfile(PathName,FileName),'rt');
-    files = textscan(fHand,'%s','delimiter','\n');
-    fclose(fHand);
-    
-    folderList = [char(fullfile(PathName,files{1,1}(1),files{1,1}(1))), '.txt'];
-    for i=2:length(files{1,1})
-        folderList = [folderList; {fullfile(PathName,char(files{1,1}(i)),[char(files{1,1}(1)),'.txt'])}];
-    end
-else
-    warning('No files to unmix!');
-    return
-end
+PathName = uigetdir();
+txtFiles = dir(fullfile(PathName,'*.txt'));
 
 [numDevices,mem] = CudaMex('DeviceCount');
 
-[imMixedTest, imData] = tiffReader(fullfile(PathName,files{1}{1},[files{1}{1},'.txt']));
+[imMixedTest, imData] = tiffReader(fullfile(PathName,txtFiles(1).name));
 w = whos('imMixedTest');
 numImOnDevice = floor(max([mem.available]/(numel(imMixedTest)*(32 + 8)),1)*2); 
 
@@ -50,27 +53,28 @@ for i=1:numDevices
     end
 end
 
-poolObj = gcp('nocreate');
-if (~isempty(poolObj))
-    oldWorkers = poolObj.NumWorkers;
-    if (oldWorkers~=maxWorkers)
-        delete(poolObj);
-        parpool(maxWorkers);
-    end
-else
-    oldWorkers = 0;
-    parpool(maxWorkers);
-end
+% poolObj = gcp('nocreate');
+% if (~isempty(poolObj))
+%     oldWorkers = poolObj.NumWorkers;
+%     if (oldWorkers~=maxWorkers)
+%         delete(poolObj);
+%         parpool(maxWorkers);
+%     end
+% else
+%     oldWorkers = 0;
+%     parpool(maxWorkers);
+% end
 
 tic
-spmd
-    for i=labindex:numlabs:length(folderList)
-%    for i=1:length(folderList)
+%spmd
+%     for i=labindex:numlabs:length(folderList)
+   for i=1:length(txtFiles)
         %%read in a mixed image
         tic
-        [imMixed, imageData] = tiffReader(fullfile(PathName,files{1}{i},[files{1}{i},'.txt']),[],[],[],[],0,1);
+        [imMixed, imageData] = tiffReader(fullfile(PathName,txtFiles(i).name),[],[],[],[],0,1);
         if (isempty(imMixed))
-            error('Could not read "%s"!',fullfile(PathName,files{1}{i},[files{1}{i},'.txt']));
+            warning('Could not read "%s"!',fullfile(PathName,txtFiles(i).name));
+            continue
         end
         
         %% unmix
@@ -93,16 +97,16 @@ spmd
         
         fprintf('Finished %s in %s\n',imageData.DatasetName,printTime(toc));
     end
-end
+% end
 system(sprintf('dir /B /ON "%s" > "%s"',fullfile(imData.imageDir,'..','_unmixed','.'),fullfile(imData.imageDir,'..','_unmixed','list.txt')));
 tm = toc;
 fprintf('Unmixing took %s for %d images, avg %s\n',printTime(tm),length(folderList),printTime(tm/length(folderList)));
 
-if (oldWorkers~=maxWorkers)
-    delete(gcp);
-    if (oldWorkers>0)
-        parpool(oldWorkers);
-    end
-end
+% if (oldWorkers~=maxWorkers)
+%     delete(gcp);
+%     if (oldWorkers>0)
+%         parpool(oldWorkers);
+%     end
+% end
 end
 
