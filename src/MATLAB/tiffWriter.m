@@ -8,7 +8,7 @@
 % image is updated.  If the file does not exist and the image data doesn't
 % fill the whole image, the rest will be filled in with black (zeros)
 % frames.
-
+%
 % PREFIX = filepath in the format ('c:\path\FilePrefix') unless there is no
 % imagedata in which case it should be ('c:\path)
 % IMAGEDATA = metadata that will be written to accompany the image.  If you
@@ -20,8 +20,7 @@
 % ZLIST = the z slices that the input image represents
 % QUITE = suppress printing out progress
 
-function tiffWriter(im, prefix, imageData, timeList, chanList, zList, quiet)
-
+function tiffWriter(im, outDir, imageData, timeList, chanList, zList, quiet)
 if (exist('tifflib') ~= 3)
     tifflibLocation = which('/private/tifflib');
     if (isempty(tifflibLocation))
@@ -35,15 +34,15 @@ if (~exist('quiet','var') || isempty(quiet))
 end
 
 if (exist('imageData','var') && ~isempty(imageData) && isfield(imageData,'DatasetName'))
-    idx = strfind(prefix,'"');
-    prefix(idx) = [];
+    idx = strfind(outDir,'"');
+    outDir(idx) = [];
     idx = strfind(imageData.DatasetName,'"');
     imageData.DatasetName(idx) = [];
-    idx = strfind(prefix,'\');
+    idx = strfind(outDir,'\');
     if (isempty(idx))
-        idx = length(prefix);
+        idx = length(outDir);
     end
-    createMetadata(prefix(1:idx(end)),imageData,quiet);
+    createMetadata(outDir(1:idx(end)),imageData,quiet);
 else
     if isstruct(imageData)
         error('ImageData struct is malformed!');
@@ -62,8 +61,8 @@ else
     imageData.YPixelPhysicalSize = 1.0;
     imageData.ZPixelPhysicalSize = 1.0;
     
-    createMetadata(prefix,imageData);
-    prefix = fullfile(prefix,imageData.DatasetName);
+    createMetadata(outDir,imageData);
+    outDir = fullfile(outDir,imageData.DatasetName);
 end
 
 if (~exist('timeList','var') || isempty(timeList))
@@ -149,7 +148,7 @@ tic
 for t=1:length(timeList)
     for c=1:length(chanList)
         for z=1:length(zList)
-            tiffObj = Tiff([prefix,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))],'w');
+            tiffObj = Tiff(fullfile(outDir,[imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))]),'w');
             tiffObj.setTag(tags);
             tiffObj.write(im(:,:,z,c,t),tags);
             tiffObj.close();

@@ -1,12 +1,9 @@
 function readMicroscopeData(dirIn, fileNameIn, dirOut, overwrite)
 if (~exist('dirIn','var') || ~exist('fileNameIn','var') || isempty(dirIn) || isempty(fileNameIn))
-    [orgFileName,orgPathName,~] = uigetfile('*.*','Select Microscope Data');
-    if (orgFileName==0), return, end
-else
-    orgPathName = dirIn;
-    orgFileName = fileNameIn;
+    [fileNameIn,dirIn,~] = uigetfile('*.*','Select Microscope Data');
+    if (fileNameIn==0), return, end
 end
-[pathstr,orgName,ext] = fileparts(orgFileName);
+[datasetPath,datasetName,datasetExt] = fileparts(fullfile(dirIn,fileNameIn));
 % ind = strfind(orgFileName,'.');
 % orgName = orgFileName(1:ind-1);
 
@@ -22,22 +19,17 @@ if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
 end
 
-if (strcmp(ext,'.czi'))
-    ind = strfind(dirIn,'\');
-    outDir = fullfile(dirOut,dirIn(ind(end):end));
-end
-
-if (~exist(fullfile(outDir,orgName),'dir'))
-    mkdir(fullfile(outDir,orgName));
+if (~exist(fullfile(outDir,datasetName),'dir'))
+    mkdir(fullfile(outDir,datasetName));
 elseif (~overwrite)
     disp('exists');
     return;
 end
 
-fprintf('%s\n-->%s\n',fullfile(orgPathName,orgFileName),fullfile(outDir,orgName));
+fprintf('%s\n-->%s\n',fullfile(datasetPath,[datasetName,datasetExt]),fullfile(outDir,datasetName));
 
 try
-    data = bfopen(fullfile(orgPathName,orgFileName));
+    data = bfopen(fullfile(datasetPath,[datasetName,datasetExt]));
 catch err
     disp(err.message);
     return
@@ -70,7 +62,7 @@ for series=1:size(data,1)
         imageData.ZPixelPhysicalSize = 1;
     end
     
-    if (strcmp(ext,'.czi'))
+    if (strcmp(datasetExt,'.czi'))
         imageData.XPosition = orgMetadata.get('Global Information|Image|S|Scene|Position|X #1');
         imageData.YPosition = orgMetadata.get('Global Information|Image|S|Scene|Position|Y #1');
         imageData.ZPosition = orgMetadata.get('Global Information|Image|S|Scene|Position|Z #1');
@@ -82,7 +74,9 @@ for series=1:size(data,1)
     
     imageData.ChannelColors = {};
     for c=0:imageData.NumberOfChannels-1
-        if (~isempty(char(omeMetadata.getChannelName(series-1,c))))
+        if (strcmp(datasetExt,'.czi'))
+            imageData.ChannelColors = [imageData.ChannelColors; {char(orgMetadata.get(['Global Experiment|AcquisitionBlock|MultiTrackSetup|TrackSetup|Detector|Dye #' num2str(c+1)]))}];
+        elseif (~isempty(char(omeMetadata.getChannelName(series-1,c))))
             imageData.ChannelColors = [imageData.ChannelColors; {char(omeMetadata.getChannelName(series-1,c))}];
         end
     end
@@ -105,7 +99,7 @@ for series=1:size(data,1)
                 im(:,:,z,c,t) = imData{ind,1};
                 delta = omeMetadata.getPlaneDeltaT(series-1,ind-1);
                 if (~isempty(delta))
-                    imageData.TimeStampDeltas(z,c,t) = delta;
+                    imageData.TimeStampDeltas(z,c,t) = delta.floatValue;
                 end
             end
         end
@@ -113,11 +107,11 @@ for series=1:size(data,1)
     
     if (size(imageData.TimeStampDeltas,1)~=imageData.ZDimension ||...
             size(imageData.TimeStampDeltas,2)~=imageData.NumberOfChannels || ...
-            size(imageData.TimeStampDeltas,1)~=imageData.NumberOfFrames)
+            size(imageData.TimeStampDeltas,3)~=imageData.NumberOfFrames)
         imageData = rmfield(imageData,'TimeStampDeltas');
     end
     
-    tiffWriter(im,fullfile(outDir,orgName,imageData.DatasetName),imageData)
+    tiffWriter(im,fullfile(outDir,datasetName),imageData);
     clear im
 end
 %system(sprintf('dir /B /ON "%s" > "%s"',fullfile(outDir,orgName),fullfile(outDir,orgName,'list.txt')));
