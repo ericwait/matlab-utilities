@@ -74,11 +74,11 @@ if (isfield(imageData,'StartCaptureDate'))
     fprintf(fileHandle,'StartCaptureDate:%s\n',imageData.StartCaptureDate);
 end
 
-if (isfield(imageData,'TimeStampDeltas'))
+if (isfield(imageData,'TimeStampDelta'))
     for t=1:imageData.NumberOfFrames
         for z=1:imageData.ZDimension
             for c=1:imageData.NumberOfChannels
-                fprintf(fileHandle,'TimeStampDelta(%d,%d,%d):%f\n',c,t,z,imageData.TimeStampDeltas(z,c,t));
+                fprintf(fileHandle,'TimeStampDelta(%d,%d,%d):%f\n',z,c,t,imageData.TimeStampDelta(z,c,t));
             end
         end
     end
