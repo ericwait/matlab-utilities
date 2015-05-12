@@ -38,11 +38,7 @@ if (exist('imageData','var') && ~isempty(imageData) && isfield(imageData,'Datase
     outDir(idx) = [];
     idx = strfind(imageData.DatasetName,'"');
     imageData.DatasetName(idx) = [];
-    idx = strfind(outDir,'\');
-    if (isempty(idx))
-        idx = length(outDir);
-    end
-    createMetadata(outDir(1:idx(end)),imageData,quiet);
+    createMetadata(outDir,imageData,quiet);
 else
     if isstruct(imageData)
         error('ImageData struct is malformed!');
