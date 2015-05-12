@@ -1,4 +1,4 @@
-function [imageData,rootDir] = readMetaData(root)
+function [imageData,rootDir] = readMetadata(root)
 
 imageData = [];
 rootDir = [];

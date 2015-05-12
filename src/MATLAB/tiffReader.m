@@ -53,7 +53,7 @@ else
     quiet = logical(quiet);
 end
 
-[imageData,path] = readMetaData(path);
+[imageData,path] = readMetadata(path);
 if (isempty(imageData))
     warning('No image read!');
     if (nargout)
@@ -70,7 +70,7 @@ if (isempty(timeList))
 end
 if (isempty(zList))
     zList = 1:imageData.ZDimension;
-end 
+end
 
 if (~exist(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'file'))
     warning('No image read!');
@@ -178,7 +178,7 @@ if (quiet~=1)
     for i=3:length(size(im))
         fprintf(',%d',size(im,i));
     end
-    
+
     if (strcmpi(inType,outType))
         fprintf(') %5.2fMB\n', (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
     else
@@ -199,7 +199,7 @@ for t=1:length(timeList)
             end
             tiffObj.close();
         end
-        
+
         if (convert)
             im(:,:,:,c,t) = imageConvertNorm(tempIm,outType,normalize);
         end
