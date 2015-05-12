@@ -24,11 +24,12 @@ if (isfield(imageData,'ChannelColors'))
     fprintf(fileHandle,'ChannelColors:');
     
     if (size(imageData.ChannelColors,1)==1 && ~iscell(imageData.ChannelColors))
-        fprintf(fileHandle,'%s,',imageData.ChannelColors);
+        fprintf(fileHandle,'%s',imageData.ChannelColors);
     else
-        for i=1:length(imageData.ChannelColors)
+        for i=1:length(imageData.ChannelColors)-1
             fprintf(fileHandle,'%s,',imageData.ChannelColors{i});
         end
+        fprintf(fileHandle,'%s',imageData.ChannelColors{end});
     end
     fprintf(fileHandle,'\n');
 end
