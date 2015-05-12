@@ -97,7 +97,11 @@ for series=1:size(data,1)
             for c=1:imageData.NumberOfChannels
                 ind = calcPlaneInd(order,z,c,t,imageData);
                 im(:,:,z,c,t) = imData{ind,1};
-                delta = omeMetadata.getPlaneDeltaT(series-1,ind-1);
+                try
+                    delta = omeMetadata.getPlaneDeltaT(series-1,ind-1);
+                catch er
+                    delta = [];
+                end
                 if (~isempty(delta))
                     imageData.TimeStampDeltas(z,c,t) = delta.floatValue;
                 end
