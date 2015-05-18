@@ -53,7 +53,7 @@ else
     quiet = logical(quiet);
 end
 
-[imageData,path] = readMetadata(path);
+[imageData,path] = readMetaData(path);
 if (isempty(imageData))
     warning('No image read!');
     if (nargout)
