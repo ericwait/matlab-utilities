@@ -19,6 +19,12 @@ if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
 end
 
+if (strcmp(datasetExt,'.czi'))
+    ind = strfind(datasetPath,'\');
+    datasetParentFolder = datasetPath(ind(end)+1:end);
+    outDir = fullfile(outDir,datasetParentFolder);
+end
+
 if (~exist(fullfile(outDir,datasetName),'dir'))
     mkdir(fullfile(outDir,datasetName));
 elseif (~overwrite)
