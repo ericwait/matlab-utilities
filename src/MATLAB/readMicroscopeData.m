@@ -94,7 +94,7 @@ for series=1:size(data,1)
     end
     
     im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames,char(omeMetadata.getPixelsType(series-1)));
-    imageData.TimeStampDeltas = 0;
+    imageData.TimeStampDelta = 0;
   
     order = char(omeMetadata.getPixelsDimensionOrder(series-1));
     imData = data{series,1};
@@ -109,16 +109,16 @@ for series=1:size(data,1)
                     delta = [];
                 end
                 if (~isempty(delta))
-                    imageData.TimeStampDeltas(z,c,t) = delta.floatValue;
+                    imageData.TimeStampDelta(z,c,t) = delta.floatValue;
                 end
             end
         end
     end
     
-    if (size(imageData.TimeStampDeltas,1)~=imageData.ZDimension ||...
-            size(imageData.TimeStampDeltas,2)~=imageData.NumberOfChannels || ...
-            size(imageData.TimeStampDeltas,3)~=imageData.NumberOfFrames)
-        imageData = rmfield(imageData,'TimeStampDeltas');
+    if (size(imageData.TimeStampDelta,1)~=imageData.ZDimension ||...
+            size(imageData.TimeStampDelta,2)~=imageData.NumberOfChannels || ...
+            size(imageData.TimeStampDelta,3)~=imageData.NumberOfFrames)
+        imageData = rmfield(imageData,'TimeStampDelta');
     end
     
     tiffWriter(im,fullfile(outDir,datasetName),imageData);
