@@ -29,7 +29,9 @@ if (isfield(imageData,'ChannelColors'))
         for i=1:length(imageData.ChannelColors)-1
             fprintf(fileHandle,'%s,',imageData.ChannelColors{i});
         end
-        fprintf(fileHandle,'%s',imageData.ChannelColors{end});
+        if (~isempty(imageData.ChannelColors))
+            fprintf(fileHandle,'%s',imageData.ChannelColors{end});
+        end
     end
     fprintf(fileHandle,'\n');
 end
