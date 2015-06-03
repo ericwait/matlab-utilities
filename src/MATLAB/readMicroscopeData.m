@@ -88,9 +88,9 @@ for series=1:size(data,1)
     end
     
     imageData.StartCaptureDate = safeGetValue(omeMetadata.getImageAcquisitionDate(series-1));
-    ind = strfind(imageData.StartCaptureDate,':');
+    ind = strfind(imageData.StartCaptureDate,'T');
     if (~isempty(ind))
-        imageData.StartCaptureDate(ind) = '.';
+        imageData.StartCaptureDate(ind) = ' ';
     end
     
     im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames,char(omeMetadata.getPixelsType(series-1)));

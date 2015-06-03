@@ -7,8 +7,8 @@ if (~exist('root','var') || isempty(root))
     root = [];
 end
 
-if (isempty(strfind(root,'.txt')))
-    [fileName,rootDir,filterIndex] = uigetfile(fullfile(root,'.txt'));
+if (isempty(strfind(root,'.json')) || isempty(strfind(root,'.txt')))
+    [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
     if (filterIndex==0)
         return
     end
@@ -16,7 +16,22 @@ if (isempty(strfind(root,'.txt')))
 end
 
 fileHandle = fopen(root);
-imageData = readfile(fileHandle);
+
+% Load and fixup txt metadata to be json-formatted for next time.
+[~,~,chkExt] = fileparts(root);
+if ( strcmpi(chkExt,'.txt') )
+    imageData = readfile(fileHandle);
+    if ( ~isempty(imageData.StartCaptureDate) )
+        imageData.StartCaptureDate = strrep(imageData.StartCaptureDate,'.',':');
+        imageData.StartCaptureDate = strrep(imageData.StartCaptureDate,'T',' ');
+    end
+else
+    jsonData = fread(fileHandle,'*char').';
+    imageData = parseJSON(jsonData);
+end
+
+fclose(fileHandle);
+
 if (isempty(rootDir))
     pos = strfind(root,'\');
     rootDir = root(1:pos(end));
@@ -31,7 +46,6 @@ imageDatum = {};
 if fileHandle<=0, return, end
 
 data = textscan(fileHandle,'%s %s', 'delimiter',':','whitespace','\n');
-fclose(fileHandle);
 
 if isempty(data), return, end
 
