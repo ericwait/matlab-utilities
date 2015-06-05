@@ -46,7 +46,14 @@ if (isempty(data)), error('Could not read file!'), end
 for series=1:size(data,1)
     orgMetadata = data{series,2};
     omeMetadata = data{series,4};
-    imageData.DatasetName = char(omeMetadata.getImageName(series-1));
+    
+    seriesDatasetName = char(omeMetadata.getImageName(series-1));
+    if ( strcmpi(seriesDatasetName,[datasetName,datasetExt]) )
+        imageData.DatasetName = datasetName;
+    else
+        imageData.DatasetName = seriesDatasetName;
+    end
+    
     imageData.XDimension = safeGetValue(omeMetadata.getPixelsSizeX(series-1));
     imageData.YDimension = safeGetValue(omeMetadata.getPixelsSizeY(series-1));
     imageData.ZDimension = safeGetValue(omeMetadata.getPixelsSizeZ(series-1));
