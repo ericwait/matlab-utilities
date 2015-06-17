@@ -7,7 +7,9 @@ if (~exist('root','var') || isempty(root))
     root = [];
 end
 
-if (isempty(strfind(root,'.json')) || isempty(strfind(root,'.txt')))
+[~,~,ext] = fileparts(root);
+
+if (~strcmp(ext,'.json') && ~strcmp(ext,'.txt'))
     [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
     if (filterIndex==0)
         return
