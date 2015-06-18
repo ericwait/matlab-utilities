@@ -188,6 +188,12 @@ if (quiet~=1)
     end
 end
 
+if (~quiet)
+    iter = length(timeList)*length(chanList)*length(zList);
+    PrintProgress(iter,true);
+    i=1;
+end
+
 for t=1:length(timeList)
     for c=1:length(chanList)
         for z=1:length(zList)
@@ -198,12 +204,20 @@ for t=1:length(timeList)
                 im(:,:,z,c,t) = tiffObj.read();
             end
             tiffObj.close();
+            if (~quiet)
+                PrintProgress(i);
+                i = i+1;
+            end
         end
 
         if (convert)
             im(:,:,:,c,t) = imageConvertNorm(tempIm,outType,normalize);
         end
     end
+end
+
+if (~quiet)
+    PrintProgress(0,false);
 end
 
 if (convert)
