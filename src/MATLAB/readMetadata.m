@@ -9,6 +9,7 @@ end
 
 [~,~,ext] = fileparts(root);
 
+
 if (~strcmp(ext,'.json') && ~strcmp(ext,'.txt'))
     [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
     if (filterIndex==0)
@@ -23,7 +24,7 @@ fileHandle = fopen(root);
 [~,~,chkExt] = fileparts(root);
 if ( strcmpi(chkExt,'.txt') )
     imageData = readfile(fileHandle);
-    if ( ~isempty(imageData.StartCaptureDate) )
+    if (isfield(imageData,'StartCaptureDate') && ~isempty(imageData.StartCaptureDate) )
         imageData.StartCaptureDate = strrep(imageData.StartCaptureDate,'.',':');
         imageData.StartCaptureDate = strrep(imageData.StartCaptureDate,'T',' ');
     end
