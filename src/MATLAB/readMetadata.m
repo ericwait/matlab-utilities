@@ -1,21 +1,48 @@
 function [imageData,rootDir] = readMetadata(root)
 
 imageData = [];
-rootDir = [];
 
 if (~exist('root','var') || isempty(root))
-    root = [];
+    root = '';
 end
 
-[~,~,ext] = fileparts(root);
+[rootDir,fileName,ext] = fileparts(root);
 
-
-if (~strcmp(ext,'.json') && ~strcmp(ext,'.txt'))
+if (~isempty(ext))
+    % case root has an extension
+    if (~strcmp(ext,'.json') && ~strcmp(ext,'.txt'))
+        [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
+        if (filterIndex==0)
+            return
+        end
+        root = fullfile(rootDir,fileName);
+    end
+elseif (~isempty(fileName))
+    % case root has a file name
+    if (exist(fullfile(rootDir,[fileName,'.json']),'file'))
+        root = fullfile(rootDir,[fileName,'.json']);
+    elseif (exist(fullfile(rootDir,[fileName,'.txt']),'file'));
+        root = fullfile(rootDir,[fileName,'.json']);
+    else
+        [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
+        if (filterIndex==0)
+            return
+        end
+        root = fullfile(rootDir,fileName);
+    end
+elseif (~isempty(rootDir))
+    % case root is a path (e.g. \ terminated)
+else
+    % case where root is empty
     [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
     if (filterIndex==0)
         return
     end
     root = fullfile(rootDir,fileName);
+end
+
+if (~exist(root,'file'))
+    return
 end
 
 fileHandle = fopen(root);
