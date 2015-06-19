@@ -140,6 +140,13 @@ switch w.class
     otherwise
         error('Image type unsupported!');
 end
+
+if (~quiet)
+    iter = length(timeList)*length(chanList)*length(zList);
+    PrintProgress(iter,true);
+    i=1;
+end
+
 tic
 for t=1:length(timeList)
     for c=1:length(chanList)
@@ -148,8 +155,18 @@ for t=1:length(timeList)
             tiffObj.setTag(tags);
             tiffObj.write(im(:,:,z,c,t),tags);
             tiffObj.close();
+            
+            if (~quiet)
+                PrintProgress(i);
+                i = i+1;
+            end
+            
         end
     end
+end
+
+if (~quiet)
+    PrintProgress(0,false);
 end
 
 if (~quiet)

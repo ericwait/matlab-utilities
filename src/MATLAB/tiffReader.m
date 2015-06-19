@@ -203,7 +203,9 @@ for t=1:length(timeList)
             else
                 im(:,:,z,c,t) = tiffObj.read();
             end
+            
             tiffObj.close();
+            
             if (~quiet)
                 PrintProgress(i);
                 i = i+1;
