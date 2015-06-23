@@ -1,4 +1,4 @@
-function PrintProgress(val,init)
+function PrintProgress(val,init,useBackspace)
 %PRINTPROGRESS prints the progress and the estimated time of completion on
 %the commandline.
 %ENSURE that the code that is being monitored does not have internal
@@ -15,9 +15,17 @@ function PrintProgress(val,init)
 %          Update by using    PrintProgress(current iteration);
 %          Clean up by using  PrintProgress(0,false);
 
-global backspaces firstTime total
+global backspaces firstTime total useBs
 
 cur = now;
+
+if(~exist('useBackspace', 'var') || isempty(useBackspace))
+   if(isempty(useBs))
+      useBs = true; 
+   end 
+else
+   useBs = useBackspace;
+end
 
 if (exist('init','var') && ~isempty(init))
     if (init)
@@ -25,6 +33,7 @@ if (exist('init','var') && ~isempty(init))
         firstTime = cur;
         total = val;
     else
+        useBs = true;
         fprintf(backspaces);
         backspaces = '';
         firstTime = 0;
@@ -39,6 +48,11 @@ else
     
     doneStr = sprintf('%5.2f%%%% est. %s @ %s',prcntDone*100,printTime(timeLeft),datestr(finDate,'HH:MM:SS dd-mmm-yy'));
     fprintf([backspaces,doneStr]);
-    backspaces = repmat(sprintf('\b'),1,length(doneStr)-1);
+    
+    if(useBs)
+        backspaces = repmat(sprintf('\b'),1,length(doneStr)-1);
+    else
+       fprintf('\n'); 
+    end
 end
 end
