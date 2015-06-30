@@ -32,6 +32,14 @@ elseif (~isempty(fileName))
     end
 elseif (~isempty(rootDir))
     % case root is a path (e.g. \ terminated)
+    dirList = dir(fullfile(rootDir,'*.json'));
+    if (isempty(dirList))
+        dirList = dir(fullfile(rootDir,'*.txt'));
+        if (isempty(dirList))
+            return
+        end
+    end
+    root = fullfile(rootDir,dirList(1).name);
 else
     % case where root is empty
     [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
