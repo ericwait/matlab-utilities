@@ -22,7 +22,7 @@ elseif (~isempty(fileName))
     if (exist(fullfile(rootDir,[fileName,'.json']),'file'))
         root = fullfile(rootDir,[fileName,'.json']);
     elseif (exist(fullfile(rootDir,[fileName,'.txt']),'file'));
-        root = fullfile(rootDir,[fileName,'.json']);
+        root = fullfile(rootDir,[fileName,'.txt']);
     else
         [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
         if (filterIndex==0)
