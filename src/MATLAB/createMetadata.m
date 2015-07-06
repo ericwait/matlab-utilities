@@ -1,5 +1,12 @@
 function createMetadata(root,imageData,quiet)
 
+if (isempty(root))
+    root = uigetdir(imageData.imageDir,'Directory to Place Metadata');
+    if (root==0)
+        return
+    end
+end
+
 if (~exist(root,'dir'))
     mkdir(root);
 end
