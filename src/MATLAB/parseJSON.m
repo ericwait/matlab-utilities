@@ -153,7 +153,7 @@ end
 
 function fieldStr = validFieldName(inStr)
     fieldStr = inStr;
-    bAlphaNum = arrayfun(@isalpha_num,inStr);
+    bAlphaNum = isstrprop(inStr,'alphanum');
     fieldStr(~bAlphaNum) = '_';
     
     if ( ~isletter(fieldStr(1)) )
