@@ -6,6 +6,15 @@ if (~exist('root','var') || isempty(root))
     root = '';
 end
 
+% This is to help when the filename might have '.' whithin them
+% TODO rework this logic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if (exist([root,'.json'],'file'))
+    root = [root,'.json'];
+elseif (exist([root,'.txt'],'file'))
+    root = [root,'.txt'];
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 [rootDir,fileName,ext] = fileparts(root);
 
 if (~isempty(ext))
