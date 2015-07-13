@@ -22,7 +22,7 @@ starts = zeros(1,length(stains));
 for i=1:length(stains)
     idx = strfind(imageData.imageDir,stains(i).stain);
     if (~isempty(idx))
-        starts(i) = idx;
+        starts(i) = idx(1);
     end
 end
 
