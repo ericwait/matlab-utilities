@@ -74,6 +74,7 @@ stains = setNextColor(stains, 'Bcat', lclColor, lclStr);
 stains = setNextColor(stains, 'Mash', lclColor, lclStr);
 stains = setNextColor(stains, 'Msh', lclColor, lclStr);
 stains = setNextColor(stains, 'lectin', lclColor, lclStr);
+stains = setNextColor(stains, 'Lectin', lclColor, lclStr);
 stains = setNextColor(stains, 'EdU', lclColor, lclStr);
 stains = setNextColor(stains, 'EDU', lclColor, lclStr);
 
