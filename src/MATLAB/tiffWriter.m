@@ -143,7 +143,7 @@ end
 
 if (~quiet)
     iter = length(timeList)*length(chanList)*length(zList);
-    PrintProgress(iter,true);
+    cp = CmdlnProgress(iter,true);
     i=1;
 end
 
@@ -157,7 +157,7 @@ for t=1:length(timeList)
             tiffObj.close();
             
             if (~quiet)
-                PrintProgress(i);
+                PrintProgress(cp,i);
                 i = i+1;
             end
             
@@ -166,10 +166,7 @@ for t=1:length(timeList)
 end
 
 if (~quiet)
-    PrintProgress(0,false);
-end
-
-if (~quiet)
+    ClearProgress(cp);
     fprintf('Wrote %.0fMB in %s\n',...
         ((tags.BitsPerSample/8)*imageData.XDimension*imageData.YDimension*imageData.ZDimension*imageData.NumberOfChannels*imageData.NumberOfFrames)/(1024*1024),...
         printTime(toc));
