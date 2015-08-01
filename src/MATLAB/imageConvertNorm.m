@@ -13,7 +13,11 @@ if (~exist('normalize','var') || isempty(normalize))
     normalize = 0;
 end
 
-imageOut = zeros(size(imageIn),typ);
+if (~strcmpi(typ,'logical'))
+    imageOut = zeros(size(imageIn),typ);
+else
+    imageOut = false(size(imageIn));
+end
 
 if (normalize)
     for t=1:size(imageIn,5)

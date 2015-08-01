@@ -101,6 +101,8 @@ elseif (strcmp(outType,'uint16') || strcmp(outType,'int16'))
     bytes=2;
 elseif (strcmp(outType,'uint8'))
     bytes=1;
+elseif (strcmp(outType,'logical'))
+    bytes=1/8;
 else
     error('Unsupported output type!');
 end
@@ -164,7 +166,11 @@ if (~strcmpi(inType,outType) || normalize)
     tempIm = zeros(imageData.YDimension,imageData.XDimension,length(zList),inType);
 end
 
-im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
+if (~strcmpi(outType,'logical'))
+    im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
+else
+    im = false(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList));
+end
 
 if (quiet~=1)
     if (strcmpi(inType,outType))
