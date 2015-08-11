@@ -1,8 +1,10 @@
-% [IM, IMAGEDATA] = TIFFREADER(PATH, TIMELIST, CHANLIST, ZLIST, OUTTYPE, NORMALIZE, QUIET)
+% [IM, IMAGEDATA] = TIFFREADER(pathOrImageData, TIMELIST, CHANLIST, ZLIST, OUTTYPE, NORMALIZE, QUIET, PROMPT)
 % ALL arguments are optional; pass in empty [] for the arguments that come
 % prior to the one you would like to populate.
 %
-% PATH = the path to the meta data file
+% pathOrImageData = the path to the meta data file or the metadata
+% structure itself.  This can be be left empty and the prompt flag set to
+% true if you would like a uigetfile to be displayed.
 % TIMELIST = a list of frames that you would like to recive
 % CHANLIST = a list of the channels you would like to recive
 % ZLIST = a list of the stacks that you would like to recive
@@ -10,13 +12,15 @@
 % NORMALIZE = normalize each image per channel per frame. Meaning that for
 %   each frame, every channel will be normalized independently.
 % QUIET = if set to 1 then size stats will not be printed
+% PROMPT = set to true if you want a uigetfile to be displayed if the
+% metadata is not found.
 %
 % Outputs:
 % IM = is a 5-D image of either the orginal type or the type requested.
 % The data and can be indexed as (Y,X,Z,C,T) : c = channel, t = frame.
 % IMAGEDATA = Optionaly the metadata can be the second output argument
 
-function [im, varargout] = tiffReader(path, timeList, chanList, zList, outType, normalize, quiet)
+function [im, varargout] = tiffReader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt)
 im = [];
 
 if (exist('tifflib') ~= 3)
@@ -27,8 +31,8 @@ if (exist('tifflib') ~= 3)
     copyfile(tifflibLocation,'.');
 end
 
-if (~exist('path','var') || isempty(path))
-    path = [];
+if (~exist('pathOrImageData','var'))
+    pathOrImageData = [];
 end
 if (~exist('timeList','var') || isempty(timeList))
     timeList = [];
@@ -52,8 +56,17 @@ if (~exist('quiet','var') || isempty(quiet))
 else
     quiet = logical(quiet);
 end
+if (~exist('prompt','var')) || isempty(prompt))
+    prompt = false;
+end
 
-[imageData,path] = readMetadata(path);
+if (~isstruct(pathOrImageData))
+    [imageData,path] = readMetadata(pathOrImageData,prompt);
+else
+    imageData = pathOrImageData;
+    path = imageData.imageDir;
+end
+    
 if (isempty(imageData))
     warning('No image read!');
     if (nargout)
