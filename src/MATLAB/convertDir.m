@@ -8,11 +8,12 @@ function convertDir(dirPath,outDir,overwrite,includeTiff)
 %   will not overwrite current directories.
 
 if (~exist('dirPath','var') || isempty(dirPath))
-    dirPath = uigetdir();
+    dirPath = uigetdir('.','Choose source folder');
     if (dirPath==0), return, end
 end
+[pathstr,name,ext]=fileparts(dirPath);
 if (~exist('outDir','var') || isempty(outDir))
-    outDir = uigetdir();
+    outDir = uigetdir('.',['Choose destination folder for source: ' name]);
     if (outDir==0), return, end
 end
 if (~exist('overwrite','var') || isempty(overwrite))
