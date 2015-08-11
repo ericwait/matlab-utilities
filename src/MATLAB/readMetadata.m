@@ -1,6 +1,10 @@
-function [imageData,rootDir] = readMetadata(root)
+function [imageData,rootDir] = readMetadata(root,prompt)
 
 imageData = [];
+
+if (~exist('prompt','var') || isempty(prompt))
+    prompt = false;
+end
 
 if (~exist('root','var') || isempty(root))
     root = '';
@@ -20,11 +24,15 @@ end
 if (~isempty(ext))
     % case root has an extension
     if (~strcmp(ext,'.json') && ~strcmp(ext,'.txt'))
-        [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
-        if (filterIndex==0)
+        if (prompt)
+            [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
+            if (filterIndex==0)
+                return
+            end
+            root = fullfile(rootDir,fileName);
+        else
             return
         end
-        root = fullfile(rootDir,fileName);
     end
 elseif (~isempty(fileName))
     % case root has a file name
@@ -32,12 +40,14 @@ elseif (~isempty(fileName))
         root = fullfile(rootDir,[fileName,'.json']);
     elseif (exist(fullfile(rootDir,[fileName,'.txt']),'file'));
         root = fullfile(rootDir,[fileName,'.txt']);
-    else
+    elseif (prompt)
         [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
         if (filterIndex==0)
             return
         end
         root = fullfile(rootDir,fileName);
+    else
+        return
     end
 elseif (~isempty(rootDir))
     % case root is a path (e.g. \ terminated)
@@ -49,13 +59,15 @@ elseif (~isempty(rootDir))
         end
     end
     root = fullfile(rootDir,dirList(1).name);
-else
+elseif (prompt)
     % case where root is empty
     [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
     if (filterIndex==0)
         return
     end
     root = fullfile(rootDir,fileName);
+else
+    return
 end
 
 if (~exist(root,'file'))
