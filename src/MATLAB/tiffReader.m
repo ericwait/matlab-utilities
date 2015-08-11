@@ -56,7 +56,7 @@ if (~exist('quiet','var') || isempty(quiet))
 else
     quiet = logical(quiet);
 end
-if (~exist('prompt','var')) || isempty(prompt))
+if (~exist('prompt','var') || isempty(prompt))
     prompt = false;
 end
 
