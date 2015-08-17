@@ -20,7 +20,7 @@ stains = setColors();
 
 starts = zeros(1,length(stains));
 for i=1:length(stains)
-    idx = strfind(imageData.imageDir,stains(i).stain);
+    idx = strfind(fullfile(imageData.imageDir,imageData.DatasetName),stains(i).stain);
     if (~isempty(idx))
         starts(i) = idx(1);
     end
@@ -29,7 +29,8 @@ end
 [b, idx] = sort(starts);
 stainOrder = idx(b>0);
 if (isempty(stainOrder) || length(stainOrder)~=imageData.NumberOfChannels)
-    dbstop in GetChannelColors at 33
+    dbstop in GetChannelColors at 34
+    msgbox('Choose stains manually');
     disp([stains(stainOrder).stain]);
 end
 
