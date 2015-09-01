@@ -56,7 +56,10 @@ if (~exist('quiet','var') || isempty(quiet))
 else
     quiet = logical(quiet);
 end
-if (~exist('prompt','var') || isempty(prompt))
+
+if (nargin==0)
+    prompt = true;
+elseif (~exist('prompt','var') || isempty(prompt))
     prompt = false;
 end
 
