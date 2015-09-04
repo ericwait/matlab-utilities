@@ -73,13 +73,13 @@ deltaY = imageDatasets(root).yDelta;
 deltaZ = imageDatasets(root).zDelta;
 
 imageDatasets(root).xMinPos = ...
-    imageDatasets(root).xDelta * imageDatasets(root).XPixelPhysicalSize + imageDatasets(root).YPosition*1e5;
+    imageDatasets(root).xDelta * imageDatasets(root).XPixelPhysicalSize + imageDatasets(root).YPosition*1e6;
 
 imageDatasets(root).xMaxPos = ...
     imageDatasets(root).xMinPos + imageDatasets(root).XDimension * imageDatasets(root).XPixelPhysicalSize;
 
 imageDatasets(root).yMinPos = ...
-    imageDatasets(root).yDelta * imageDatasets(root).YPixelPhysicalSize + imageDatasets(root).XPosition*1e5;
+    imageDatasets(root).yDelta * imageDatasets(root).YPixelPhysicalSize + imageDatasets(root).XPosition*1e6;
 
 imageDatasets(root).yMaxPos = ...
     imageDatasets(root).yMinPos + imageDatasets(root).YDimension * imageDatasets(root).YPixelPhysicalSize;
