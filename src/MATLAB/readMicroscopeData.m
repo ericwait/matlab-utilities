@@ -85,13 +85,21 @@ for series=1:size(data,1)
         imageData.ZPosition = double(omeMetadata.getPlanePositionZ(series-1,0));
     end
     
-    imageData.ChannelColors = {};
-    for c=0:imageData.NumberOfChannels-1
+    imageData.ChannelColors = cell(1,imageData.NumberOfChannels);
+    for c=1:imageData.NumberOfChannels
+        colr = '';
+        
         if (strcmp(datasetExt,'.czi'))
-            imageData.ChannelColors = [imageData.ChannelColors; {char(orgMetadata.get(['Global Experiment|AcquisitionBlock|MultiTrackSetup|TrackSetup|Detector|Dye #' num2str(c+1)]))}];
-        elseif (~isempty(char(omeMetadata.getChannelName(series-1,c))))
-            imageData.ChannelColors = [imageData.ChannelColors; {char(omeMetadata.getChannelName(series-1,c))}];
+            colr = char(orgMetadata.get(['Global Experiment|AcquisitionBlock|MultiTrackSetup|TrackSetup|Detector|Dye #' num2str(c)]));
+        elseif (~isempty(char(omeMetadata.getChannelName(series-1,c-1))))
+            colr = char(omeMetadata.getChannelName(series-1,c-1));
         end
+        
+        if (isempty(colr))
+            colr = '';
+        end
+        
+        imageData.ChannelColors{c} = colr;
     end
     
     imageData.StartCaptureDate = safeGetValue(omeMetadata.getImageAcquisitionDate(series-1));
