@@ -64,7 +64,7 @@ clear imEmb2;
 
 % Transform Overlap Sumproducts for covariances.
 SumOverlapIm = ifftn( im1fft.*im2fft );
-SumOverlapIm = SumOverlapIm.*(SumOverlapIm > 0);
+SumOverlapIm(SumOverlapIm<0) = 0;
 
 % Compute sizes of the overlaps.
 Noverlap = round(ifftn( im1fftOnes.*im2fftOnes ));
