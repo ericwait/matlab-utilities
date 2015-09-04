@@ -1,4 +1,11 @@
-function readMicroscopeData(dirIn, fileNameIn, dirOut, overwrite)
+function [varargout] = readMicroscopeData(dirIn, fileNameIn, dirOut, overwrite, writeOut)
+if (nargout>1)
+    varargout{2} = '';
+end
+if (nargout>0)
+    varargout{1} = [];
+end
+
 if (~exist('dirIn','var') || ~exist('fileNameIn','var') || isempty(dirIn) || isempty(fileNameIn))
     [fileNameIn,dirIn,~] = uigetfile('*.*','Select Microscope Data');
     if (fileNameIn==0), return, end
@@ -19,6 +26,10 @@ if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
 end
 
+if (~exist('writeOut','var') || isempty(writeOut))
+    writeOut = true;
+end
+
 if (strcmp(datasetExt,'.czi'))
     ind = strfind(datasetPath,'\');
     datasetParentFolder = datasetPath(ind(end)+1:end);
@@ -27,7 +38,7 @@ end
 
 if (~exist(fullfile(outDir,datasetName),'dir'))
     mkdir(fullfile(outDir,datasetName));
-elseif (~overwrite)
+elseif (~overwrite && writeOut)
     disp('exists');
     return;
 end
@@ -136,8 +147,16 @@ for series=1:size(data,1)
         imageData = rmfield(imageData,'TimeStampDelta');
     end
     
-    tiffWriter(im,fullfile(outDir,datasetName),imageData);
-    clear im
+    if (writeOut)
+        tiffWriter(im,fullfile(outDir,datasetName),imageData);
+    end
+end
+
+if (nargout>1)
+    varargout{2} = imageData;
+end
+if (nargout>0)
+    varargout{1} = im;
 end
 %system(sprintf('dir /B /ON "%s" > "%s"',fullfile(outDir,orgName),fullfile(outDir,orgName,'list.txt')));
 end
