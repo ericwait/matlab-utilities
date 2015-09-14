@@ -15,6 +15,8 @@ defaultColors(5).str = 'm';
 defaultColors(5).color = [1.00 0.00 1.00];
 defaultColors(6).str = 'y';
 defaultColors(6).color = [1.00 1.00 0.00];
+defaultColors(7).str = 'w';
+defaultColors(7).color = [1.00 1.00 1.00];
 
 stains = setColors();
 
@@ -29,7 +31,7 @@ end
 [b, idx] = sort(starts);
 stainOrder = idx(b>0);
 if (isempty(stainOrder) || length(stainOrder)~=imageData.NumberOfChannels)
-    dbstop in GetChannelColors at 34
+    dbstop in GetChannelColors at 36
     msgbox('Choose stains manually');
     disp([stains(stainOrder).stain]);
 end
@@ -92,6 +94,7 @@ lclStr = 'c';
 stains = setNextColor(stains, 'DCX', lclColor, lclStr);
 stains = setNextColor(stains, 'Dcx', lclColor, lclStr);
 stains = setNextColor(stains, 'Itga', lclColor, lclStr);
+stains = setNextColor(stains, 'Cy5', lclColor, lclStr);
 %stains = setNextColor(stains, 'NCAM', lclColor, lclStr);
 
 %% yellow
@@ -109,6 +112,11 @@ lclStr = 'm';
 stains = setNextColor(stains, 'AcTub', lclColor, lclStr);
 % stains = setNextColor(stains, 'VCAM', lclColor, lclStr);
 % stains = setNextColor(stains, 'Mash', lclColor, lclStr);
+
+%% white
+lclColor = [1.00 1.00 1.00];
+lclStr = 'w';
+stains = setNextColor(stains, 'Phase', lclColor, lclStr);
 end
 
 function stains = setNextColor(stains, stainName, val, strC)
