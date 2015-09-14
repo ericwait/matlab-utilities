@@ -13,7 +13,7 @@ deltasPresent = 0;
 names = {imageDatasets(:).DatasetName};
 names = cellfun(@(x)([x '.']),names,'uniformOutput',0);
 for i=1:length(imageDatasets)
-    filename = fullfile(root,[imageDatasets(i).DatasetName '_corrResults.txt']);
+    filename = fullfile(root,imageDatasets(i).DatasetName,[imageDatasets(i).DatasetName '_corrResults.txt']);
    
     if exist(filename,'file') 
         deltasPresent = 1;
@@ -56,12 +56,17 @@ if (deltasPresent==1)
     imageDatasets = applyParentsDelta(root,0,0,0,imageDatasets,unitFactor);
 else
     for i=1:length(imageDatasets)
-        imageDatasets(i).xMinPos = imageDatasets(i).YPosition*1e6;
-        imageDatasets(i).xMaxPos = imageDatasets(i).xMinPos + imageDatasets(i).XDimension * imageDatasets(i).XPixelPhysicalSize;
-        imageDatasets(i).yMinPos = imageDatasets(i).XPosition*1e6;
-        imageDatasets(i).yMaxPos = imageDatasets(i).yMinPos + imageDatasets(i).YDimension * imageDatasets(i).YPixelPhysicalSize;
-        imageDatasets(i).zMinPos = 0;
-        imageDatasets(i).zMaxPos = imageDatasets(i).ZDimension * imageDatasets(i).ZPixelPhysicalSize;
+        imageDatasets(i).xMinPos = round(imageDatasets(i).XPosition*unitFactor * imageDatasets(i).XPixelPhysicalSize);
+        imageDatasets(i).xMaxPos = imageDatasets(i).xMinPos + imageDatasets(i).XDimension -1;
+        imageDatasets(i).yMinPos = round(imageDatasets(i).YPosition * unitFactor * imageDatasets(i).YPixelPhysicalSize);
+        imageDatasets(i).yMaxPos = imageDatasets(i).yMinPos + imageDatasets(i).YDimension -1;
+        
+        if (isfield(imageDatasets,'ZPosition'))
+            imageDatasets(i).zMinPos = round(imageDatasets(i).ZPosition * unitFactor * imageDatasets(i).ZPixelPhysicalSize);
+        else
+            imageDatasets(i).zMinPos = 1;
+        end
+        imageDatasets(i).zMaxPos = imageDatasets(i).zMinPos + imageDatasets(i).ZDimension -1;
     end
 end
 end
@@ -75,23 +80,17 @@ deltaX = imageDatasets(root).xDelta;
 deltaY = imageDatasets(root).yDelta;
 deltaZ = imageDatasets(root).zDelta;
 
-imageDatasets(root).xMinPos = ...
-    imageDatasets(root).xDelta * imageDatasets(root).XPixelPhysicalSize + imageDatasets(root).YPosition*1e6;
+imageDatasets(root).xMinPos = round(imageDatasets(root).XPosition*unitFactor * imageDatasets(root).XPixelPhysicalSize) + deltaX;
+imageDatasets(root).xMaxPos = imageDatasets(root).xMinPos + imageDatasets(root).XDimension -1;
+imageDatasets(root).yMinPos = round(imageDatasets(root).YPosition * unitFactor * imageDatasets(root).YPixelPhysicalSize) + deltaY;
+imageDatasets(root).yMaxPos = imageDatasets(root).yMinPos + imageDatasets(root).YDimension -1;
 
-imageDatasets(root).xMaxPos = ...
-    imageDatasets(root).xMinPos + imageDatasets(root).XDimension * imageDatasets(root).XPixelPhysicalSize;
-
-imageDatasets(root).yMinPos = ...
-    imageDatasets(root).yDelta * imageDatasets(root).YPixelPhysicalSize + imageDatasets(root).XPosition*1e6;
-
-imageDatasets(root).yMaxPos = ...
-    imageDatasets(root).yMinPos + imageDatasets(root).YDimension * imageDatasets(root).YPixelPhysicalSize;
-
-imageDatasets(root).zMinPos = ...
-    imageDatasets(root).zDelta * imageDatasets(root).ZPixelPhysicalSize;
-
-imageDatasets(root).zMaxPos = ...
-    imageDatasets(root).zMinPos + imageDatasets(root).ZDimension * imageDatasets(root).ZPixelPhysicalSize;
+if (isfield(imageDatasets,'ZPosition'))
+    imageDatasets(root).zMinPos = round(imageDatasets(root).ZPosition * unitFactor * imageDatasets(root).ZPixelPhysicalSize) + deltaZ;
+else
+    imageDatasets(root).zMinPos = 1 + deltaZ;
+end
+imageDatasets(root).zMaxPos = imageDatasets(root).zMinPos + imageDatasets(root).ZDimension -1;
 
 for i=1:length(imageDatasets(root).Children)
     imageDatasets = applyParentsDelta(imageDatasets(root).Children(i),deltaX,deltaY,deltaZ,imageDatasets,unitFactor);
