@@ -32,7 +32,11 @@ if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
 end
 
-if (strcmp(datasetExt,'.czi') && writeOut)
+if (~exist('writeOut','var') || isempty(writeOut))
+    writeOut = true;
+end
+
+if (strcmp(datasetExt,'.czi'))
     ind = strfind(datasetPath,'\');
     datasetParentFolder = datasetPath(ind(end)+1:end);
     outDir = fullfile(outDir,datasetParentFolder);
@@ -41,7 +45,7 @@ end
 if (writeOut)
     if (~exist(fullfile(outDir,datasetName),'dir'))
         mkdir(fullfile(outDir,datasetName));
-    elseif (~overwrite && writeOut)
+    elseif (~overwrite)
         disp('exists');
         return;
     end
