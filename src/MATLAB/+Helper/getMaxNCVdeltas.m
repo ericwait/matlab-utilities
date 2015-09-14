@@ -6,6 +6,10 @@ if (~exist('orginCoords','var') || isempty(orginCoords))
     orginCoords = zeros(1,ndims(im2));
 end
 
+if (~exist('maxSearchSize','var') || isempty(maxSearchSize))
+    maxSearchSize = max(max(size(im1),size(im2)));
+end
+
 ncvMatrix = Helper.FFTNormalizedCovariance(im1,im2,minOverlapVolume);
 
 %% cut out the region of interest
