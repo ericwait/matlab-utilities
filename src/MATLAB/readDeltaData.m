@@ -1,4 +1,7 @@
-function [deltasPresent,imageDatasets] = readDeltaData(root,imageDatasets)
+function [deltasPresent,imageDatasets] = readDeltaData(root,imageDatasets,unitFactor)
+if (~exist('unitFactor','var') || isempty(unitFactor))
+    unitFactor = 1e6;
+end
 
 if ~exist('root','var')
     rootDir = uigetdir('');
@@ -50,7 +53,7 @@ if (deltasPresent==1)
     
     if (length(root)~=1), error('There are too many roots to min span tree!'); end
     
-    imageDatasets = applyParentsDelta(root,0,0,0,imageDatasets);
+    imageDatasets = applyParentsDelta(root,0,0,0,imageDatasets,unitFactor);
 else
     for i=1:length(imageDatasets)
         imageDatasets(i).xMinPos = imageDatasets(i).YPosition*1e6;
@@ -63,7 +66,7 @@ else
 end
 end
 
-function imageDatasets = applyParentsDelta(root,deltaX,deltaY,deltaZ,imageDatasets)
+function imageDatasets = applyParentsDelta(root,deltaX,deltaY,deltaZ,imageDatasets,unitFactor)
 imageDatasets(root).xDelta = imageDatasets(root).xDelta + deltaX;
 imageDatasets(root).yDelta = imageDatasets(root).yDelta + deltaY;
 imageDatasets(root).zDelta = imageDatasets(root).zDelta + deltaZ;
@@ -91,6 +94,6 @@ imageDatasets(root).zMaxPos = ...
     imageDatasets(root).zMinPos + imageDatasets(root).ZDimension * imageDatasets(root).ZPixelPhysicalSize;
 
 for i=1:length(imageDatasets(root).Children)
-    imageDatasets = applyParentsDelta(imageDatasets(root).Children(i),deltaX,deltaY,deltaZ,imageDatasets);
+    imageDatasets = applyParentsDelta(imageDatasets(root).Children(i),deltaX,deltaY,deltaZ,imageDatasets,unitFactor);
 end
 end
