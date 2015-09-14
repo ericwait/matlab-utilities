@@ -3,7 +3,7 @@ function [deltas,maxNCV] = getMaxNCVdeltas(im1,im2,minOverlapVolume,maxSearchSiz
 % DELTAS is the shift of the upper left coners ....
 
 if (~exist('orginCoords','var') || isempty(orginCoords))
-    orginCoords = zeros(ndims(im2));
+    orginCoords = zeros(1,ndims(im2));
 end
 
 ncvMatrix = Helper.FFTNormalizedCovariance(im1,im2,minOverlapVolume);
