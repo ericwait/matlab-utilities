@@ -14,36 +14,41 @@ end
 % ind = strfind(orgFileName,'.');
 % orgName = orgFileName(1:ind-1);
 
-if (~exist('dirOut','var') || isempty(dirOut))
-    disp('Select output directory...');
-    outDir = uigetdir('.','Select Output Directory');
-    if (outDir==0), return, end
-else
-    outDir = dirOut;
+if (~exist('writeOut','var') || isempty(writeOut))
+    writeOut = true;
+end
+
+if (writeOut)
+    if (~exist('dirOut','var') || isempty(dirOut))
+        disp('Select output directory...');
+        outDir = uigetdir('.','Select Output Directory');
+        if (outDir==0), return, end
+    else
+        outDir = dirOut;
+    end
 end
 
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
 end
 
-if (~exist('writeOut','var') || isempty(writeOut))
-    writeOut = true;
-end
-
-if (strcmp(datasetExt,'.czi'))
+if (strcmp(datasetExt,'.czi') && writeOut)
     ind = strfind(datasetPath,'\');
     datasetParentFolder = datasetPath(ind(end)+1:end);
     outDir = fullfile(outDir,datasetParentFolder);
 end
 
-if (~exist(fullfile(outDir,datasetName),'dir'))
-    mkdir(fullfile(outDir,datasetName));
-elseif (~overwrite && writeOut)
-    disp('exists');
-    return;
+if (writeOut)
+    if (~exist(fullfile(outDir,datasetName),'dir'))
+        mkdir(fullfile(outDir,datasetName));
+    elseif (~overwrite && writeOut)
+        disp('exists');
+        return;
+    end
+    fprintf('%s\n-->%s\n',fullfile(datasetPath,[datasetName,datasetExt]),fullfile(outDir,datasetName));
+else
+    fprintf('%s\n',fullfile(datasetPath,[datasetName,datasetExt]));
 end
-
-fprintf('%s\n-->%s\n',fullfile(datasetPath,[datasetName,datasetExt]),fullfile(outDir,datasetName));
 
 try
     data = bfopen(fullfile(datasetPath,[datasetName,datasetExt]));
