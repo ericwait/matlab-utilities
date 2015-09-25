@@ -1,4 +1,4 @@
-function inds = sub2indAllDims(siz,coords)
+function inds = Sub2indAllDims(siz,coords)
 pro = zeros(size(siz));
 pro(1) = 1;
 

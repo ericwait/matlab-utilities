@@ -1,4 +1,4 @@
-function X = calcImCoords(imSize, linIdx)
+function X = CalcImCoords(imSize, linIdx)
 coordCell = cell(1,length(imSize));
 [coordCell{:}] = ind2sub(imSize, linIdx);
 

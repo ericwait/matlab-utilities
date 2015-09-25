@@ -1,4 +1,4 @@
-function shapeElement = makeBallEl(radius)
+function shapeElement = MakeBallMask(radius)
 nbSE = false(2*radius+1,2*radius+1,2*radius+1);
 [XX,YY,ZZ] = ndgrid(1:size(nbSE,1),1:size(nbSE,2),1:size(nbSE,2));
 
