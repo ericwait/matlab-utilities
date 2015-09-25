@@ -1,4 +1,4 @@
-function data = parseJSON(json)
+function data = ParseJSON(json)
     quoteIdx = regexp(json,'\"', 'start');
     escStart = regexp(json,'\\([/\"\\bfnrt]|u[a-fA-F\d]{4})', 'start');
     

@@ -1,4 +1,4 @@
-function json = createJSON(data)
+function json = CreateJSON(data)
     if ( isstruct(data) )
         json = writeObject(data,'');
     else
