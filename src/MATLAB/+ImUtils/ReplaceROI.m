@@ -1,4 +1,4 @@
-function imOut = replaceROI(orgImage,roiImage,xStart,yStart,zStart)
+function imOut = ReplaceROI(orgImage,roiImage,xStart,yStart,zStart)
 if ~exist('zStart','var')
     zStart = 1;
 end
