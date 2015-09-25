@@ -20,7 +20,7 @@
 % The data and can be indexed as (Y,X,Z,C,T) : c = channel, t = frame.
 % IMAGEDATA = Optionaly the metadata can be the second output argument
 
-function [im, varargout] = tiffReader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt)
+function [im, varargout] = TiffReader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt)
 im = [];
 
 if (exist('tifflib') ~= 3)
@@ -64,7 +64,7 @@ elseif (~exist('prompt','var') || isempty(prompt))
 end
 
 if (~isstruct(pathOrImageData))
-    [imageData,path] = readMetadata(pathOrImageData,prompt);
+    [imageData,path] = MicroscopeData.ReadMetadata(pathOrImageData,prompt);
 else
     imageData = pathOrImageData;
     path = imageData.imageDir;
@@ -212,7 +212,7 @@ end
 
 if (~quiet)
     iter = length(timeList)*length(chanList)*length(zList);
-    cp = CmdlnProgress(iter,true);
+    cp = Utils.CmdlnProgress(iter,true);
     i=1;
 end
 
@@ -229,19 +229,19 @@ for t=1:length(timeList)
             tiffObj.close();
             
             if (~quiet)
-                PrintProgress(cp,i);
+                cp.PrintProgress(i);
                 i = i+1;
             end
         end
 
         if (convert)
-            im(:,:,:,c,t) = imageConvertNorm(tempIm,outType,normalize);
+            im(:,:,:,c,t) = ImUtils.ConvertType(tempIm,outType,normalize);
         end
     end
 end
 
 if (~quiet)
-    ClearProgress(cp);
+    cp.ClearProgress();
 end
 
 if (convert)

@@ -1,4 +1,4 @@
-function createMetadata(root,imageData,quiet)
+function CreateMetadata(root,imageData,quiet)
 
 if (isempty(root))
     root = uigetdir(imageData.imageDir,'Directory to Place Metadata');
@@ -21,7 +21,7 @@ if (~quiet)
     fprintf('Creating Metadata %s...',fileName);
 end
 
-jsonMetadata = createJSON(imageData);
+jsonMetadata = Utils.CreateJSON(imageData);
 fileHandle = fopen(fileName,'wt');
 
 fwrite(fileHandle, jsonMetadata, 'char');

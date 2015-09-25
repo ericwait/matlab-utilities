@@ -1,4 +1,4 @@
-function [imageData,rootDir] = readMetadata(root,prompt)
+function [imageData,rootDir] = ReadMetadata(root,prompt)
 
 imageData = [];
 
@@ -86,7 +86,7 @@ if ( strcmpi(chkExt,'.txt') )
     end
 else
     jsonData = fread(fileHandle,'*char').';
-    imageData = parseJSON(jsonData);
+    imageData = Utils.ParseJSON(jsonData);
 end
 
 fclose(fileHandle);

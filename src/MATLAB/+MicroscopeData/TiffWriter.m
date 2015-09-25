@@ -20,7 +20,7 @@
 % ZLIST = the z slices that the input image represents
 % QUITE = suppress printing out progress
 
-function tiffWriter(im, outDir, imageData, timeList, chanList, zList, quiet)
+function TiffWriter(im, outDir, imageData, timeList, chanList, zList, quiet)
 if (exist('tifflib') ~= 3)
     tifflibLocation = which('/private/tifflib');
     if (isempty(tifflibLocation))
@@ -34,11 +34,8 @@ if (~exist('quiet','var') || isempty(quiet))
 end
 
 if (exist('imageData','var') && ~isempty(imageData) && isfield(imageData,'DatasetName'))
-    idx = strfind(outDir,'"');
-    outDir(idx) = [];
     idx = strfind(imageData.DatasetName,'"');
     imageData.DatasetName(idx) = [];
-    createMetadata(outDir,imageData,quiet);
 else
     if isstruct(imageData)
         error('ImageData struct is malformed!');
@@ -56,10 +53,18 @@ else
     imageData.XPixelPhysicalSize = 1.0;
     imageData.YPixelPhysicalSize = 1.0;
     imageData.ZPixelPhysicalSize = 1.0;
-    
-    createMetadata(outDir,imageData);
-    outDir = fullfile(outDir,imageData.DatasetName);
 end
+
+if (exist('outDir','var') && ~isempty(outDir))
+    idx = strfind(outDir,'"');
+    outDir(idx) = [];
+elseif (isfield(imageData,'imageDir') && ~isempty(imageData.imageDir))
+    outDir = imageData.imageDir;
+else
+    outDir = fullfile('.',imageData.DatasetName);
+end
+
+MicroscopeData.CreateMetadata(outDir,imageData,quiet);
 
 if (~exist('timeList','var') || isempty(timeList))
     timeList = 1:imageData.NumberOfFrames;
@@ -143,7 +148,7 @@ end
 
 if (~quiet)
     iter = length(timeList)*length(chanList)*length(zList);
-    cp = CmdlnProgress(iter,true);
+    cp = Utils.CmdlnProgress(iter,true);
     i=1;
 end
 
@@ -157,7 +162,7 @@ for t=1:length(timeList)
             tiffObj.close();
             
             if (~quiet)
-                PrintProgress(cp,i);
+                cp.PrintProgress(i);
                 i = i+1;
             end
             
@@ -166,10 +171,10 @@ for t=1:length(timeList)
 end
 
 if (~quiet)
-    ClearProgress(cp);
+    cp.ClearProgress();
     fprintf('Wrote %.0fMB in %s\n',...
         ((tags.BitsPerSample/8)*imageData.XDimension*imageData.YDimension*imageData.ZDimension*imageData.NumberOfChannels*imageData.NumberOfFrames)/(1024*1024),...
-        printTime(toc));
+        Utils.PrintTime(toc));
 end
 end
 
