@@ -1,4 +1,4 @@
-function showMaxImage(im,newFigure,maxAcross)
+function ShowMaxImage(im,newFigure,maxAcross)
 if (exist('newFigure','var') && ~isempty(newFigure) && newFigure==true)
     figure
 end
