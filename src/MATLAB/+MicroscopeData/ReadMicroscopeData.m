@@ -47,7 +47,7 @@ end
 
 %% read data using bioformats
 MicroscopeData.BioFormats.CheckJavaMemory();
-loci.common.DebugTools.enableLogging('NO');
+loci.common.DebugTools.enableLogging('INFO');
 
 bfReader = loci.formats.ChannelFiller();
 bfReader = loci.formats.ChannelSeparator(bfReader);
