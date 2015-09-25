@@ -1,4 +1,4 @@
-function finalizeDataFile(fileMap, filename, varargin)
+function FinalizeDataFile(fileMap, filename, varargin)
 % USAGE finalizeDataFile(fileMap, filename, varargin)
 % FILEMAP is object created from initCleanupData.m
 % FILENAME is the full file path the the data file to be used (.mat)

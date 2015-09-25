@@ -1,4 +1,4 @@
-function [cleanupObj,fileMap] = initCleanupData()
+function [cleanupObj,fileMap] = InitCleanupData()
 % USAGE [cleanupObj,fileMap] = initCleanupData()
 % This must be used inside a function
 % DO NOT USE IN A SCRIPT!

@@ -1,4 +1,4 @@
-function [ numWorkers ] = getPoolInfo( createPool, numWorkers )
+function [ numWorkers ] = GetPoolInfo( createPool, numWorkers )
 %GETPOOLINFO Summary of this function goes here
 %   Detailed explanation goes here
     if( ~exist('createPool', 'var') || isempty(createPool))

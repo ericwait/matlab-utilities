@@ -1,4 +1,4 @@
-function [bExists,bValid] = checkDataFile(filename)
+function [bExists,bValid] = CheckDataFile(filename)
 % USAGE [bExists,bValid] = checkDataFile(filename)
 % FILENAME is the full path to the file being used (.mat)
 % BEXISTS true if the file exists
