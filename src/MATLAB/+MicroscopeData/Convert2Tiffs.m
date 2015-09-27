@@ -24,12 +24,20 @@ if (~exist('imName','var') || isempty(imName))
     end
 end
 
-[im,imD] = MicroscopeData.ReadMicroscopeData(imDir, imName);
+[~,name,~] = fileparts(imName);
+
+if (~exist(fullfile(outDir,name),'dir') || overwrite)
     
-for i=1:length(imD)
-   if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir')  || overwrite)
-       MicroscopeData.TiffWriter(im{i},fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],quiet);
-   end
+    [im,imD] = MicroscopeData.ReadMicroscopeData(imDir,imName);
+    if (length(imD)>1)
+        [~,datasetName,~] = fileparts(imName);
+        outDir = fullfile(outDir,datasetName);
+    end
+    
+    for i=1:length(imD)
+        MicroscopeData.TiffWriter(im{i},fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],quiet);
+    end
 end
+
 end
 
