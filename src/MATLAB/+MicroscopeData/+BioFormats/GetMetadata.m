@@ -20,6 +20,8 @@ end
 for series=0:bfReader.getSeriesCount()-1;
     bfReader.setSeries(series);
 
+    imageData = [];
+
     imageData.DatasetName = char(omeMetadata.getImageName(series));
 
     imageData.XDimension = safeGetValue(omeMetadata.getPixelsSizeX(series));
@@ -79,12 +81,12 @@ for series=0:bfReader.getSeriesCount()-1;
     imageData.TimeStampDelta = 0;
 
     order = char(omeMetadata.getPixelsDimensionOrder(series));
-    
+
     if (onlyOneSeries)
         prgs = Utils.CmdlnProgress(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.ZDimension,true);
         i = 1;
     end
-    
+
     for t=1:imageData.NumberOfFrames
         for z=1:imageData.ZDimension
             for c=1:imageData.NumberOfChannels
@@ -112,7 +114,7 @@ for series=0:bfReader.getSeriesCount()-1;
     end
 
     seriesMetadata{series+1} = imageData;
-    
+
     prgs.PrintProgress(series+1);
 end
 

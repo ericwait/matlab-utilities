@@ -1,4 +1,4 @@
-function [ im ] = GetImages( bfReader )
+function [ seriesImages ] = GetImages( bfReader )
 %GETIMAGES Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -8,18 +8,28 @@ if (bfReader.getSeriesCount()>1)
     onlyOneSeries = false;
 end
 
+omeMetadata = bfReader.getMetadataStore();
+
 for series=0:bfReader.getSeriesCount()-1;
     bfReader.setSeries(series);
+
+    imageData = [];
+
+    imageData.XDimension = safeGetValue(omeMetadata.getPixelsSizeX(series));
+    imageData.YDimension = safeGetValue(omeMetadata.getPixelsSizeY(series));
+    imageData.ZDimension = safeGetValue(omeMetadata.getPixelsSizeZ(series));
+    imageData.NumberOfChannels = omeMetadata.getChannelCount(series);
+    imageData.NumberOfFrames = safeGetValue(omeMetadata.getPixelsSizeT(series));
 
     im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames,char(omeMetadata.getPixelsType(series)));
 
     order = char(omeMetadata.getPixelsDimensionOrder(series));
-    
+
     if (onlyOneSeries)
         prgs = Utils.CmdlnProgress(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.ZDimension,true);
         i = 1;
     end
-    
+
     for t=1:imageData.NumberOfFrames
         for z=1:imageData.ZDimension
             for c=1:imageData.NumberOfChannels
@@ -36,7 +46,7 @@ for series=0:bfReader.getSeriesCount()-1;
 
 
     seriesImages{series+1} = im;
-    
+
     prgs.PrintProgress(series+1);
 end
 
