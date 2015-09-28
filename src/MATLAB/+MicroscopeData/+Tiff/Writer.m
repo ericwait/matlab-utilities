@@ -20,7 +20,7 @@
 % ZLIST = the z slices that the input image represents
 % QUITE = suppress printing out progress
 
-function TiffWriter(im, outDir, imageData, timeList, chanList, zList, quiet)
+function Writer(im, outDir, imageData, timeList, chanList, zList, quiet)
 if (exist('tifflib') ~= 3)
     tifflibLocation = which('/private/tifflib');
     if (isempty(tifflibLocation))
@@ -64,7 +64,7 @@ else
     outDir = fullfile('.',imageData.DatasetName);
 end
 
-MicroscopeData.CreateMetadata(outDir,imageData,quiet);
+MicroscopeData.Tiff.CreateMetadata(outDir,imageData,quiet);
 
 if (~exist('timeList','var') || isempty(timeList))
     timeList = 1:imageData.NumberOfFrames;

@@ -20,7 +20,7 @@
 % The data and can be indexed as (Y,X,Z,C,T) : c = channel, t = frame.
 % IMAGEDATA = Optionaly the metadata can be the second output argument
 
-function [im, varargout] = TiffReader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt)
+function [im, varargout] = Reader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt)
 im = [];
 
 if (exist('tifflib') ~= 3)
