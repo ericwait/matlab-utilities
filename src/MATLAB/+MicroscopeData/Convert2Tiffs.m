@@ -2,9 +2,6 @@ function [ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet )
 %CONVERT2TIFFS Summary of this function goes here
 %   Detailed explanation goes here
 
-if (~exist('outDir','var') || isempty(outDir))
-    outDir = '.';
-end
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = false;
 end
@@ -20,6 +17,14 @@ if (~exist('imName','var') || isempty(imName))
     [imName,imDir,~] = uigetfile('*.*','Choose a Microscope File to Convert');
     if (imName==0)
         warning('Nothing read');
+        return
+    end
+end
+
+if (~exist('outDir','var') || isempty(outDir))
+    outDir = uigetdir('.','Choose a folder to output to');
+    if (outDir==0)
+        warning('No where to write!');
         return
     end
 end
