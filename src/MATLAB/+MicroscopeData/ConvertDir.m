@@ -1,4 +1,4 @@
-function ConvertDir(readPath,outDir,subDirs,overwrite,includeTiff)
+function ConvertDir(readPath,outDir,subDirsIn,overwrite,includeTiff)
 %convertDir Recursivly converts microscope data to tiff files plus metadata
 %           text
 %   Walks through the dirPath and converts all microscope data found in the
@@ -16,8 +16,8 @@ if (~exist('outDir','var') || isempty(outDir))
     outDir = uigetdir('.',['Choose destination folder for source: ' name]);
     if (outDir==0), return, end
 end
-if (~exist('subDirs','var') || isempty(subDirs))
-    subDirs = '.';
+if (~exist('subDirsIn','var'))
+    subDirsIn = '.';
 end
 
 if (~exist('overwrite','var') || isempty(overwrite))
@@ -33,7 +33,7 @@ for i=1:length(folderList)
     if (strcmp(folderList(i).name,'.') || strcmp(folderList(i).name,'..')), continue, end
     
     if (folderList(i).isdir)
-        subDirs = fullfile(subDirs,folderList(i).name);
+        subDirs = fullfile(subDirsIn,folderList(i).name);
         MicroscopeData.ConvertDir(fullfile(readPath,folderList(i).name),outDir,subDirs,overwrite,includeTiff);
     else
         [~,~,exten] = fileparts(folderList(i).name);
@@ -41,7 +41,7 @@ for i=1:length(folderList)
                 strcmpi(exten,'.oif') || strcmpi(exten,'.czi') || (strcmpi(exten,'.tif') && includeTiff))
             fprintf('%s ...\n',fullfile(readPath,folderList(i).name));
             tic
-            MicroscopeData.Convert2Tiffs(readPath,folderList(i).name,fullfile(outDir,subDirs),overwrite);
+            MicroscopeData.Convert2Tiffs(readPath,folderList(i).name,fullfile(outDir,subDirsIn),overwrite);
             fprintf('took %s\n\n',Utils.PrintTime(toc));
         end
     end
