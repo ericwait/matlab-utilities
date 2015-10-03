@@ -56,7 +56,9 @@ classdef CmdlnProgress<handle
         end
         
         function ClearProgress(obj)
-            fprintf(obj.backspaces);
+            if (~isempty(obj.backspaces))
+                fprintf(obj.backspaces);
+            end
             obj.backspaces = [];
             obj.firstTime = 0;
             obj.total = 0;
