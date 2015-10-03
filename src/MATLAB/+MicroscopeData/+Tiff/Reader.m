@@ -64,7 +64,7 @@ elseif (~exist('prompt','var') || isempty(prompt))
 end
 
 if (~isstruct(pathOrImageData))
-    [imageData,path] = MicroscopeData.ReadMetadata(pathOrImageData,prompt);
+    [imageData,path] = MicroscopeData.Tiff.ReadMetadata(pathOrImageData,prompt);
 else
     imageData = pathOrImageData;
     path = imageData.imageDir;
