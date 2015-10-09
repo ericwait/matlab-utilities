@@ -91,12 +91,7 @@ end
 
 fclose(fileHandle);
 
-if (isempty(rootDir))
-    pos = strfind(root,'\');
-    rootDir = root(1:pos(end));
-end
-
-imageData.imageDir = rootDir;
+[imageData.imageDir,~,~] = fileparts(root);
 end
 
 function imageDatum = readfile(fileHandle)
