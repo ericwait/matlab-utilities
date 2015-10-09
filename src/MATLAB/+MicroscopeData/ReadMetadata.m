@@ -36,10 +36,10 @@ if (~isempty(ext))
     end
 elseif (~isempty(fileName))
     % case root has a file name
-    if (exist(fullfile(rootDir,[fileName,'.json']),'file'))
-        root = fullfile(rootDir,[fileName,'.json']);
-    elseif (exist(fullfile(rootDir,[fileName,'.txt']),'file'));
-        root = fullfile(rootDir,[fileName,'.txt']);
+    if (exist(fullfile(rootDir,fileName,[fileName,'.json']),'file'))
+        root = fullfile(rootDir,fileName,[fileName,'.json']);
+    elseif (exist(fullfile(rootDir,fileName,[fileName,'.txt']),'file'));
+        root = fullfile(rootDir,fileName,[fileName,'.txt']);
     elseif (prompt)
         [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
         if (filterIndex==0)
