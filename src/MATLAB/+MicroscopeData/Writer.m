@@ -64,7 +64,7 @@ else
     outDir = fullfile('.',imageData.DatasetName);
 end
 
-MicroscopeData.Tiff.CreateMetadata(outDir,imageData,quiet);
+MicroscopeData.CreateMetadata(outDir,imageData,quiet);
 
 if (~exist('timeList','var') || isempty(timeList))
     timeList = 1:imageData.NumberOfFrames;

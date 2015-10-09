@@ -34,7 +34,7 @@ for series=0:bfReader.getSeriesCount()-1;
         for z=1:imageData.ZDimension
             for c=1:imageData.NumberOfChannels
                 ind = calcPlaneInd(order,z,c,t,imageData);
-                im(:,:,z,c,t) = MicroscopeData.BioFormats.GetPlane(bfReader,ind);
+                im(:,:,z,c,t) = MicroscopeData.Original.BioFormats.GetPlane(bfReader,ind);
 
                 if (onlyOneSeries)
                     prgs.PrintProgress(i);
