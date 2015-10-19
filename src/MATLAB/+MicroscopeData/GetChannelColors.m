@@ -31,9 +31,10 @@ end
 [b, idx] = sort(starts);
 stainOrder = idx(b>0);
 if (isempty(stainOrder) || length(stainOrder)~=imageData.NumberOfChannels)
-    dbstop in GetChannelColors at 36
-    msgbox('Choose stains manually');
+    dbstop in MicroscopeData.GetChannelColors at 36
+    %%%%%%%%%%%%%%%%% FIX the stainOrder to what it really should be %%%%%%%%%%%
     disp([stains(stainOrder).stain]);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 
 chanList = 1:imageData.NumberOfChannels;
