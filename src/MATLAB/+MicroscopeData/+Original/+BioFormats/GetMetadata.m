@@ -22,7 +22,7 @@ for series=0:bfReader.getSeriesCount()-1;
 
     imageData = [];
 
-    imageData.DatasetName = char(omeMetadata.getImageName(series));
+    [~,imageData.DatasetName,~] = fileparts(char(omeMetadata.getImageName(series)));
 
     imageData.XDimension = safeGetValue(omeMetadata.getPixelsSizeX(series));
     imageData.YDimension = safeGetValue(omeMetadata.getPixelsSizeY(series));
