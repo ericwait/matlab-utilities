@@ -1,24 +1,18 @@
-function im = FluorescentBGRemoval(im, bwMask, noiseMaxStd, maxIter)
-
-[~, ~,maxVal] = classBits(im);
-
-if (~exist('noiseMaxStd','var') || isempty(noiseMaxStd))
-    noiseMaxStd = 2;
-end
-
-if (~exist('maxIter','var') || isempty(maxIter))
-    maxIter = 20;
+function im = FluorescentBGRemoval(im, bwMask, minAcceleration)
+if (~exist('minAcceleration','var') || isempty(minAcceleration))
+    minAcceleration = 10^-6;
 end
 
 if (~exist('bwMask','var') || isempty(bwMask))
     [counts,binCenters] = imhist(im(:));
-    thr = graythresh(im(:))*maxVal;
 else
     [counts,binCenters] = imhist(im(bwMask));
-    thr = graythresh(im(bwMask))*maxVal;
 end
 
-thr = BackgroundThresh(counts,binCenters,thr,noiseMaxStd,maxIter);
+counts(1) = 0;
+thr = Denoise.BackgroundThresh(counts,minAcceleration);
+
+thr = binCenters(thr);
 
 if (~exist('bwMask','var') || isempty(bwMask))
     im(im<thr) = 0;
