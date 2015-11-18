@@ -1,13 +1,20 @@
-function [imageData,rootDir] = ReadMetadata(root,prompt)
+function [imageData,rootDir,varargout] = ReadMetadata(root,prompt)
 
 imageData = [];
 
 if (~exist('prompt','var') || isempty(prompt))
-    prompt = false;
+    prompt = true;
 end
 
 if (~exist('root','var') || isempty(root))
     root = '';
+end
+
+if (nargout>0)
+    varargout{1} = [];
+end
+if (nargout>1)
+    varargout{2} = [];
 end
 
 % This is to help when the filename might have '.' whithin them
@@ -25,7 +32,7 @@ if (~isempty(ext))
     % case root has an extension
     if (~strcmp(ext,'.json') && ~strcmp(ext,'.txt'))
         if (prompt)
-            [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
+            [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt;','Metadata files (*.json, *.txt)';'*.*','All Files (*.*)'},[],root);
             if (filterIndex==0)
                 return
             end
@@ -33,6 +40,31 @@ if (~isempty(ext))
         else
             return
         end
+    else
+       seriesMetaData =  MicroscopeData.Original.ReadMetadata(rootDir,[fileName,'.',ext]);
+       if (length(seriesMetaData)>1)
+           prompt={sprintf('Enter the dataset number desired 1-%d',length(seriesMetaData))};
+           name = 'Dataset Number';
+           defaultans = {'1'};
+           options.Interpreter = 'tex';
+           answer = inputdlg(prompt,name,[1 40],defaultans,options);
+           n = str2double(answer{1});
+           imageData = seriesMetaData{n};
+           if (nargout>0)
+               varargout{1} = n;
+           end
+       else
+           imageData = seriesMetaData{1};
+           if (nargout>0)
+               varargout{1} = 1;
+           end
+       end
+       
+       if (nargout>1)
+           varargout{2} = fullfile(rootDir,[fileName,ext]);
+       end
+       
+       return
     end
 elseif (~isempty(fileName))
     % case root has a file name
@@ -61,10 +93,40 @@ elseif (~isempty(rootDir))
     root = fullfile(rootDir,dirList(1).name);
 elseif (prompt)
     % case where root is empty
-    [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
+    [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt;','Metadata files (*.json, *.txt)';'*.*','All Files (*.*)'},[],root);
     if (filterIndex==0)
         return
     end
+    
+    [~,~,ext] = fileparts(fileName);
+    
+    if (~strcmp(ext,'.txt') && ~strcmp(ext,'.json'))
+        seriesMetaData =  MicroscopeData.Original.ReadMetadata(rootDir,fileName);
+        if (length(seriesMetaData)>1)
+            prompt={sprintf('Enter the dataset number desired 1-%d',length(seriesMetaData))};
+            name = 'Dataset Number';
+            defaultans = {'1'};
+            options.Interpreter = 'tex';
+            answer = inputdlg(prompt,name,[1 40],defaultans,options);
+            n = str2double(answer{1});
+            imageData = seriesMetaData{n};
+            if (nargout>0)
+                varargout{1} = n;
+            end
+        else
+            imageData = seriesMetaData{1};
+            if (nargout>0)
+                varargout{1} = 1;
+            end
+        end
+        
+        if (nargout>1)
+            varargout{2} = fullfile(rootDir,fileName);
+        end
+        
+        return
+    end
+    
     root = fullfile(rootDir,fileName);
 else
     return

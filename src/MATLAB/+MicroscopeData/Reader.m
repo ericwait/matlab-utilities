@@ -64,10 +64,20 @@ elseif (~exist('prompt','var') || isempty(prompt))
 end
 
 if (~isstruct(pathOrImageData))
-    [imageData,path] = MicroscopeData.ReadMetadata(pathOrImageData,prompt);
+    [imageData,path,seriesNum,filePath] = MicroscopeData.ReadMetadata(pathOrImageData,prompt);
+    if (~isempty(seriesNum))
+        [root,fileName,ext] = fileparts(filePath);
+        im = MicroscopeData.Original.ReadImages(root, [fileName,ext], seriesNum);
+        if (nargout)
+            varargout{1} = imageData;
+        end
+        
+        return
+    end
 else
     imageData = pathOrImageData;
     path = imageData.imageDir;
+    dataSetNum = [];
 end
     
 if (isempty(imageData))

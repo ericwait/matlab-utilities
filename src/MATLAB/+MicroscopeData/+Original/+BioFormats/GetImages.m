@@ -1,16 +1,37 @@
-function [ seriesImages ] = GetImages( bfReader )
+function [ seriesImages ] = GetImages( bfReader, seriesNum )
 %GETIMAGES Summary of this function goes here
 %   Detailed explanation goes here
 
-onlyOneSeries = true;
-if (bfReader.getSeriesCount()>1)
-    prgs = Utils.CmdlnProgress(bfReader.getSeriesCount(),true);
-    onlyOneSeries = false;
-end
+numSeries = bfReader.getSeriesCount();
 
 omeMetadata = bfReader.getMetadataStore();
+prgs = Utils.CmdlnProgress(1,true);
 
-for series=0:bfReader.getSeriesCount()-1;
+if (exist('seriesNum','var') && ~isempty(seriesNum) && numSeries>=seriesNum)
+    seriesImages = readSeriesImage(bfReader, seriesNum-1, omeMetadata, true, prgs);
+else
+    if (bfReader.getSeriesCount()>1)
+        prgs.SetMaxIterations(bfReader.getSeriesCount());
+        
+        onlyOneSeries = false;
+    else
+        prgs.SetMaxIterations(numSeries);
+        onlyOneSeries = true;
+    end
+    
+    for series=0:numSeries-1;
+        im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs);
+        
+        seriesImages{series+1} = im;
+        
+        prgs.PrintProgress(series+1);
+    end
+end
+
+prgs.ClearProgress();
+end
+
+function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs)
     bfReader.setSeries(series);
 
     imageData = [];
@@ -26,7 +47,7 @@ for series=0:bfReader.getSeriesCount()-1;
     order = char(omeMetadata.getPixelsDimensionOrder(series));
 
     if (onlyOneSeries)
-        prgs = Utils.CmdlnProgress(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.ZDimension,true);
+        prgs.SetMaxIterations(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.ZDimension);
         i = 1;
     end
 
@@ -43,16 +64,6 @@ for series=0:bfReader.getSeriesCount()-1;
             end
         end
     end
-
-
-    seriesImages{series+1} = im;
-
-    prgs.PrintProgress(series+1);
-end
-
-prgs.ClearProgress();
-
-bfReader.close();
 end
 
 function ind = calcPlaneInd(order,z,c,t,imageData)
