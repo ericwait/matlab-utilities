@@ -60,7 +60,7 @@ end
 if (nargin==0)
     prompt = true;
 elseif (~exist('prompt','var') || isempty(prompt))
-    prompt = false;
+    prompt = true;
 end
 
 if (~isstruct(pathOrImageData))
