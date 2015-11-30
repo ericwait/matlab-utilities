@@ -36,6 +36,10 @@ classdef CmdlnProgress<handle
             obj.firstTime = now;
         end
         
+        function SetMaxIterations(obj,iterations)
+            obj.total = iterations;
+        end
+        
         function PrintProgress(obj,val)
             cur = now;
             
