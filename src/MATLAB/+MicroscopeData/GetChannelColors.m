@@ -31,9 +31,10 @@ end
 [b, idx] = sort(starts);
 stainOrder = idx(b>0);
 if (isempty(stainOrder) || length(stainOrder)~=imageData.NumberOfChannels)
-    dbstop in MicroscopeData.GetChannelColors at 36
+    dbstop in MicroscopeData.GetChannelColors at 37
     %%%%%%%%%%%%%%%%% FIX the stainOrder to what it really should be %%%%%%%%%%%
-    disp([stains(stainOrder).stain]);
+    disp(imageData.imageDir);
+    disp({stains(stainOrder).stain});
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 
@@ -95,7 +96,7 @@ lclStr = 'c';
 stains = setNextColor(stains, 'DCX', lclColor, lclStr);
 stains = setNextColor(stains, 'Dcx', lclColor, lclStr);
 stains = setNextColor(stains, 'Itga', lclColor, lclStr);
-stains = setNextColor(stains, 'Cy5', lclColor, lclStr);
+%stains = setNextColor(stains, 'Cy5', lclColor, lclStr);
 %stains = setNextColor(stains, 'NCAM', lclColor, lclStr);
 
 %% yellow
