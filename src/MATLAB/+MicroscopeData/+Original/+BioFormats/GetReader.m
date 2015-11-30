@@ -10,7 +10,13 @@ bfReader = loci.formats.ChannelFiller();
 bfReader = loci.formats.ChannelSeparator(bfReader);
 OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
 bfReader.setMetadataStore(OMEXMLService.createOMEXMLMetadata());
-bfReader.setId(fullPath);
+
+try
+    bfReader.setId(fullPath);
+catch err
+    warning(err.message);
+    bfReader = [];
+end
 
 end
 
