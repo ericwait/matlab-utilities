@@ -31,7 +31,31 @@ end
 if (~isempty(ext))
     % case root has an extension
     if (~strcmp(ext,'.json') && ~strcmp(ext,'.txt'))
-        if (prompt)
+        seriesMetaData =  MicroscopeData.Original.ReadMetadata(rootDir,[fileName,'.',ext]);
+        if (~isempty(seriesMetaData))
+            if (length(seriesMetaData)>1)
+                prompt={sprintf('Enter the dataset number desired 1-%d',length(seriesMetaData))};
+                name = 'Dataset Number';
+                defaultans = {'1'};
+                options.Interpreter = 'tex';
+                answer = inputdlg(prompt,name,[1 40],defaultans,options);
+                n = str2double(answer{1});
+                imageData = seriesMetaData{n};
+                if (nargout>0)
+                    varargout{1} = n;
+                end
+            else
+                imageData = seriesMetaData{1};
+                if (nargout>0)
+                    varargout{1} = 1;
+                end
+            end
+            
+            if (nargout>1)
+                varargout{2} = fullfile(rootDir,[fileName,ext]);
+            end
+            return
+        elseif (prompt)
             [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt;','Metadata files (*.json, *.txt)';'*.*','All Files (*.*)'},[],root);
             if (filterIndex==0)
                 return
@@ -41,30 +65,8 @@ if (~isempty(ext))
             return
         end
     else
-       seriesMetaData =  MicroscopeData.Original.ReadMetadata(rootDir,[fileName,'.',ext]);
-       if (length(seriesMetaData)>1)
-           prompt={sprintf('Enter the dataset number desired 1-%d',length(seriesMetaData))};
-           name = 'Dataset Number';
-           defaultans = {'1'};
-           options.Interpreter = 'tex';
-           answer = inputdlg(prompt,name,[1 40],defaultans,options);
-           n = str2double(answer{1});
-           imageData = seriesMetaData{n};
-           if (nargout>0)
-               varargout{1} = n;
-           end
-       else
-           imageData = seriesMetaData{1};
-           if (nargout>0)
-               varargout{1} = 1;
-           end
-       end
-       
-       if (nargout>1)
-           varargout{2} = fullfile(rootDir,[fileName,ext]);
-       end
-       
-       return
+        %do nothing becasue root should be a well formed path to our
+        %metadata file
     end
 elseif (~isempty(fileName))
     % case root has a file name
