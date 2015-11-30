@@ -55,6 +55,25 @@ classdef CmdlnProgress<handle
             end
         end
         
+        function ReprintProgress(obj,val)
+            cur = now;
+            
+            prcntDone = val / obj.total;
+            elpsTime = (cur - obj.firstTime) * 86400;
+            totalSec = elpsTime / prcntDone;
+            finDate = obj.firstTime + (totalSec / 86400);
+            timeLeft = (finDate - cur)*86400;
+            
+            doneStr = sprintf('%5.2f%%%% est. %s @ %s',prcntDone*100,Utils.PrintTime(timeLeft),datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+            fprintf(doneStr);
+            
+            if(obj.useBs)
+                obj.backspaces = repmat(sprintf('\b'),1,length(doneStr)-1);
+            else
+                fprintf('\n');
+            end
+        end
+        
         function ClearProgress(obj)
             if (~isempty(obj.backspaces))
                 fprintf(obj.backspaces);
