@@ -21,6 +21,10 @@ if (~quiet)
     fprintf('Creating Metadata %s...',fileName);
 end
 
+if (isfield(imageData,'imageDir'))
+    imageData = rmfield(imageData,'imageDir');
+end
+
 jsonMetadata = Utils.CreateJSON(imageData);
 fileHandle = fopen(fileName,'wt');
 
