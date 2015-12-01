@@ -24,38 +24,41 @@ for series=0:bfReader.getSeriesCount()-1;
 
     [~,imageData.DatasetName,~] = fileparts(char(omeMetadata.getImageName(series)));
 
-    imageData.XDimension = safeGetValue(omeMetadata.getPixelsSizeX(series));
-    imageData.YDimension = safeGetValue(omeMetadata.getPixelsSizeY(series));
-    imageData.ZDimension = safeGetValue(omeMetadata.getPixelsSizeZ(series));
+    imageData.Dimensions = [safeGetValue(omeMetadata.getPixelsSizeX(series));...
+                            safeGetValue(omeMetadata.getPixelsSizeY(series));...
+                            safeGetValue(omeMetadata.getPixelsSizeZ(series))];
+
     imageData.NumberOfChannels = omeMetadata.getChannelCount(series);
     imageData.NumberOfFrames = safeGetValue(omeMetadata.getPixelsSizeT(series));
 
-    imageData.XPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeX(series));
-    if imageData.XPixelPhysicalSize==0
-        imageData.XPixelPhysicalSize = 1;
+    xPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeX(series));
+    if xPixelPhysicalSize==0
+        xPixelPhysicalSize = 1;
     end
 
-    imageData.YPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeY(series));
-    if imageData.YPixelPhysicalSize==0
-        imageData.YPixelPhysicalSize = 1;
+    yPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeY(series));
+    if yPixelPhysicalSize==0
+        yPixelPhysicalSize = 1;
     end
 
-    imageData.ZPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeZ(series));
-    if imageData.ZPixelPhysicalSize==0
-        imageData.ZPixelPhysicalSize = 1;
+    zPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeZ(series));
+    if zPixelPhysicalSize==0
+        zPixelPhysicalSize = 1;
     end
+
+    imageData.PixelPhysicalSize = [xPixelPhysicalSize; yPixelPhysicalSize; zPixelPhysicalSize];
 
     if (strcmp(datasetExt,'.czi'))
-        imageData.XPosition = orgMetadata.get('Global Information|Image|S|Scene|Position|X #1');
-        imageData.YPosition = orgMetadata.get('Global Information|Image|S|Scene|Position|Y #1');
-        imageData.ZPosition = orgMetadata.get('Global Information|Image|S|Scene|Position|Z #1');
+        imageData.Position = [orgMetadata.get('Global Information|Image|S|Scene|Position|X #1');...
+                              orgMetadata.get('Global Information|Image|S|Scene|Position|Y #1');...
+                              orgMetadata.get('Global Information|Image|S|Scene|Position|Z #1')];
     elseif (omeMetadata.getPlaneCount(series)>0)
-        imageData.XPosition = double(omeMetadata.getPlanePositionX(series,0));
-        imageData.YPosition = double(omeMetadata.getPlanePositionY(series,0));
-        imageData.ZPosition = double(omeMetadata.getPlanePositionZ(series,0));
+        imageData.Position = [double(omeMetadata.getPlanePositionX(series,0));...
+                              double(omeMetadata.getPlanePositionY(series,0));...
+                              double(omeMetadata.getPlanePositionZ(series,0))];
     end
 
-    imageData.ChannelColors = cell(1,imageData.NumberOfChannels);
+    imageData.ChannelColors = cell(imageData.NumberOfChannels,1);
     for c=1:imageData.NumberOfChannels
         colr = '';
 
@@ -83,12 +86,12 @@ for series=0:bfReader.getSeriesCount()-1;
     order = char(omeMetadata.getPixelsDimensionOrder(series));
 
     if (onlyOneSeries)
-        prgs = Utils.CmdlnProgress(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.ZDimension,true);
+        prgs = Utils.CmdlnProgress(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.Dimensions(3),true);
         i = 1;
     end
 
     for t=1:imageData.NumberOfFrames
-        for z=1:imageData.ZDimension
+        for z=1:imageData.Dimensions(3)
             for c=1:imageData.NumberOfChannels
                 ind = calcPlaneInd(order,z,c,t,imageData);
                 try
@@ -107,7 +110,7 @@ for series=0:bfReader.getSeriesCount()-1;
         end
     end
 
-    if (size(imageData.TimeStampDelta,1)~=imageData.ZDimension ||...
+    if (size(imageData.TimeStampDelta,1)~=imageData.Dimensions(3) ||...
             size(imageData.TimeStampDelta,2)~=imageData.NumberOfChannels || ...
             size(imageData.TimeStampDelta,3)~=imageData.NumberOfFrames)
         imageData = rmfield(imageData,'TimeStampDelta');
@@ -132,7 +135,7 @@ function ind = calcPlaneInd(order,z,c,t,imageData)
 switch order(3)
     case 'Z'
         ind = z-1;
-        mul = imageData.ZDimension;
+        mul = imageData.Dimensions(3);
     case 'C'
         ind = c-1;
         mul = imageData.NumberOfChannels;
@@ -144,7 +147,7 @@ end
 switch order(4)
     case 'Z'
         ind = ind + (z-1)*mul;
-        mul = imageData.ZDimension*mul;
+        mul = imageData.Dimensions(3)*mul;
     case 'C'
         ind = ind + (c-1)*mul;
         mul = imageData.NumberOfChannels*mul;

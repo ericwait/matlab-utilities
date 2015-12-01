@@ -71,7 +71,7 @@ if (~isstruct(pathOrImageData))
         if (nargout)
             varargout{1} = imageData;
         end
-        
+
         return
     end
 else
@@ -79,7 +79,7 @@ else
     path = imageData.imageDir;
     dataSetNum = [];
 end
-    
+
 if (isempty(imageData))
     warning('No image read!');
     if (nargout)
@@ -95,7 +95,7 @@ if (isempty(timeList))
     timeList = 1:imageData.NumberOfFrames;
 end
 if (isempty(zList))
-    zList = 1:imageData.ZDimension;
+    zList = 1:imageData.Dimensions(3);
 end
 
 if (~exist(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'file'))
@@ -187,13 +187,13 @@ end
 convert = false;
 if (~strcmpi(inType,outType) || normalize)
     convert = true;
-    tempIm = zeros(imageData.YDimension,imageData.XDimension,length(zList),inType);
+    tempIm = zeros(imageData.Dimensions(2),imageData.Dimensions(1),length(zList),inType);
 end
 
 if (~strcmpi(outType,'logical'))
-    im = zeros(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList),outType);
+    im = zeros(imageData.Dimensions(2),imageData.Dimensions(1),length(zList),length(chanList),length(timeList),outType);
 else
-    im = false(imageData.YDimension,imageData.XDimension,length(zList),length(chanList),length(timeList));
+    im = false(imageData.Dimensions(2),imageData.Dimensions(1),length(zList),length(chanList),length(timeList));
 end
 
 if (quiet~=1)
@@ -210,11 +210,11 @@ if (quiet~=1)
     end
 
     if (strcmpi(inType,outType))
-        fprintf(') %5.2fMB\n', (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
+        fprintf(') %5.2fMB\n', (imageData.Dimensions(1)*imageData.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
     else
         fprintf(') %5.2fMB->%5.2fMB\n',...
-            (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*(imInfo(1).BitDepth/8))/(1024*1024),...
-            (imageData.XDimension*imageData.YDimension*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
+            (imageData.Dimensions(1)*imageData.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*(imInfo(1).BitDepth/8))/(1024*1024),...
+            (imageData.Dimensions(1)*imageData.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
     end
 end
 
@@ -233,9 +233,9 @@ for t=1:length(timeList)
             else
                 im(:,:,z,c,t) = tiffObj.read();
             end
-            
+
             tiffObj.close();
-            
+
             if (~quiet)
                 cp.PrintProgress(i);
                 i = i+1;

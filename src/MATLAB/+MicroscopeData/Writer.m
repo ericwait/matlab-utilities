@@ -43,16 +43,12 @@ else
     dName = imageData;
     imageData = [];
     imageData.DatasetName = dName;
-    
-    imageData.YDimension = size(im,1);
-    imageData.XDimension = size(im,2);
-    imageData.ZDimension = size(im,3);
+
+    imageData.Dimensions = Utils.SwapXY_RC(size(im))';
     imageData.NumberOfChannels = size(im,4);
     imageData.NumberOfFrames = size(im,5);
-    
-    imageData.XPixelPhysicalSize = 1.0;
-    imageData.YPixelPhysicalSize = 1.0;
-    imageData.ZPixelPhysicalSize = 1.0;
+
+    imageData.PixelPhysicalSizes = [1.0; 1.0; 1.0];
 end
 
 if (exist('outDir','var') && ~isempty(outDir))
@@ -89,9 +85,9 @@ if (size(im,4)~=length(chanList))
 end
 
 if (~exist('zList','var') || isempty(zList))
-    zList = 1:imageData.ZDimension;
+    zList = 1:imageData.Dimensions(3);
 else
-    if (max(zList(:))>imageData.ZDimension)
+    if (max(zList(:))>imageData.Dimensions(3))
         error('A value in zList is greater than the z dimension in the image data!');
     end
 end
@@ -160,12 +156,12 @@ for t=1:length(timeList)
             tiffObj.setTag(tags);
             tiffObj.write(im(:,:,z,c,t),tags);
             tiffObj.close();
-            
+
             if (~quiet)
                 cp.PrintProgress(i);
                 i = i+1;
             end
-            
+
         end
     end
 end
@@ -173,7 +169,7 @@ end
 if (~quiet)
     cp.ClearProgress();
     fprintf('Wrote %.0fMB in %s\n',...
-        ((tags.BitsPerSample/8)*imageData.XDimension*imageData.YDimension*imageData.ZDimension*imageData.NumberOfChannels*imageData.NumberOfFrames)/(1024*1024),...
+        ((tags.BitsPerSample/8)*prod(imageData.Dimensions)*imageData.NumberOfChannels*imageData.NumberOfFrames)/(1024*1024),...
         Utils.PrintTime(toc));
 end
 end

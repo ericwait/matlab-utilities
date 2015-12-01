@@ -12,18 +12,18 @@ if (exist('seriesNum','var') && ~isempty(seriesNum) && numSeries>=seriesNum)
 else
     if (bfReader.getSeriesCount()>1)
         prgs.SetMaxIterations(bfReader.getSeriesCount());
-        
+
         onlyOneSeries = false;
     else
         prgs.SetMaxIterations(numSeries);
         onlyOneSeries = true;
     end
-    
+
     for series=0:numSeries-1;
         im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs);
-        
+
         seriesImages{series+1} = im;
-        
+
         prgs.PrintProgress(series+1);
     end
 end
@@ -36,23 +36,24 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
 
     imageData = [];
 
-    imageData.XDimension = safeGetValue(omeMetadata.getPixelsSizeX(series));
-    imageData.YDimension = safeGetValue(omeMetadata.getPixelsSizeY(series));
-    imageData.ZDimension = safeGetValue(omeMetadata.getPixelsSizeZ(series));
+    imageData.Dimensions = [safeGetValue(omeMetadata.getPixelsSizeX(series));...
+                            safeGetValue(omeMetadata.getPixelsSizeY(series));...
+                            safeGetValue(omeMetadata.getPixelsSizeZ(series))];
+
     imageData.NumberOfChannels = omeMetadata.getChannelCount(series);
     imageData.NumberOfFrames = safeGetValue(omeMetadata.getPixelsSizeT(series));
 
-    im = zeros(imageData.YDimension,imageData.XDimension,imageData.ZDimension,imageData.NumberOfChannels,imageData.NumberOfFrames,char(omeMetadata.getPixelsType(series)));
+    im = zeros([Utils.SwapXY_RC(imageData.Dimensions'),imageData.NumberOfChannels,imageData.NumberOfFrames],char(omeMetadata.getPixelsType(series)));
 
     order = char(omeMetadata.getPixelsDimensionOrder(series));
 
     if (onlyOneSeries)
-        prgs.SetMaxIterations(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.ZDimension);
+        prgs.SetMaxIterations(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.Dimensions(3));
         i = 1;
     end
 
     for t=1:imageData.NumberOfFrames
-        for z=1:imageData.ZDimension
+        for z=1:imageData.Dimensions(3)
             for c=1:imageData.NumberOfChannels
                 ind = calcPlaneInd(order,z,c,t,imageData);
                 im(:,:,z,c,t) = MicroscopeData.Original.BioFormats.GetPlane(bfReader,ind);
@@ -70,7 +71,7 @@ function ind = calcPlaneInd(order,z,c,t,imageData)
 switch order(3)
     case 'Z'
         ind = z-1;
-        mul = imageData.ZDimension;
+        mul = imageData.Dimension(3);
     case 'C'
         ind = c-1;
         mul = imageData.NumberOfChannels;
@@ -82,7 +83,7 @@ end
 switch order(4)
     case 'Z'
         ind = ind + (z-1)*mul;
-        mul = imageData.ZDimension*mul;
+        mul = imageData.Dimensions(3)*mul;
     case 'C'
         ind = ind + (c-1)*mul;
         mul = imageData.NumberOfChannels*mul;

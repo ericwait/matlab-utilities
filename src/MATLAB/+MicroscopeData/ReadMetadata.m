@@ -50,7 +50,7 @@ if (~isempty(ext))
                     varargout{1} = 1;
                 end
             end
-            
+
             if (nargout>1)
                 varargout{2} = fullfile(rootDir,[fileName,ext]);
             end
@@ -99,9 +99,9 @@ elseif (prompt)
     if (filterIndex==0)
         return
     end
-    
+
     [~,~,ext] = fileparts(fileName);
-    
+
     if (~strcmp(ext,'.txt') && ~strcmp(ext,'.json'))
         seriesMetaData =  MicroscopeData.Original.ReadMetadata(rootDir,fileName);
         if (length(seriesMetaData)>1)
@@ -121,14 +121,14 @@ elseif (prompt)
                 varargout{1} = 1;
             end
         end
-        
+
         if (nargout>1)
             varargout{2} = fullfile(rootDir,fileName);
         end
-        
+
         return
     end
-    
+
     root = fullfile(rootDir,fileName);
 else
     return
@@ -174,7 +174,7 @@ for k=1:length(data{1})
     end
     if (any(strfind(data{1}{k},'TimeStampDelta')))
         if (~isfield(imageDatum,'TimeStampDelta'))
-            imageDatum.TimeStampDelta = zeros(imageDatum.ZDimension,imageDatum.NumberOfChannels,imageDatum.NumberOfFrames);
+            imageDatum.TimeStampDelta = zeros(imageDatum.Dimensions(3),imageDatum.NumberOfChannels,imageDatum.NumberOfFrames);
         end
         plane = textscan(data{1}{k},'TimeStampDelta(%d,%d,%d)%s');
         imageDatum.TimeStampDelta(plane{1},plane{2},plane{3}) = val;
