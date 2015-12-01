@@ -183,8 +183,6 @@ switch imInfo(1).BitDepth
     otherwise
         error('Unsupported input type!');
 end
-imageData.Type = inType;
-imageData.ImInfo = imInfo;
 
 convert = false;
 if (~strcmpi(inType,outType) || normalize)
