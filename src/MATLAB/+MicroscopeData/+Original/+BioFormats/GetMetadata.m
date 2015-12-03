@@ -58,7 +58,7 @@ for series=0:bfReader.getSeriesCount()-1;
                               double(omeMetadata.getPlanePositionZ(series,0))];
     end
 
-    imageData.ChannelColors = cell(imageData.NumberOfChannels,1);
+    imageData.ChannelNames = cell(imageData.NumberOfChannels,1);
     for c=1:imageData.NumberOfChannels
         colr = '';
 
@@ -72,7 +72,7 @@ for series=0:bfReader.getSeriesCount()-1;
             colr = '';
         end
 
-        imageData.ChannelColors{c} = colr;
+        imageData.ChannelNames{c} = colr;
     end
 
     imageData.StartCaptureDate = safeGetValue(omeMetadata.getImageAcquisitionDate(series));
