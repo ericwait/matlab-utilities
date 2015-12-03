@@ -32,8 +32,10 @@ function json = writeObject(data, spacePrefix)
     json = sprintf('{%s\n%s}', objJSON,spacePrefix);
 end
 
-function json = writeArray(data, spacePrefix)
+function [json,bSingleLine] = writeArray(data, spacePrefix)
+    bSingleLine = false;
     if ( isnumeric(data) && (size(data,1) == numel(data)) )
+        bSingleLine = true;
         json = writeSingleLineArray(data);
         return;
     end
@@ -57,10 +59,16 @@ function json = writeArray(data, spacePrefix)
                 valJSON = writeValue(arrayEntry, valuePrefix);
             end
         else
-            valJSON = writeArray(arrayEntry, valuePrefix);
+            [valJSON,bSingleLine] = writeArray(arrayEntry, valuePrefix);
         end
         
-        arrayJSON = [arrayJSON sprintf('\n%s%s%s', valuePrefix, valJSON, valSep)];
+        % Combine brackets on one line if all the root array is a single line
+        if ( bSingleLine && (size(data,1) == 1) )
+            json = sprintf('[%s]',valJSON);
+            return
+        else
+            arrayJSON = [arrayJSON sprintf('\n%s%s%s', valuePrefix, valJSON, valSep)];
+        end
     end
     
     json = sprintf('[%s\n%s]', arrayJSON,spacePrefix);
