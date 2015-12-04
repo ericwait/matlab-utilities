@@ -2,8 +2,8 @@ function [imageData,rootDir,varargout] = ReadMetadata(root,prompt)
 
 imageData = [];
 
-if (~exist('prompt','var') || isempty(prompt))
-    prompt = true;
+if (~exist('prompt','var'))
+    prompt = [];
 end
 
 if (~exist('root','var') || isempty(root))
@@ -26,6 +26,14 @@ elseif (exist([root,'.txt'],'file'))
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if (~isempty(prompt) && prompt)
+    [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt;','Metadata files (*.json, *.txt)';'*.*','All Files (*.*)'},[],root);
+    if (filterIndex==0)
+        return
+    end
+    root = fullfile(rootDir,fileName);
+end
+
 [rootDir,fileName,ext] = fileparts(root);
 
 if (~isempty(ext))
@@ -34,11 +42,11 @@ if (~isempty(ext))
         seriesMetaData =  MicroscopeData.Original.ReadMetadata(rootDir,[fileName,'.',ext]);
         if (~isempty(seriesMetaData))
             if (length(seriesMetaData)>1)
-                prompt={sprintf('Enter the dataset number desired 1-%d',length(seriesMetaData))};
+                promptDlg={sprintf('Enter the dataset number desired 1-%d',length(seriesMetaData))};
                 name = 'Dataset Number';
                 defaultans = {'1'};
                 options.Interpreter = 'tex';
-                answer = inputdlg(prompt,name,[1 40],defaultans,options);
+                answer = inputdlg(promptDlg,name,[1 40],defaultans,options);
                 n = str2double(answer{1});
                 imageData = seriesMetaData{n};
                 if (nargout>0)
@@ -55,7 +63,7 @@ if (~isempty(ext))
                 varargout{2} = fullfile(rootDir,[fileName,ext]);
             end
             return
-        elseif (prompt)
+        elseif (isempty(prompt))
             [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt;','Metadata files (*.json, *.txt)';'*.*','All Files (*.*)'},[],root);
             if (filterIndex==0)
                 return

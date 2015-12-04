@@ -59,8 +59,8 @@ end
 
 if (nargin==0)
     prompt = true;
-elseif (~exist('prompt','var') || isempty(prompt))
-    prompt = true;
+elseif (~exist('prompt','var'))
+    prompt = [];
 end
 
 if (~isstruct(pathOrImageData))
