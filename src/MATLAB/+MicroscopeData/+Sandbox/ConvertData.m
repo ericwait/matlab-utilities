@@ -6,30 +6,42 @@ imDataOut = struct('DatasetName',{''},'Dimensions',{[]},'NumberOfChannels',{},'N
 imDataOut(1).DatasetName = imageData.DatasetName;
 
 if (isfield(imageData,'XDimension'))
-    imDataOut.Dimensions = [imageData.XDimension;...
-                            imageData.YDimension;...
+    imDataOut.Dimensions = [imageData.XDimension,...
+                            imageData.YDimension,...
                             imageData.ZDimension];
 elseif (isfield(imageData,'Dimensions'))
-    imDataOut.Dimensions = imageData.Dimensions;
+    if (size(imageData.Dimensions,2)==1)
+        imDataOut.Dimensions = imageData.Dimensions';
+    else
+        imDataOut.Dimensions = imageData.Dimensions;
+    end
 end
 
 imDataOut.NumberOfChannels = imageData.NumberOfChannels;
 imDataOut.NumberOfFrames = imageData.NumberOfFrames;
 
 if (isfield(imageData,'XPixelPhysicalSize'))
-    imDataOut.PixelPhysicalSize = [imageData.XPixelPhysicalSize;...
-                                   imageData.YPixelPhysicalSize;...
+    imDataOut.PixelPhysicalSize = [imageData.XPixelPhysicalSize,...
+                                   imageData.YPixelPhysicalSize,...
                                    imageData.ZPixelPhysicalSize];
 elseif (isfield(imageData,'PixelPhysicalSize'))
-    imDataOut.PixelPhysicalSize = imageData.PixelPhysicalSize;
+    if (size(imageData.PixelPhysicalSize,2)==1)
+        imDataOut.PixelPhysicalSize = imageData.PixelPhysicalSize';
+    else
+        imDataOut.PixelPhysicalSize = imageData.PixelPhysicalSize;
+    end
 end
 
 if (isfield(imageData,'XPosition'))
-    imDataOut.Position = [imageData.XPosition;...
-                          imageData.YPosition;...
+    imDataOut.Position = [imageData.XPosition,...
+                          imageData.YPosition,...
                           imageData.ZPosition];
 elseif (isfield(imageData,'Position'))
-    imDataOut.Position = imageData.Position;
+    if (size(imageData.Position,2)==1)
+        imDataOut.Position = imageData.Position';
+    else
+        imDataOut.Position = imageData.Position;
+    end
 end
 
 if (isfield(imageData,'ChannelColors'))
