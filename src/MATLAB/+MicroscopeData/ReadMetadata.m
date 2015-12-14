@@ -101,7 +101,7 @@ elseif (~isempty(rootDir))
         end
     end
     root = fullfile(rootDir,dirList(1).name);
-elseif (prompt)
+elseif (isempty(prompt) || prompt)
     % case where root is empty
     [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt;','Metadata files (*.json, *.txt)';'*.*','All Files (*.*)'},[],root);
     if (filterIndex==0)
