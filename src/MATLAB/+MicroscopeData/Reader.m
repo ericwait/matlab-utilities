@@ -20,8 +20,9 @@
 % The data and can be indexed as (Y,X,Z,C,T) : c = channel, t = frame.
 % IMAGEDATA = Optionaly the metadata can be the second output argument
 
-function [im, varargout] = Reader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt)
+function [im, imD] = Reader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt)
 im = [];
+imD = [];
 
 if (exist('tifflib') ~= 3)
     tifflibLocation = which('/private/tifflib');
@@ -64,49 +65,40 @@ elseif (~exist('prompt','var'))
 end
 
 if (~isstruct(pathOrImageData))
-    [imageData,path,seriesNum,filePath] = MicroscopeData.ReadMetadata(pathOrImageData,prompt);
+    [imD,path,seriesNum,filePath] = MicroscopeData.ReadMetadata(pathOrImageData,prompt);
     if (~isempty(seriesNum))
         [root,fileName,ext] = fileparts(filePath);
         im = MicroscopeData.Original.ReadImages(root, [fileName,ext], seriesNum);
-        if (nargout)
-            varargout{1} = imageData;
-        end
 
         return
     end
 else
-    imageData = pathOrImageData;
-    path = imageData.imageDir;
+    imD = pathOrImageData;
+    path = imD.imageDir;
     dataSetNum = [];
 end
 
-if (isempty(imageData))
+if (isempty(imD))
     warning('No image read!');
-    if (nargout)
-        varargout{1} = [];
-    end
     return
 end
 
 if (isempty(chanList))
-    chanList = 1:imageData.NumberOfChannels;
+    chanList = 1:imD.NumberOfChannels;
 end
 if (isempty(timeList))
-    timeList = 1:imageData.NumberOfFrames;
+    timeList = 1:imD.NumberOfFrames;
 end
 if (isempty(zList))
-    zList = 1:imageData.Dimensions(3);
+    zList = 1:imD.Dimensions(3);
 end
 
-if (~exist(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'file'))
+if (~exist(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,1,1,1)),'file'))
     warning('No image read!');
-    if (nargout)
-        varargout{1} = [];
-    end
     return
 end
 
-imInfo = imfinfo(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'tif');
+imInfo = imfinfo(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,1,1,1)),'tif');
 if (isempty(outType))
     bytes = imInfo(1).BitDepth/8;
     if (imInfo(1).BitDepth==8)
@@ -187,13 +179,13 @@ end
 convert = false;
 if (~strcmpi(inType,outType) || normalize)
     convert = true;
-    tempIm = zeros(imageData.Dimensions(2),imageData.Dimensions(1),length(zList),inType);
+    tempIm = zeros(imD.Dimensions(2),imD.Dimensions(1),length(zList),inType);
 end
 
 if (~strcmpi(outType,'logical'))
-    im = zeros(imageData.Dimensions(2),imageData.Dimensions(1),length(zList),length(chanList),length(timeList),outType);
+    im = zeros(imD.Dimensions(2),imD.Dimensions(1),length(zList),length(chanList),length(timeList),outType);
 else
-    im = false(imageData.Dimensions(2),imageData.Dimensions(1),length(zList),length(chanList),length(timeList));
+    im = false(imD.Dimensions(2),imD.Dimensions(1),length(zList),length(chanList),length(timeList));
 end
 
 if (quiet~=1)
@@ -210,11 +202,11 @@ if (quiet~=1)
     end
 
     if (strcmpi(inType,outType))
-        fprintf(') %5.2fMB\n', (imageData.Dimensions(1)*imageData.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
+        fprintf(') %5.2fMB\n', (imD.Dimensions(1)*imD.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
     else
         fprintf(') %5.2fMB->%5.2fMB\n',...
-            (imageData.Dimensions(1)*imageData.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*(imInfo(1).BitDepth/8))/(1024*1024),...
-            (imageData.Dimensions(1)*imageData.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
+            (imD.Dimensions(1)*imD.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*(imInfo(1).BitDepth/8))/(1024*1024),...
+            (imD.Dimensions(1)*imD.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
     end
 end
 
@@ -227,7 +219,7 @@ end
 for t=1:length(timeList)
     for c=1:length(chanList)
         for z=1:length(zList)
-            tiffObj = Tiff(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,chanList(c),timeList(t),zList(z))),'r');
+            tiffObj = Tiff(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,chanList(c),timeList(t),zList(z))),'r');
             if (convert)
                 tempIm(:,:,z) = tiffObj.read();
             else
@@ -256,7 +248,4 @@ if (convert)
     clear tempIm;
 end
 
-if (nargout)
-    varargout{1} = imageData;
-end
 end
