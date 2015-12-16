@@ -50,6 +50,12 @@ if (normalize)
     end
 else
     w = whos('imageIn');
+    switch w.class
+        case 'single'
+            imageIn = convertToMaxOfOne(imageIn,w.class);
+        case 'double'
+            imageIn = convertToMaxOfOne(imageIn,w.class);
+    end
     if (strcmpi(w.class,typ))
         imageOut = imageIn;
     else
@@ -74,6 +80,29 @@ else
                 error('Unkown type of image to convert to!');
         end
     end
+end
+end
+
+function im = convertToMaxOfOne(im,outTyp)
+switch outTyp
+    case 'uint8'
+        im = im./2^8;
+    case 'uint16'
+        im = im./2^16;
+    case 'int16'
+        im = im./2^15-1;
+    case 'uint32'
+        im = im./2^32;
+    case 'int32'
+        im = im./2^32-1;
+    case 'single'
+        im = im./max(im(:));
+    case 'double'
+        im = im./max(im(:));
+    case 'logical'
+        % im = im;
+    otherwise
+        error('Unkown type of image to convert to!');
 end
 end
 
