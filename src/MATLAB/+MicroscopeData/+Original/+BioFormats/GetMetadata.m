@@ -46,7 +46,7 @@ for series=0:bfReader.getSeriesCount()-1;
         zPixelPhysicalSize = 1;
     end
 
-    imageData.PixelPhysicalSize = [xPixelPhysicalSize; yPixelPhysicalSize; zPixelPhysicalSize];
+    imageData.PixelPhysicalSize = [xPixelPhysicalSize, yPixelPhysicalSize, zPixelPhysicalSize];
 
     if (strcmp(datasetExt,'.czi'))
         imageData.Position = [orgMetadata.get('Global Information|Image|S|Scene|Position|X #1'),...
