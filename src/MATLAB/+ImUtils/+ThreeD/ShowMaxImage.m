@@ -1,13 +1,44 @@
-function ShowMaxImage(im,newFigure,maxAcross)
+function imageHandle = ShowMaxImage(im,newFigure,maxAcross,axesHandle)
 if (exist('newFigure','var') && ~isempty(newFigure) && newFigure==true)
-    figure
+    figHandle = figure;
+    axesHandle = axes(figHandle);
 end
 
 if (~exist('maxAcross','var') || isempty(maxAcross))
     maxAcross = 3;
 end
 
-imagesc(squeeze(max(im,[],maxAcross)));
-colormap gray
-axis image
+if (~exist('axesHandle','var') || isempty(axesHandle))
+    axesHandle = gca;
+end
+
+oldUnit = get(axesHandle,'unit');
+set(axesHandle,'unit','normalized','Position',[0,0,1,1]);
+set(axesHandle,'unit','pixel');
+
+axisSize_xy = get(axesHandle,'Position');
+set(axesHandle,'unit',oldUnit);
+ar = axisSize_xy(4)/axisSize_xy(3);
+
+viewIm = squeeze(max(im,[],maxAcross));
+
+vwSize_rc = size(viewIm);
+
+scale = [ar,1/ar];
+scaledImSides_rc = scale .* Utils.SwapXY_RC(vwSize_rc);
+[minVal,i] = max(scaledImSides_rc-vwSize_rc);
+
+pad_rc = zeros(1,2);
+pad_rc(i) = round(minVal);
+
+newSize_rc = size(viewIm) + pad_rc;
+padImage = ones(newSize_rc,'like',viewIm)*95/255;
+
+padOffset_rc = round(pad_rc/2);
+
+padImage(padOffset_rc(1)+1:vwSize_rc(1)+padOffset_rc(1),padOffset_rc(2)+1:vwSize_rc(2)+padOffset_rc(2)) = viewIm;
+
+imageHandle = imagesc(-padOffset_rc(2)+1,-padOffset_rc(1)+1,padImage,'Parent',axesHandle);
+
+colormap(axesHandle,'gray');
 end
