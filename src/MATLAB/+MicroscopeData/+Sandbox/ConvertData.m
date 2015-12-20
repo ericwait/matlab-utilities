@@ -10,7 +10,10 @@ if (isfield(imageData,'XDimension'))
                             imageData.YDimension,...
                             imageData.ZDimension];
 elseif (isfield(imageData,'Dimensions'))
-    if (size(imageData.Dimensions,2)==1)
+    if (size(imageData.Dimensions,1)~=1)
+        if (size(imageData.Dimensions,2)~=1)
+            error('Malformed Dimensions!');
+        end
         imDataOut.Dimensions = imageData.Dimensions';
     else
         imDataOut.Dimensions = imageData.Dimensions;
@@ -25,7 +28,10 @@ if (isfield(imageData,'XPixelPhysicalSize'))
                                    imageData.YPixelPhysicalSize,...
                                    imageData.ZPixelPhysicalSize];
 elseif (isfield(imageData,'PixelPhysicalSize'))
-    if (size(imageData.PixelPhysicalSize,2)==1)
+    if (size(imageData.PixelPhysicalSize,1)~=1)
+        if (size(imageData.PixelPhysicalSize,2)~=1)
+            error('Malformed PixelPhysicalSize!');
+        end
         imDataOut.PixelPhysicalSize = imageData.PixelPhysicalSize';
     else
         imDataOut.PixelPhysicalSize = imageData.PixelPhysicalSize;
@@ -37,10 +43,15 @@ if (isfield(imageData,'XPosition'))
                           imageData.YPosition,...
                           imageData.ZPosition];
 elseif (isfield(imageData,'Position'))
-    if (size(imageData.Position,2)==1)
-        imDataOut.Position = imageData.Position';
-    else
-        imDataOut.Position = imageData.Position;
+    if (~isempty(imageData.Position))
+        if (size(imageData.Position,1)~=1)
+            if (size(imageData.Position,2)~=1)
+                error('Malformed Position!');
+            end
+            imDataOut.Position = imageData.Position';
+        else
+            imDataOut.Position = imageData.Position;
+        end
     end
 end
 
