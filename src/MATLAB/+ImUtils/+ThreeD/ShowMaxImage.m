@@ -1,7 +1,7 @@
 function imageHandle = ShowMaxImage(im,newFigure,maxAcross,axesHandle)
 if (exist('newFigure','var') && ~isempty(newFigure) && newFigure==true)
     figHandle = figure;
-    axesHandle = axes(figHandle);
+    axesHandle = axes('Parent',figHandle);
 end
 
 if (~exist('maxAcross','var') || isempty(maxAcross))
