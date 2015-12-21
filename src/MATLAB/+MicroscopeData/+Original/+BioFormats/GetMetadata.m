@@ -60,16 +60,10 @@ for series=0:bfReader.getSeriesCount()-1;
 
     imageData.ChannelNames = cell(imageData.NumberOfChannels,1);
     for c=1:imageData.NumberOfChannels
-        colr = '';
-
-        if (strcmp(datasetExt,'.czi'))
-            colr = char(orgMetadata.get(['Global Experiment|AcquisitionBlock|MultiTrackSetup|TrackSetup|Detector|Dye #' num2str(c)]));
-        elseif (~isempty(char(omeMetadata.getChannelName(series,c-1))))
-            colr = char(omeMetadata.getChannelName(series,c-1));
-        end
+        colr = char(omeMetadata.getChannelName(series,c-1));
 
         if (isempty(colr))
-            colr = '';
+            colr = sprintf('Channel:%d',c);
         end
 
         imageData.ChannelNames{c} = colr;
