@@ -29,6 +29,10 @@ ar = axisSize_xy(4)/axisSize_xy(3);
 
 viewIm = squeeze(max(im,[],maxAcross));
 
+if (ndims(viewIm)>2)
+    error('ShowMaxImage can only display 3D images, this image has %d!',ndims(im));
+end
+
 vwSize_rc = size(viewIm);
 
 scale = [ar,1/ar];
