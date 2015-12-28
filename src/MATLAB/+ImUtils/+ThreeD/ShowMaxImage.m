@@ -1,4 +1,5 @@
 function imageHandle = ShowMaxImage(im,newFigure,maxAcross,axesHandle,fullscreen)
+%imageHandle = ShowMaxImage(im,newFigure,maxAcross,axesHandle,fullscreen)
 if (exist('newFigure','var') && ~isempty(newFigure) && newFigure==true)
     figHandle = figure;
     axesHandle = axes('Parent',figHandle);
@@ -10,17 +11,22 @@ end
 
 if (~exist('axesHandle','var') || isempty(axesHandle))
     axesHandle = gca;
+elseif (~newFigure)
+    figHandle = get(axesHandle,'Parent');
 end
+
 if (~exist('fullscreen','var') || isempty(fullscreen))
     fullscreen = false;
 end
 
 if (fullscreen)
-    set(figHandle,'unit','normalized','Position',[0,0,1,1]);
+    set(figHandle,'unit','normalized','OuterPosition',[0,0,1,1]);
 end
 
 oldUnit = get(axesHandle,'unit');
-set(axesHandle,'unit','normalized','Position',[0,0,1,1]);
+if (fullscreen)
+    set(axesHandle,'unit','normalized','Position',[0,0,1,1]);
+end
 set(axesHandle,'unit','pixel');
 
 axisSize_xy = get(axesHandle,'Position');
