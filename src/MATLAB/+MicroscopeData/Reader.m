@@ -1,26 +1,5 @@
-% [IM, IMAGEDATA] = TIFFREADER(pathOrImageData, TIMELIST, CHANLIST, ZLIST, OUTTYPE, NORMALIZE, QUIET, PROMPT)
-% ALL arguments are optional; pass in empty [] for the arguments that come
-% prior to the one you would like to populate.
-%
-% pathOrImageData = the path to the meta data file or the metadata
-% structure itself.  This can be be left empty and the prompt flag set to
-% true if you would like a uigetfile to be displayed.
-% TIMELIST = a list of frames that you would like to recive
-% CHANLIST = a list of the channels you would like to recive
-% ZLIST = a list of the stacks that you would like to recive
-% OUTTYPE = the data type of image that you would like
-% NORMALIZE = normalize each image per channel per frame. Meaning that for
-%   each frame, every channel will be normalized independently.
-% QUIET = if set to 1 then size stats will not be printed
-% PROMPT = set to true if you want a uigetfile to be displayed if the
-% metadata is not found.
-%
-% Outputs:
-% IM = is a 5-D image of either the orginal type or the type requested.
-% The data and can be indexed as (Y,X,Z,C,T) : c = channel, t = frame.
-% IMAGEDATA = Optionaly the metadata can be the second output argument
-
-function [im, imD] = Reader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt)
+% [IM, IMAGEDATA] = MicroscopeData.Reader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt, ROIstart_xy, ROIsize_xy)
+function [im, imD] = Reader(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt, ROIstart_xy, ROIsize_xy)
 im = [];
 imD = [];
 
@@ -57,6 +36,9 @@ if (~exist('quiet','var') || isempty(quiet))
 else
     quiet = logical(quiet);
 end
+if (~exist('ROIstart_xy','var') || isempty(ROIstart_xy))
+    ROIstart_xy = [1,1,1];
+end
 
 if (nargin==0)
     prompt = true;
@@ -82,6 +64,19 @@ if (isempty(imD))
     warning('No image read!');
     return
 end
+
+if (~exist('ROIsize_xy','var') || isempty(ROIsize_xy))
+    ROIsize_xy = imD.Dimensions(1:2);
+end
+
+if (any(ROIsize_xy > imD.Dimensions(1:2)))
+    ROIsize_xy = imD.Dimensions(1:2);
+    if (~quite)
+        warning('ROI was bigger then original image, using full image');
+    end
+end
+
+useROI = any(ROIsize_xy ~= imD.Dimensions(1:2));
 
 if (isempty(chanList))
     chanList = 1:imD.NumberOfChannels;
@@ -183,31 +178,17 @@ if (~strcmpi(inType,outType) || normalize)
 end
 
 if (~strcmpi(outType,'logical'))
-    im = zeros(imD.Dimensions(2),imD.Dimensions(1),length(zList),length(chanList),length(timeList),outType);
+    im = zeros(ROIsize_xy(2),ROIsize_xy(1),length(zList),length(chanList),length(timeList),outType);
 else
-    im = false(imD.Dimensions(2),imD.Dimensions(1),length(zList),length(chanList),length(timeList));
+    im = false(ROIsize_xy(2),ROIsize_xy(1),length(zList),length(chanList),length(timeList));
 end
 
-if (quiet~=1)
-    if (strcmpi(inType,outType))
-        fprintf('Type:%s ',outType);
-    else
-        fprintf('Type:%s->%s ',inType,outType);
-    end
-    fprintf('(');
-    fprintf('%d',size(im,2));
-    fprintf(',%d',size(im,1));
-    for i=3:length(size(im))
-        fprintf(',%d',size(im,i));
-    end
-
-    if (strcmpi(inType,outType))
-        fprintf(') %5.2fMB\n', (imD.Dimensions(1)*imD.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
-    else
-        fprintf(') %5.2fMB->%5.2fMB\n',...
-            (imD.Dimensions(1)*imD.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*(imInfo(1).BitDepth/8))/(1024*1024),...
-            (imD.Dimensions(1)*imD.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024));
-    end
+if (quiet~=true)
+    fprintf('Reading (%d,%d,%d,%d,%d) %s %5.2fMB --> Into (%d,%d,%d,%d,%d) %s %5.2fMB\n',...
+        imD.Dimensions(1),imD.Dimensions(2),length(zList),length(chanList),length(timeList),inType,...
+        (imD.Dimensions(1)*imD.Dimensions(2)*length(zList)*length(chanList)*length(timeList)*bytes)/(1024*1024),...
+        size(im,2),size(im,1),length(zList),length(chanList),length(timeList),outType,...
+        (prod(size(im)*(imInfo(1).BitDepth/8))/(1024*1024)));
 end
 
 if (~quiet)
@@ -220,7 +201,7 @@ for t=1:length(timeList)
     for c=1:length(chanList)
         for z=1:length(zList)
             tiffObj = Tiff(fullfile(path,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,chanList(c),timeList(t),zList(z))),'r');
-            if (convert)
+            if (convert || useROI)
                 tempIm(:,:,z) = tiffObj.read();
             else
                 im(:,:,z,c,t) = tiffObj.read();
@@ -235,7 +216,11 @@ for t=1:length(timeList)
         end
 
         if (convert)
-            im(:,:,:,c,t) = ImUtils.ConvertType(tempIm,outType,normalize);
+            im(:,:,:,c,t) = ImUtils.ConvertType(...
+                tempIm(ROIstart_xy(2):ROIstart_xy(2)+ROIsize_xy(2)-1,ROIstart_xy(1):ROIstart_xy(1)+ROIsize_xy(1)-1,:),...
+                outType,normalize);
+        else
+            im(:,:,:,c,t) = tempIm(ROIstart_xy(2):ROIstart_xy(2)+ROIsize_xy(2)-1,ROIstart_xy(1):ROIstart_xy(1)+ROIsize_xy(1)-1,:);
         end
     end
 end
