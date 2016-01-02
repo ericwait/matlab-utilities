@@ -219,7 +219,7 @@ for t=1:length(timeList)
             im(:,:,:,c,t) = ImUtils.ConvertType(...
                 tempIm(ROIstart_xy(2):ROIstart_xy(2)+ROIsize_xy(2)-1,ROIstart_xy(1):ROIstart_xy(1)+ROIsize_xy(1)-1,:),...
                 outType,normalize);
-        else
+        elseif (useROI)
             im(:,:,:,c,t) = tempIm(ROIstart_xy(2):ROIstart_xy(2)+ROIsize_xy(2)-1,ROIstart_xy(1):ROIstart_xy(1)+ROIsize_xy(1)-1,:);
         end
     end
