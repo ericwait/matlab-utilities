@@ -2,6 +2,42 @@ function [im, imD] = ReaderParZ(pathOrImageData, timeList, chanList, zList, outT
 %READERPARZ Summary of this function goes here
 %   Detailed explanation goes here
 
+if (~exist('pathOrImageData','var'))
+    pathOrImageData = [];
+end
+if (~exist('timeList','var') || isempty(timeList))
+    timeList = [];
+end
+if (~exist('chanList','var') || isempty(chanList))
+    chanList = [];
+end
+if (~exist('outType','var') || isempty(outType))
+    outType = [];
+end
+if (~exist('normalize','var') || isempty(normalize))
+    normalize = false;
+else
+    normalize = logical(normalize);
+end
+if (~exist('quiet','var') || isempty(quiet))
+    quiet = false;
+else
+    quiet = logical(quiet);
+end
+if (~exist('ROIstart_xy','var'))
+    ROIstart_xy = [];
+end
+
+if (~exist('ROIsize_xy','var'))
+    ROIsize_xy = [];
+end
+
+if (nargin==0)
+    prompt = true;
+elseif (~exist('prompt','var'))
+    prompt = [];
+end
+
 imD = MicroscopeData.ReadMetadata(pathOrImageData,prompt);
 clss = MicroscopeData.GetImageClass(imD);
 
@@ -12,7 +48,7 @@ end
 im1 = MicroscopeData.Reader(imD,timeList,chanList,zList(1),outType,normalize,quiet,prompt,ROIstart_xy,ROIsize_xy);
 
 im = zeros(size(im1,1),size(im1,2),length(zList),length(chanList),size(im1,5),clss);
-im(:,:,1,:) = im1;
+im(:,:,1,:,:) = im1;
 
 clear im1
 
