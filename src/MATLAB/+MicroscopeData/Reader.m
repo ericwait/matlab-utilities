@@ -66,13 +66,20 @@ if (isempty(imD))
 end
 
 if (~exist('ROIsize_xy','var') || isempty(ROIsize_xy))
-    ROIsize_xy = imD.Dimensions(1:2);
+    ROIsize_xy = imD.Dimensions(1:2)-ROIstart_xy + [1,1];
 end
 
-if (any(ROIsize_xy > imD.Dimensions(1:2)))
-    ROIsize_xy = imD.Dimensions(1:2);
-    if (~quite)
-        warning('ROI was bigger then original image, using full image');
+if (ROIstart_xy(1) + ROIsize_xy(1) > imD.Dimensions(1))
+    ROIsize_xy(1) = imD.Dimensions(1) - ROIstart_xy(1) + 1;
+    if (~quiet)
+        warning('ROI_x went out side of the original image, using a new size!');
+    end
+end
+
+if (ROIstart_xy(2) + ROIsize_xy(2) > imD.Dimensions(2))
+    ROIsize_xy(2) = imD.Dimensions(2) - ROIstart_xy(2) + 1;
+    if (~quiet)
+        warning('ROI_y went out side of the original image, using a new size!');
     end
 end
 
