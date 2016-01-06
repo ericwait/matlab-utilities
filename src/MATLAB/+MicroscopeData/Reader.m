@@ -241,7 +241,7 @@ if (convert)
     clear tempIm;
 end
 
-imD.Dimensions(3) = size(im,3);
+imD.Dimensions = [size(im,2),size(im,1),size(im,3)];
 imD.NumberOfChannels = size(im,4);
 imD.NumberOfFrames = size(im,5);
 end

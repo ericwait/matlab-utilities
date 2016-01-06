@@ -57,6 +57,7 @@ parfor t=2:length(timeList)
 end
 
 imD.Dimensions = [size(im,2),size(im,1),size(im,3)];
-imD.NumberOfFrames = length(timeList);
+imD.NumberOfChannels = size(im,4);
+imD.NumberOfFrames = size(im,5);
 end
 
