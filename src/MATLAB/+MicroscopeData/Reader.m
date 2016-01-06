@@ -37,7 +37,7 @@ else
     quiet = logical(quiet);
 end
 if (~exist('ROIstart_xy','var') || isempty(ROIstart_xy))
-    ROIstart_xy = [1,1,1];
+    ROIstart_xy = [1,1];
 end
 
 if (nargin==0)
@@ -66,18 +66,19 @@ if (isempty(imD))
 end
 
 if (~exist('ROIsize_xy','var') || isempty(ROIsize_xy))
-    ROIsize_xy = imD.Dimensions(1:2)-ROIstart_xy + [1,1];
+    ROIsize_xy(1) = length(ROIstart_xy(1):imD.Dimensions(1));
+    ROIsize_xy(2) = length(ROIstart_xy(2):imD.Dimensions(2));
 end
 
-if (ROIstart_xy(1) + ROIsize_xy(1) > imD.Dimensions(1))
-    ROIsize_xy(1) = imD.Dimensions(1) - ROIstart_xy(1) + 1;
+if (ROIstart_xy(1) + ROIsize_xy(1) -1 > imD.Dimensions(1))
+    ROIsize_xy(1) = length(ROIstart_xy(1):imD.Dimensions(1));
     if (~quiet)
         warning('ROI_x went out side of the original image, using a new size!');
     end
 end
 
-if (ROIstart_xy(2) + ROIsize_xy(2) > imD.Dimensions(2))
-    ROIsize_xy(2) = imD.Dimensions(2) - ROIstart_xy(2) + 1;
+if (ROIstart_xy(2) + ROIsize_xy(2) -1 > imD.Dimensions(2))
+    ROIsize_xy(2) = length(ROIstart_xy(2):imD.Dimensions(2));
     if (~quiet)
         warning('ROI_y went out side of the original image, using a new size!');
     end
