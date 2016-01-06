@@ -10,6 +10,18 @@ if (~exist('root','var') || isempty(root))
     root = '';
 end
 
+if (isstruct(root))
+    imageData = root;
+    rootDir = imageData.imageDir;
+    if (nargout>0)
+        varargout{1} = 1;
+    end
+    if (nargout>1)
+        varargout{2} = '';
+    end
+    return
+end
+
 if (nargout>0)
     varargout{1} = [];
 end
