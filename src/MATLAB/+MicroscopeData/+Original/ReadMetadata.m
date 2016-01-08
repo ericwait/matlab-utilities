@@ -26,9 +26,14 @@ MicroscopeData.Original.BioFormats.CheckJarPath();
 
 bfReader = MicroscopeData.Original.BioFormats.GetReader(fullfile(datasetPath,[datasetName,datasetExt]));
 
-[seriesMetaData, omeMetaData, orgMetaData] = MicroscopeData.Original.BioFormats.GetMetadata(bfReader,datasetExt);
-
-bfReader.close();
+if (~isempty(bfReader))
+    [seriesMetaData, omeMetaData, orgMetaData] = MicroscopeData.Original.BioFormats.GetMetadata(bfReader,datasetExt);
+    bfReader.close();
+else
+    seriesMetaData = [];
+    omeMetaData = [];
+    orgMetaData = [];
+end
 
 if (nargout>1)
     varargout{1} = omeMetaData;
