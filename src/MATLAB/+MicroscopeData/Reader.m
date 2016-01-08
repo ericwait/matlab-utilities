@@ -244,4 +244,6 @@ end
 imD.Dimensions = [size(im,2),size(im,1),size(im,3)];
 imD.NumberOfChannels = size(im,4);
 imD.NumberOfFrames = size(im,5);
+imD.ChannelNames = {imD.ChannelNames{chanList}}';
+imD.ChannelColors = imD.ChannelColors(chanList,:);
 end
