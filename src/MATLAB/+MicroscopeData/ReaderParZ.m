@@ -5,12 +5,7 @@ function [im, imD] = ReaderParZ(pathOrImageData, timeList, chanList, zList, outT
 if (~exist('pathOrImageData','var'))
     pathOrImageData = [];
 end
-if (~exist('timeList','var') || isempty(timeList))
-    timeList = [];
-end
-if (~exist('chanList','var') || isempty(chanList))
-    chanList = [];
-end
+
 if (~exist('outType','var') || isempty(outType))
     outType = [];
 end
@@ -40,6 +35,13 @@ end
 
 imD = MicroscopeData.ReadMetadata(pathOrImageData,prompt);
 clss = MicroscopeData.GetImageClass(imD);
+
+if (~exist('chanList','var') || isempty(chanList))
+    chanList = 1:imD.NumberOfChannels;
+end
+if (~exist('timeList','var') || isempty(timeList))
+    timeList = 1:imD.NumberOfFrames;
+end
 
 if (~exist('zList','var') || isempty(zList))
     zList = 1:imD.Dimensions(3);
