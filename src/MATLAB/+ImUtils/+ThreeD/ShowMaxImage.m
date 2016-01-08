@@ -53,7 +53,7 @@ newSize_rc = size(viewIm) + pad_rc;
 if (islogical(viewIm))
     viewIm = im2uint8(viewIm);
 end
-padImage = ones(newSize_rc,'like',viewIm)*95/255;
+padImage = ones(newSize_rc,'like',viewIm)*(max(viewIm(:))*(95/255));
 
 padOffset_rc = round(pad_rc/2);
 
