@@ -40,6 +40,8 @@ if (~exist('ROIstart_xy','var') || isempty(ROIstart_xy))
     ROIstart_xy = [1,1];
 end
 
+ROIstart_xy = max(ROIstart_xy,[1,1]);
+
 if (nargin==0)
     prompt = true;
 elseif (~exist('prompt','var'))
@@ -68,6 +70,10 @@ end
 if (~exist('ROIsize_xy','var') || isempty(ROIsize_xy))
     ROIsize_xy(1) = length(ROIstart_xy(1):imD.Dimensions(1));
     ROIsize_xy(2) = length(ROIstart_xy(2):imD.Dimensions(2));
+end
+
+if (any(ROIsize_xy<1))
+    warning('ROIsize resulted in no area being read!');
 end
 
 if (ROIstart_xy(1) + ROIsize_xy(1) -1 > imD.Dimensions(1))
