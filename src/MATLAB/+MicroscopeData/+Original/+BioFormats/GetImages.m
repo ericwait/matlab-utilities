@@ -71,7 +71,7 @@ function ind = calcPlaneInd(order,z,c,t,imageData)
 switch order(3)
     case 'Z'
         ind = z-1;
-        mul = imageData.Dimension(3);
+        mul = imageData.Dimensions(3);
     case 'C'
         ind = c-1;
         mul = imageData.NumberOfChannels;
