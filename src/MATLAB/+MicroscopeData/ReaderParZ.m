@@ -1,6 +1,5 @@
 function [im, imD] = ReaderParZ(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt, ROIstart_xy, ROIsize_xy)
-%READERPARZ Summary of this function goes here
-%   Detailed explanation goes here
+%[im, imD] = ReaderParZ(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt, ROIstart_xy, ROIsize_xy)
 
 if (~exist('pathOrImageData','var'))
     pathOrImageData = [];
