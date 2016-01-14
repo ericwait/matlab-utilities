@@ -1,6 +1,5 @@
 function [ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet )
-%CONVERT2TIFFS Summary of this function goes here
-%   Detailed explanation goes here
+%[ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet )
 
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = false;
