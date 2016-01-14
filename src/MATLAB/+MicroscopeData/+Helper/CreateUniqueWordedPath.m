@@ -5,9 +5,33 @@ function newFilePath = CreateUniqueWordedPath(fPath)
 % are repeated.  This forces the unique words closer to the file name or
 % most deep directory.
 
-fPath = MicroscopeData.Helper.SanitizeString(fPath);
+driveIdx = find(fPath==':',1,'first');
+if (~isempty(driveIdx))
+    tmpPath = MicroscopeData.Helper.SanitizeString(fPath(driveIdx+1:end));
+    fPath = [fPath(1:driveIdx),tmpPath];
+else
+    fPath = MicroscopeData.Helper.SanitizeString(fPath);
+end
 
 dirs = strsplit(fPath,'\');
+
+newDirs = {};
+for i=1:length(dirs)
+    if (strcmp(dirs{i},'.'))
+        continue
+    end
+    if (strcmp(dirs{i},'..'))
+        newDirs = newDirs(1:end-1);
+        continue
+    end
+    if (isempty(newDirs))
+        newDirs = dirs(i);
+    else
+        newDirs{end+1} = dirs{i};
+    end
+end
+
+dirs = newDirs;
 
 wordList = strsplit(dirs{end},' ');
 
@@ -18,11 +42,10 @@ for i=length(dirs)-1:-1:1
     curWords = strsplit(curDir,' ');
     keepWords = true(1,length(curWords));
     for j=1:length(curWords)
-        for k=1:length(wordList)
-            if (strcmpi(wordList{k},curWords{j}))
-                keepWords(j) = false;
-                break
-            end
+        if (any(strcmpi(curWords{j},wordList)))
+            keepWords(j) = false;
+        else
+            wordList{end+1} = curWords{j};
         end
     end
     
@@ -37,4 +60,5 @@ for i=length(dirs)-1:-1:1
         end
     end
     newFilePath = fullfile(newDir,newFilePath);
+end
 end
