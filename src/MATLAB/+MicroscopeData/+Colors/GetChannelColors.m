@@ -1,5 +1,5 @@
-function [ colors, varargout ] = GetChannelColors( imageData, prompt )
-%GETCHANNELCOLORS Summary of this function goes here
+function [ colors, stainNames ] = GetChannelColors( imageData, prompt )
+%[ colors, stainNames ] = MicroscopeData.Colors.GetChannelColors( imageData, prompt )
 %   Detailed explanation goes here
 
 if (~exist('prompt','var') || isempty(prompt))
@@ -45,9 +45,7 @@ end
 
 if (length(stainOrder)~=imageData.NumberOfChannels)
     colors = [];
-    if (nargout>0)
-        varargout{1} = '';
-    end
+    stainNames = '';
     return
 end
     
@@ -72,8 +70,5 @@ for c=1:length(chanList)
     colors(c,:) = stains(stainOrder(chanList(c))).color;
 end
 
-if (nargout>0)
-    varargout{1} = {stains(stainOrder).stain};
-end
-
+stainNames = {stains(stainOrder).stain};
 end
