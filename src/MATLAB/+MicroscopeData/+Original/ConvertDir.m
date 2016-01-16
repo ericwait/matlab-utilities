@@ -46,4 +46,6 @@ for i=1:length(folderList)
         end
     end
 end
+
+system(sprintf('dir "%s" /B /O:N /A:D > "%s\\list.txt"',outDir,outDir));
 end
