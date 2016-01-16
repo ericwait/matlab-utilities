@@ -1,12 +1,13 @@
-function [numBits, minVal, maxVal] = GetClassBits( checkVar, isNormalized )
-%CLASSBITS Summary of this function goes here
+function [numBits, minVal, maxVal, clss] = GetClassBits( checkVar, isNormalized )
+%[numBits, minVal, maxVal, clss] = GetClassBits( checkVar, isNormalized )
 %   Detailed explanation goes here
 
 if (~exist('isNormalized','var') || isempty(isNormalized))
     isNormalized = false;
 end
 
-switch class(checkVar)
+clss = class(checkVar);
+switch clss
     case 'uint8'
         numBits = 8;
         minVal = 0;
