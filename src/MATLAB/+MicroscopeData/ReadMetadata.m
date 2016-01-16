@@ -20,6 +20,8 @@ if (isstruct(root))
         varargout{2} = '';
     end
     return
+elseif (~isempty(root) && ~strcmp(root(end),'\') && exist(root,'dir'))
+    root = [root, '\'];
 end
 
 if (nargout>0)
