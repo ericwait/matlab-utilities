@@ -1,5 +1,5 @@
-function [ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet )
-%[ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet )
+function [ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet, cleanName)
+%[ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet, cleanName)
 
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = false;
@@ -28,6 +28,14 @@ if (~exist('outDir','var') || isempty(outDir))
     end
 end
 
+if (~exist('cleanName','var') || isempty(cleanName))
+    cleanName = false;
+end
+
+if (cleanName)
+    outDir = MicroscopeData.Helper.CreateUniqueWordedPath(outDir);
+end
+
 [~,name,~] = fileparts(imName);
 
 if (~exist(fullfile(outDir,name),'dir') || overwrite)
@@ -36,12 +44,18 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
     if (~isempty(imD))
         if (length(imD)>1)
             [~,datasetName,~] = fileparts(imName);
+            if (cleanName)
+                datasetName = MicroscopeData.Helper.SanitizeString(datasetName);
+            end
             outDir = fullfile(outDir,datasetName);
         end
         
         if (~exist(fullfile(outDir,imD{1}.DatasetName),'dir') || overwrite)
             im = MicroscopeData.Original.ReadImages(imDir,imName);
             for i=1:length(imD)
+                if (cleanName)
+                    imD{i}.DatasetName = MicroscopeData.Helper.SanitizeString(imD{i}.DatasetName);
+                end
                 if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite)
                     MicroscopeData.Writer(im{i},fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],quiet);
                 end
