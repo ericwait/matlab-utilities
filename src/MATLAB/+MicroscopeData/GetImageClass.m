@@ -1,4 +1,4 @@
-function [ imClass ] = GetImageClass( imageData )
+function [ imClass, imInfo ] = GetImageClass( imageData )
 %GETIMAGETYPE Summary of this function goes here
 %   Detailed explanation goes here
 
