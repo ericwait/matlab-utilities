@@ -7,10 +7,10 @@ function newFilePath = CreateUniqueWordedPath(fPath)
 
 driveIdx = find(fPath==':',1,'first');
 if (~isempty(driveIdx))
-    tmpPath = MicroscopeData.Helper.SanitizeString(fPath(driveIdx+1:end));
+    tmpPath = strtrim(MicroscopeData.Helper.SanitizeString(fPath(driveIdx+1:end)));
     fPath = [fPath(1:driveIdx),tmpPath];
 else
-    fPath = MicroscopeData.Helper.SanitizeString(fPath);
+    fPath = strtrim(MicroscopeData.Helper.SanitizeString(fPath));
 end
 
 dirs = strsplit(fPath,'\');

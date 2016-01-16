@@ -19,4 +19,6 @@ str = strrep(str, '?', '');
 str = strrep(str, '#', '');
 str = strrep(str, '[', '');
 str = strrep(str, ']', '');
+
+str = strtrim(str);
 end
