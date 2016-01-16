@@ -12,14 +12,14 @@ if (numChannels ~= numColors)
     error('Wrong number of colors (%d) for %d channels!',numColors,numChannels);
 end
 
-colorMultiplier = zeros(1,1,3,length(numChannels));
+colorMultiplier = zeros(1,1,3,length(numChannels),'single');
 for c=1:numChannels
     colorMultiplier(1,1,:,c) = colors(c,:);
 end
 
 %% make colored image
-imColors = zeros(size(im,1),size(im,2),3,numChannels);
-imIntensity = zeros(size(im,1),size(im,2),numChannels);
+imColors = zeros(size(im,1),size(im,2),3,numChannels,'single');
+imIntensity = zeros(size(im,1),size(im,2),numChannels,'single');
 for c=1:numChannels
     imIntensity(:,:,c) = mat2gray(max(im(:,:,:,c),[],3));
     color = repmat(colorMultiplier(1,1,:,c),size(im,1),size(im,2),1);
