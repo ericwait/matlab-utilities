@@ -33,6 +33,15 @@ elseif (~exist('prompt','var'))
 end
 
 imD = MicroscopeData.ReadMetadata(pathOrImageData,prompt);
+
+if (isempty(imD))
+    im = [];
+    if (~quiet)
+        warning('No Images read!');
+    end
+    return
+end
+
 clss = MicroscopeData.GetImageClass(imD);
 
 if (~exist('chanList','var') || isempty(chanList))
