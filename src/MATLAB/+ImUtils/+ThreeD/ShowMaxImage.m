@@ -39,27 +39,34 @@ if (ndims(viewIm)>2)
     error('ShowMaxImage can only display 3D images, this image has %d!',ndims(im));
 end
 
-vwSize_rc = size(viewIm);
+% vwSize_rc = size(viewIm);
 
-scale = [ar,1/ar];
-scaledImSides_rc = scale .* Utils.SwapXY_RC(vwSize_rc);
-[minVal,i] = max(scaledImSides_rc-vwSize_rc);
+% scale = [ar,1/ar];
+% scaledImSides_rc = scale .* Utils.SwapXY_RC(vwSize_rc);
+% [minVal,i] = max(scaledImSides_rc-vwSize_rc);
+% 
+% pad_rc = zeros(1,2);
+% pad_rc(i) = round(minVal);
 
-pad_rc = zeros(1,2);
-pad_rc(i) = round(minVal);
-
-newSize_rc = size(viewIm) + pad_rc;
+% newSize_rc = size(viewIm) + pad_rc;
 
 if (islogical(viewIm))
     viewIm = im2uint8(viewIm);
 end
-padImage = ones(newSize_rc,'like',viewIm)*(max(viewIm(:))*(95/255));
+% padImage = ones(newSize_rc,'like',viewIm)*(max(viewIm(:))*(95/255));
+% padOffset_rc = round(pad_rc/2);
+% padImage(padOffset_rc(1)+1:vwSize_rc(1)+padOffset_rc(1),padOffset_rc(2)+1:vwSize_rc(2)+padOffset_rc(2)) = viewIm;
 
-padOffset_rc = round(pad_rc/2);
-
-padImage(padOffset_rc(1)+1:vwSize_rc(1)+padOffset_rc(1),padOffset_rc(2)+1:vwSize_rc(2)+padOffset_rc(2)) = viewIm;
-
-imageHandle = imagesc(-padOffset_rc(2)+1,-padOffset_rc(1)+1,padImage,'Parent',axesHandle);
+imageHandle = imagesc(viewIm,'Parent',axesHandle);
 
 colormap(axesHandle,'gray');
+axesHandle.Position = [0 0 1 1];
+axesHandle.Color = [1 1 1] * 95/255;
+
+set(get(axesHandle,'Parent'),'ResizeFcn',@KeepPlotEqual);
+set(zoom(axesHandle),'ActionPostCallback',@KeepPlotEqual);
 end
+
+function KeepPlotEqual(~,~)
+axis equal
+end 
