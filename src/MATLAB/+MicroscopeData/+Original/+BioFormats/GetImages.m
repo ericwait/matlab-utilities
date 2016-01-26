@@ -43,7 +43,11 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
     imageData.NumberOfChannels = omeMetadata.getChannelCount(series);
     imageData.NumberOfFrames = safeGetValue(omeMetadata.getPixelsSizeT(series));
 
-    im = zeros([Utils.SwapXY_RC(imageData.Dimensions'),imageData.NumberOfChannels,imageData.NumberOfFrames],char(omeMetadata.getPixelsType(series)));
+    clss = char(omeMetadata.getPixelsType(series));
+    if (strcmpi(clss,'float'))
+        clss = 'single';
+    end
+    im = zeros([Utils.SwapXY_RC(imageData.Dimensions'),imageData.NumberOfChannels,imageData.NumberOfFrames],clss);
 
     order = char(omeMetadata.getPixelsDimensionOrder(series));
 
