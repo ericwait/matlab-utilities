@@ -88,7 +88,11 @@ switch outTyp
     case 'uint8'
         im = im./2^8;
     case 'uint16'
-        im = im./2^16;
+        if (max(im(:))<2^12+1)
+            im = im./2^12;
+        else
+            im = im./2^16;
+        end
     case 'int16'
         im = im./2^15-1;
     case 'uint32'
