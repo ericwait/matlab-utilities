@@ -20,14 +20,21 @@ classdef CmdlnProgress<handle
         firstTime
         total
         useBs
+        titleText
     end
     
     methods
-        function obj = CmdlnProgress(iterations,useBackspace)
+        function obj = CmdlnProgress(iterations,useBackspace,optionalTitle)
             if(~exist('useBackspace', 'var') || isempty(useBackspace))
                 obj.useBs = true;
             else
                 obj.useBs = useBackspace;
+            end
+            
+            if (~exist('optionalTitle','var') || isempty(optionalTitle))
+                obj.titleText = '';
+            else
+                obj.titleText = optionalTitle;
             end
             
             obj.total = iterations;
@@ -49,7 +56,18 @@ classdef CmdlnProgress<handle
             finDate = obj.firstTime + (totalSec / 86400);
             timeLeft = (finDate - cur)*86400;
             
-            doneStr = sprintf('%5.2f%%%% est. %s @ %s',prcntDone*100,Utils.PrintTime(timeLeft),datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+            if (~isempty(obj.titleText))
+                doneStr = sprintf('%s: %5.2f%%%% est. %s @ %s\n',...
+                    obj.titleText,...
+                    prcntDone*100,...
+                    Utils.PrintTime(timeLeft),...
+                    datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+            else
+                doneStr = sprintf('%5.2f%%%% est. %s @ %s\n',...
+                    prcntDone*100,...
+                    Utils.PrintTime(timeLeft),...
+                    datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+            end
             fprintf([obj.backspaces,doneStr]);
             
             if(obj.useBs)
@@ -68,7 +86,19 @@ classdef CmdlnProgress<handle
             finDate = obj.firstTime + (totalSec / 86400);
             timeLeft = (finDate - cur)*86400;
             
-            doneStr = sprintf('%5.2f%%%% est. %s @ %s',prcntDone*100,Utils.PrintTime(timeLeft),datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+            if (~isempty(obj.titleText))
+                doneStr = sprintf('%s: %5.2f%%%% est. %s @ %s\n',...
+                    obj.titleText,...
+                    prcntDone*100,...
+                    Utils.PrintTime(timeLeft),...
+                    datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+            else
+                doneStr = sprintf('%5.2f%%%% est. %s @ %s\n',...
+                    prcntDone*100,...
+                    Utils.PrintTime(timeLeft),...
+                    datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+            end
+            
             fprintf(doneStr);
             
             if(obj.useBs)
