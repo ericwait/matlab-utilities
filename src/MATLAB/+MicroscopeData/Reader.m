@@ -115,9 +115,19 @@ if (isempty(outType))
     elseif (imInfo(1).BitDepth==16)
         outType = 'uint16';
     elseif (imInfo(1).BitDepth==32)
-        outType = 'uint32';
+        if (strcmpi(imInfo.SampleFormat,'IEEE floating point'))
+            outType = 'single';
+        else
+            outType = 'uint32';
+        end
+    elseif (imInfo(1).BitDepth==64)
+        if (strcmpi(imInfo.SampleFormat,'IEEE floating point'))
+            outType = 'double';
+        else
+            outType = 'uint64';
+        end
     else
-        outType = 'double';
+        error('Unsupported input type!');
     end
 elseif (strcmp(outType,'double'))
     bytes=8;
