@@ -11,7 +11,7 @@ classdef CmdlnProgress<handle
     % the numerator for the percent completed and ensure that the second
     % paramater is not used or empty.
     %
-    % Usage -- Initalize by using CmdlnProgress(number of iterations, true);
+    % Usage -- Initalize by using CmdlnProgress(number of iterations, true, optionalTitle);
     %          Update by using    PrintProgress(current iteration);
     %          Clean up by using  PrintProgress(0,false);
     
