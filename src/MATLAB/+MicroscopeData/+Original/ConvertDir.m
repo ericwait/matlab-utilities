@@ -41,7 +41,7 @@ for i=1:length(folderList)
     else
         [~,~,exten] = fileparts(folderList(i).name);
         if (strcmpi(exten,'.lif') || strcmpi(exten,'.lsm') || strcmpi(exten,'.zvi') || strcmpi(exten,'.nd2') ||...
-                strcmpi(exten,'.oif') || strcmpi(exten,'.czi') || (strcmpi(exten,'.tif') && includeTiff))
+                strcmpi(exten,'.oif') || strcmpi(exten,'.czi') || strcmpi(exten,'.stk') || (strcmpi(exten,'.tif') && includeTiff))
             fprintf('%s ...\n',fullfile(readPath,folderList(i).name));
             tic
             MicroscopeData.Original.Convert2Tiffs(readPath,folderList(i).name,fullfile(outDir,subDirsIn),overwrite,cleanName);
