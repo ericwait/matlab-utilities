@@ -1,7 +1,12 @@
 function CreateMetadata(root,imageData,quiet)
 
 if (isempty(root))
-    root = uigetdir(imageData.imageDir,'Directory to Place Metadata');
+    if (isfield(imageData,'imageDir'))
+        openDir = imageData.imageDir;
+    else
+        openDir = [];
+    end
+    root = uigetdir(openDir,'Directory to Place Metadata');
     if (root==0)
         return
     end
