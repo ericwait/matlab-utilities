@@ -32,7 +32,7 @@ lclColor = [0.00 1.00 1.00];
 lclStr = 'c';
 stains = setNextColor(stains, 'DCX', lclColor, lclStr);
 stains = setNextColor(stains, 'Dcx', lclColor, lclStr);
-stains = setNextColor(stains, 'Itga', lclColor, lclStr);
+%stains = setNextColor(stains, 'Itga', lclColor, lclStr);
 %stains = setNextColor(stains, 'Cy5', lclColor, lclStr);
 %stains = setNextColor(stains, 'NCAM', lclColor, lclStr);
 
