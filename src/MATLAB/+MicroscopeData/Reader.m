@@ -260,12 +260,12 @@ end
 imD.Dimensions = [size(im,2),size(im,1),size(im,3)];
 imD.NumberOfChannels = size(im,4);
 imD.NumberOfFrames = size(im,5);
-if (isfield(imD,'ChannelNames'))
+if (isfield(imD,'ChannelNames') && ~isempty(imD.ChannelNames))
     imD.ChannelNames = {imD.ChannelNames{chanList}}';
 else
     imD.ChannelNames = {};
 end
-if (isfield(imD,'ChannelColors'))
+if (isfield(imD,'ChannelColors') && ~isempty(imD.ChannelColors))
     imD.ChannelColors = imD.ChannelColors(chanList,:);
 else
     imD.ChannelColors = [];
