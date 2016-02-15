@@ -148,11 +148,20 @@ if (~quiet)
     i=1;
 end
 
+isBig = false;
+if (tags.BitsPerSample/8 * prod(im.Dimensions) > 0.95*2^32)
+    isBig = true;
+end
+
 tic
 for t=1:length(timeList)
     for c=1:length(chanList)
         for z=1:length(zList)
-            tiffObj = Tiff(fullfile(outDir,[imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))]),'w');
+            if (isBig)
+                tiffObj = Tiff(fullfile(outDir,[imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))]),'w8');
+            else
+                tiffObj = Tiff(fullfile(outDir,[imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))]),'w');
+            end
             tiffObj.setTag(tags);
             tiffObj.write(im(:,:,z,c,t),tags);
             tiffObj.close();
