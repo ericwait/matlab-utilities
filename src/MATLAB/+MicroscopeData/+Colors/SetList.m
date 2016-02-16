@@ -1,8 +1,8 @@
-function stains = SetColorsList()
-stains = struct('stain','','color',[],'strColor','');
+function stains = SetList()
+stains = struct('name','','color',[],'strColor','');
 
 %% blue
-stains(1).stain = 'DAPI';
+stains(1).name = 'DAPI';
 stains(end).color = [0.00, 0.00, 0.50];
 stains(end).strColor = 'b';
 
@@ -59,7 +59,7 @@ stains = setNextColor(stains, 'Phase', lclColor, lclStr);
 end
 
 function stains = setNextColor(stains, stainName, val, strC)
-stains(end+1).stain = stainName;
+stains(end+1).name = stainName;
 stains(end).color = val;
 stains(end).strColor = strC;
 end

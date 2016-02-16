@@ -24,22 +24,38 @@ defaultColors(7).color = [1.00 1.00 1.00];
 
 stains = MicroscopeData.Colors.SetList();
 
-starts = zeros(1,length(stains));
-for i=1:length(stains)
-    idx = strfind(fullfile(imageData.imageDir,imageData.DatasetName),stains(i).stain);
-    if (~isempty(idx))
-        starts(i) = idx(1);
+expres = stains(1).name;
+for i=2:length(stains)
+    expres = [expres,'|',stains(i).name];
+end
+
+fullPath = fullfile(imageData.imageDir,imageData.DatasetName);
+[startInds,endInds] = regexpi(fullPath,expres);
+
+stainNames = cell(length(startInds),1);
+for i=1:length(startInds)
+    stainNames{i} = fullPath(startInds(i):endInds(i));
+end
+
+[~,order] = unique(stainNames);
+stainNames = stainNames(sort(order));
+
+stainOrder = zeros(length(stainNames),1);
+for i=1:length(stainNames)
+    for j=1:length(stains)
+        if (strcmpi(stains(j).name,stainNames(i)))
+            stainOrder(i) = j;
+            break
+        end
     end
 end
 
-[b, idx] = sort(starts);
-stainOrder = idx(b>0);
 if ((isempty(stainOrder) || length(stainOrder)~=imageData.NumberOfChannels) && prompt)
-    dbstop in MicroscopeData.Colors.GetChannelColors at 42
+    dbstop in MicroscopeData.Colors.GetChannelColors at 58
     %%%%%%%%%%%%%%%%% FIX the stainOrder to what it really should be %%%%%%%%%%%
     disp(imageData.imageDir);
     disp(imageData.DatasetName);
-    disp({stains(stainOrder).stain});
+    disp({stains(stainOrder).name});
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 
@@ -69,6 +85,4 @@ colors = zeros(length(chanList),3);
 for c=1:length(chanList)
     colors(c,:) = stains(stainOrder(chanList(c))).color;
 end
-
-stainNames = {stains(stainOrder).stain};
 end
