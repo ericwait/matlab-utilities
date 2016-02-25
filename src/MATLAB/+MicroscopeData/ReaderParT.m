@@ -64,7 +64,7 @@ im(:,:,:,:,1) = im1;
 clear im1
 
 parfor t=2:length(timeList)
-    im(:,:,:,:,t) = MicroscopeData.Reader(imD,timeList(t),chanList,zList,outType,normalize,quiet,prompt,ROIstart_xy,ROIsize_xy);
+    im(:,:,:,:,t) = MicroscopeData.Reader(imD,timeList(t),chanList,zList,outType,normalize,true,prompt,ROIstart_xy,ROIsize_xy);
 end
 
 imD.Dimensions = [size(im,2),size(im,1),size(im,3)];
