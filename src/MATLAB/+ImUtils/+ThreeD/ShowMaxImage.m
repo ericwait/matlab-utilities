@@ -46,7 +46,7 @@ end
 imageHandle = imagesc(viewIm,'Parent',axesHandle);
 
 colormap(axesHandle,'gray');
-axesHandle.Position = [0 0 1 1];
+%axesHandle.Position = [0 0 1 1];
 axesHandle.Color = [1 1 1] * 95/255;
 
 set(get(axesHandle,'Parent'),'ResizeFcn',@KeepPlotEqual);
