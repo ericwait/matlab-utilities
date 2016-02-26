@@ -39,23 +39,9 @@ if (ndims(viewIm)>2)
     error('ShowMaxImage can only display 3D images, this image has %d!',ndims(im));
 end
 
-% vwSize_rc = size(viewIm);
-
-% scale = [ar,1/ar];
-% scaledImSides_rc = scale .* Utils.SwapXY_RC(vwSize_rc);
-% [minVal,i] = max(scaledImSides_rc-vwSize_rc);
-% 
-% pad_rc = zeros(1,2);
-% pad_rc(i) = round(minVal);
-
-% newSize_rc = size(viewIm) + pad_rc;
-
 if (islogical(viewIm))
     viewIm = im2uint8(viewIm);
 end
-% padImage = ones(newSize_rc,'like',viewIm)*(max(viewIm(:))*(95/255));
-% padOffset_rc = round(pad_rc/2);
-% padImage(padOffset_rc(1)+1:vwSize_rc(1)+padOffset_rc(1),padOffset_rc(2)+1:vwSize_rc(2)+padOffset_rc(2)) = viewIm;
 
 imageHandle = imagesc(viewIm,'Parent',axesHandle);
 
