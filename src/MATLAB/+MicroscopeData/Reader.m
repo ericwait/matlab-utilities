@@ -217,7 +217,7 @@ end
 
 if (~quiet)
     iter = length(timeList)*length(chanList)*length(zList);
-    cp = Utils.CmdlnProgress(iter,true);
+    cp = Utils.CmdlnProgress(iter,true,sprintf('Reading %s...',imD.DatasetName));
     i=1;
 end
 
