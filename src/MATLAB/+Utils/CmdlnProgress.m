@@ -108,9 +108,18 @@ classdef CmdlnProgress<handle
             end
         end
         
-        function ClearProgress(obj)
+        function ClearProgress(obj,printTotal)
             if (~isempty(obj.backspaces))
                 fprintf(obj.backspaces);
+            end
+            if (exist('printTotal','var') && ~isempty(printTotal) && printTotal)
+                cur = now;
+                elpsTime = (cur - obj.firstTime) * 86400;
+                if (~isempty(obj.titleText))
+                    fprintf('%s took: %s\n',obj.titleText,Utils.PrintTime(elpsTime))
+                else
+                    fprintf('Took: %s\n',Utils.PrintTime(elpsTime))
+                end
             end
             obj.backspaces = [];
             obj.firstTime = 0;
