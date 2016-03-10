@@ -1,4 +1,4 @@
-function I = bfGetPlane(r, iPlane, varargin)
+function I = GetPlane(r, iPlane, varargin)
 % BFGETPLANE Retrieve the plane data from a reader using Bio-Formats
 % 
 %   I = bfGetPlane(r, iPlane) returns a specified plane from the input
