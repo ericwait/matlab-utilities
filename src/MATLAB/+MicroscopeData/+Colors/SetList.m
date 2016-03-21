@@ -13,8 +13,6 @@ stains = setNextColor(stains, 'Laminin', lclColor, lclStr);
 stains = setNextColor(stains, 'laminin', lclColor, lclStr);
 stains = setNextColor(stains, 'Tomato', lclColor, lclStr);
 stains = setNextColor(stains, 'Bcat', lclColor, lclStr);
-stains = setNextColor(stains, 'Mash', lclColor, lclStr);
-stains = setNextColor(stains, 'Msh', lclColor, lclStr);
 stains = setNextColor(stains, 'lectin', lclColor, lclStr);
 stains = setNextColor(stains, 'Lectin', lclColor, lclStr);
 stains = setNextColor(stains, 'EdU', lclColor, lclStr);
@@ -42,6 +40,7 @@ lclStr = 'y';
 stains = setNextColor(stains, 'Olig2', lclColor, lclStr);
 stains = setNextColor(stains, 'Olg2', lclColor, lclStr);
 stains = setNextColor(stains, 'EGFR', lclColor, lclStr);
+stains = setNextColor(stains, 'ki67', lclColor, lclStr);
 % stains = setNextColor(stains, 'AcTub', lclColor, lclStr);
 % stains = setNextColor(stains, 'Bcatenin', lclColor, lclStr);
 
@@ -49,6 +48,8 @@ stains = setNextColor(stains, 'EGFR', lclColor, lclStr);
 lclColor = [1.00 0.00 1.00];
 lclStr = 'm';
 stains = setNextColor(stains, 'AcTub', lclColor, lclStr);
+stains = setNextColor(stains, 'Mash', lclColor, lclStr);
+stains = setNextColor(stains, 'Msh', lclColor, lclStr);
 % stains = setNextColor(stains, 'VCAM', lclColor, lclStr);
 % stains = setNextColor(stains, 'Mash', lclColor, lclStr);
 
