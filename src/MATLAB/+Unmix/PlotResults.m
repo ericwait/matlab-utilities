@@ -1,16 +1,17 @@
 function PlotResults(images,figureName,errorMask)
-    figure('Name',figureName,'NumberTitle','off');
+    figureHandle = figure('Name',figureName,'NumberTitle','off');
     for signalChan=1:size(images,5)
         for responceChan=1:size(images,4)
             imResponce = images(:,:,:,responceChan,signalChan);
             
-            subplot(size(images,4),size(images,5),responceChan + (signalChan-1)*size(images,4));
-            ImUtils.ThreeD.ShowMaxImage(imResponce,false,3);
+            set(0, 'CurrentFigure', figureHandle);
+            axHandle = subplot(size(images,4),size(images,5),responceChan + (signalChan-1)*size(images,4));
+            ImUtils.ThreeD.ShowMaxImage(imResponce,false,3,axHandle);
             if (~isempty(errorMask))
                 hold on
                 inds = find(errorMask(:,responceChan,signalChan));
                 [r,c] = ind2sub([size(images,1),size(images,2)],inds);
-                plot(c,r,'.r','MarkerSize',1);
+                plot(axHandle,c,r,'.r','MarkerSize',1);
             end
             colorbar
         end
