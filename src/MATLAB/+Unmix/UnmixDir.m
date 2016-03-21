@@ -80,7 +80,7 @@ spmd
         [~,~,maxVal] = Utils.GetClassBits(imMixed);
         
         if (max(imMixed(:)) > 0.28*maxVal)
-            unmixedIm  = Cuda.Unmix.Image( imMixed, imageData, unmixFactors, false,2);
+            unmixedIm = Cuda.Mex('LinearUnmixing',imMixed,unmixFactors);
         else
             unmixedIm = imMixed;
         end
