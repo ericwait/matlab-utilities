@@ -47,6 +47,7 @@ clss = MicroscopeData.GetImageClass(imD);
 if (~exist('chanList','var') || isempty(chanList))
     chanList = 1:imD.NumberOfChannels;
 end
+
 if (~exist('timeList','var') || isempty(timeList))
     timeList = 1:imD.NumberOfFrames;
 end
@@ -69,4 +70,11 @@ end
 imD.Dimensions = [size(im,2),size(im,1),size(im,3)];
 imD.NumberOfChannels = size(im,4);
 imD.NumberOfFrames = size(im,5);
+
+if (isfield(imD,'ChannelNames'))
+    imD.ChannelNames = imD.ChannelNames(chanList);
+end
+if (isfield(imD,'ChannelColors'))
+    imD.ChannelColors = imD.ChannelColors(chanList,:);
+end
 end
