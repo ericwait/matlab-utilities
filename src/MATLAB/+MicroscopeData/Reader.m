@@ -195,6 +195,12 @@ switch imInfo(1).BitDepth
         error('Unsupported input type!');
 end
 
+if (~isfield(imD,'PixelFormat'))
+    imD.PixelFormat = inType;
+elseif (strcmpi(inType,outType) && strcmpi(imD.PixelFormat,'logical'))
+    outType = 'logical';
+end
+
 convert = false;
 if (~strcmpi(inType,outType) || normalize)
     convert = true;

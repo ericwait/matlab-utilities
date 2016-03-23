@@ -37,8 +37,6 @@ if (~exist('ROIsize_xy','var') || isempty(ROIsize_xy))
     ROIsize_xy(2) = length(ROIstart_xy(2):imD.Dimensions(2));
 end
 
-im = zeros(ROIsize_xy(2),ROIsize_xy(1),1,length(chanList),length(timeList),outType);
-
 mipPathTemplate = ['_',imD.DatasetName,'_c%02d_t%04d.tif'];
 gotMips = false(length(timeList),length(chanList));
 for t=1:length(timeList)
@@ -56,6 +54,12 @@ if (~quiet)
     iter = sum(gotMips==0)*imD.Dimensions(3);
     cp = Utils.CmdlnProgress(iter,true);
     i=1;
+end
+
+if (strcmpi(outType,'logical'))
+    im = false(ROIsize_xy(2),ROIsize_xy(1),1,length(chanList),length(timeList));
+else
+    im = zeros(ROIsize_xy(2),ROIsize_xy(1),1,length(chanList),length(timeList),outType);
 end
 
 for t=1:length(timeList)

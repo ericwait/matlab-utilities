@@ -42,6 +42,10 @@ switch clss
             minVal = realmin('double');
             maxVal = realmax('double');
         end
+    case 'logical'
+        numBits = 1;
+        minVal = false;
+        maxVal = true;
     otherwise
         error('Unkown class!');
 end

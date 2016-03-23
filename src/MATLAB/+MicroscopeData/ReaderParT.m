@@ -58,7 +58,11 @@ end
 
 im1 = MicroscopeData.Reader(imD,timeList(1),chanList,zList,outType,normalize,quiet,prompt,ROIstart_xy,ROIsize_xy);
 
-im = zeros(size(im1,1),size(im1,2),size(im1,3),size(im1,4),length(timeList),clss);
+if (strcmpi(clss,'logical'))
+    im = false(size(im1,1),size(im1,2),length(zList),length(chanList),size(im1,5),clss);
+else
+    im = zeros(size(im1,1),size(im1,2),length(zList),length(chanList),size(im1,5),clss);
+end
 im(:,:,:,:,1) = im1;
 
 clear im1

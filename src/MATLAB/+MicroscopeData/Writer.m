@@ -48,7 +48,48 @@ else
     imageData.NumberOfChannels = size(im,4);
     imageData.NumberOfFrames = size(im,5);
 
-    imageData.PixelPhysicalSizes = [1.0; 1.0; 1.0];
+    imageData.PixelPhysicalSizes = [1.0; 1.0; 1.0]; 
+end
+
+w = whos('im');
+switch w.class
+    case 'uint8'
+        tags.SampleFormat = Tiff.SampleFormat.UInt;
+        tags.BitsPerSample = 8;
+    case 'uint16'
+        tags.SampleFormat = Tiff.SampleFormat.UInt;
+        tags.BitsPerSample = 16;
+    case 'uint32'
+        tags.SampleFormat = Tiff.SampleFormat.UInt;
+        tags.BitsPerSample = 32;
+    case 'int8'
+        tags.SampleFormat = Tiff.SampleFormat.Int;
+        tags.BitsPerSample = 8;
+    case 'int16'
+        tags.SampleFormat = Tiff.SampleFormat.Int;
+        tags.BitsPerSample = 16;
+    case 'int32'
+        tags.SampleFormat = Tiff.SampleFormat.Int;
+        tags.BitsPerSample = 32;
+    case 'single'
+        tags.SampleFormat = Tiff.SampleFormat.IEEEFP;
+        tags.BitsPerSample = 32;
+    case 'double'
+        tags.SampleFormat = Tiff.SampleFormat.IEEEFP;
+        tags.BitsPerSample = 64;
+    case 'logical'
+        imtemp = zeros(size(im),'uint8');
+        imtemp(im) = 255;
+        im = imtemp;
+        clear imtemp
+        tags.SampleFormat = Tiff.SampleFormat.UInt;
+        tags.BitsPerSample = 8;
+    otherwise
+        error('Image type unsupported!');
+end
+
+if (~isfield(imageData,'PixelFormat'))
+    imageData.PixelFormat = w.class;
 end
 
 if (exist('outDir','var') && ~isempty(outDir))
@@ -95,7 +136,6 @@ if (size(im,3)~=length(zList))
     error('There are %d z images and %d z images to be written!',size(im,3),length(zList));
 end
 
-w = whos('im');
 tags.ImageLength = size(im,1);
 tags.ImageWidth = size(im,2);
 tags.RowsPerStrip = size(im,2);
@@ -105,42 +145,6 @@ tags.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
 tags.SamplesPerPixel = 1;
 tags.Compression = Tiff.Compression.LZW;
 tags.Software = 'MATLAB';
-
-switch w.class
-    case 'uint8'
-        tags.SampleFormat = Tiff.SampleFormat.UInt;
-        tags.BitsPerSample = 8;
-    case 'uint16'
-        tags.SampleFormat = Tiff.SampleFormat.UInt;
-        tags.BitsPerSample = 16;
-    case 'uint32'
-        tags.SampleFormat = Tiff.SampleFormat.UInt;
-        tags.BitsPerSample = 32;
-    case 'int8'
-        tags.SampleFormat = Tiff.SampleFormat.Int;
-        tags.BitsPerSample = 8;
-    case 'int16'
-        tags.SampleFormat = Tiff.SampleFormat.Int;
-        tags.BitsPerSample = 16;
-    case 'int32'
-        tags.SampleFormat = Tiff.SampleFormat.Int;
-        tags.BitsPerSample = 32;
-    case 'single'
-        tags.SampleFormat = Tiff.SampleFormat.IEEEFP;
-        tags.BitsPerSample = 32;
-    case 'double'
-        tags.SampleFormat = Tiff.SampleFormat.IEEEFP;
-        tags.BitsPerSample = 64;
-    case 'logical'
-        imtemp = zeros(size(im),'uint8');
-        imtemp(im) = 255;
-        im = imtemp;
-        clear imtemp
-        tags.SampleFormat = Tiff.SampleFormat.UInt;
-        tags.BitsPerSample = 8;
-    otherwise
-        error('Image type unsupported!');
-end
 
 if (~quiet)
     iter = length(timeList)*length(chanList)*length(zList);
