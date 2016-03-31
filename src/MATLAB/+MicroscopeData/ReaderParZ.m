@@ -1,4 +1,4 @@
-function [im, imD] = ReaderParZ(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt, ROIstart_xy, ROIsize_xy)
+function [im, imD] = ReaderParZ(pathOrImageData, timeList, chanList, zList, outType, quiet, prompt, ROIstart_xy, ROIsize_xy)
 %[im, imD] = ReaderParZ(pathOrImageData, timeList, chanList, zList, outType, normalize, quiet, prompt, ROIstart_xy, ROIsize_xy)
 
 if (~exist('pathOrImageData','var'))
@@ -7,11 +7,6 @@ end
 
 if (~exist('outType','var') || isempty(outType))
     outType = [];
-end
-if (~exist('normalize','var') || isempty(normalize))
-    normalize = false;
-else
-    normalize = logical(normalize);
 end
 if (~exist('quiet','var') || isempty(quiet))
     quiet = false;
@@ -56,7 +51,7 @@ if (~exist('zList','var') || isempty(zList))
     zList = 1:imD.Dimensions(3);
 end
 
-im1 = MicroscopeData.Reader(imD,timeList,chanList,zList(1),outType,normalize,true,prompt,ROIstart_xy,ROIsize_xy);
+im1 = MicroscopeData.Reader(imD,timeList,chanList,zList(1),outType,false,true,prompt,ROIstart_xy,ROIsize_xy);
 
 if (strcmpi(clss,'logical'))
     im = false(size(im1,1),size(im1,2),length(zList),length(chanList),size(im1,5),clss);
@@ -68,7 +63,7 @@ im(:,:,1,:,:) = im1;
 clear im1
 
 parfor z=2:length(zList)
-    im(:,:,z,:,:) = MicroscopeData.Reader(imD,timeList,chanList,zList(z),outType,normalize,true,prompt,ROIstart_xy,ROIsize_xy);
+    im(:,:,z,:,:) = MicroscopeData.Reader(imD,timeList,chanList,zList(z),outType,false,true,prompt,ROIstart_xy,ROIsize_xy);
 end
 
 imD.Dimensions = [size(im,2),size(im,1),size(im,3)];
