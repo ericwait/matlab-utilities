@@ -1,51 +1,62 @@
-function json = CreateJSON(data)
+function json = CreateJSON(data,bWhitespace)
+    if ( ~exist('bWhitespace','var') )
+        bWhitespace = true;
+    end
+    
+    spaceStruct = struct('line',{''}, 'space',{''}, 'indent',{''});
+    if ( bWhitespace )
+        spaceStruct = struct('line',{'\n'}, 'space',{' '}, 'indent',{'  '});
+    end
+    
     if ( isstruct(data) )
-        json = writeObject(data,'');
+        json = writeObject(data,'', spaceStruct);
     else
-        json = writeArray(data,'');
+        json = writeArray(data,'', spaceStruct);
     end
 end
 
-function json = writeObject(data, spacePrefix)
+function json = writeObject(data, spacePrefix, spaceStruct)
     fields = fieldnames(data);
-    
-    spacePad = '  ';
     
     fieldSep = ',';
     objJSON = '';
     
-    fieldPrefix = [spacePrefix spacePad];
+    fieldPattern = ['%s"%s"' spaceStruct.space ':' spaceStruct.space '%s%s'];
+    patternPad = length(sprintf(fieldPattern,'','','',''));
+    
+    fieldPrefix = [spacePrefix spaceStruct.indent];
     for i=1:length(fields)
         if ( i == length(fields) )
             fieldSep = '';
         end
         
-        elemPad = repmat(' ', 1,5+length(fields{i}));
+        elemPad = repmat(spaceStruct.space, 1,patternPad+length(fields{i}));
         elemPrefix = [fieldPrefix elemPad];
         
-        valJSON = writeValue(data.(fields{i}), elemPrefix);
-        fieldJSON = sprintf('\n%s"%s" : %s%s', fieldPrefix, fields{i}, valJSON,fieldSep);
+        valJSON = writeValue(data.(fields{i}), elemPrefix, spaceStruct);
+        fieldJSON = sprintf([spaceStruct.line fieldPattern], fieldPrefix, fields{i}, valJSON,fieldSep);
         
         objJSON = [objJSON fieldJSON];
     end
     
-    json = sprintf('{%s\n%s}', objJSON,spacePrefix);
+    objectPattern = ['{%s' spaceStruct.line '%s}'];
+    json = sprintf(objectPattern, objJSON,spacePrefix);
 end
 
-function [json,bSingleLine] = writeArray(data, spacePrefix)
+function [json,bSingleLine] = writeArray(data, spacePrefix, spaceStruct)
     bSingleLine = false;
     if ( isnumeric(data) && (size(data,1) == numel(data)) )
         bSingleLine = true;
-        json = writeSingleLineArray(data);
+        json = writeSingleLineArray(data, spaceStruct);
         return;
     end
-
-    spacePad = '  ';
     
     valSep = ',';
     arrayJSON = '';
     
-    valuePrefix = [spacePrefix spacePad];
+    valPattern = '%s%s%s';
+    
+    valuePrefix = [spacePrefix spaceStruct.indent];
     for i=1:size(data,1)
         if ( i == size(data,1) )
             valSep = '';
@@ -54,12 +65,12 @@ function [json,bSingleLine] = writeArray(data, spacePrefix)
         arrayEntry = squashSelect(data, i);
         if ( numel(arrayEntry) == 1 )
             if ( iscell(arrayEntry) )
-                valJSON = writeValue(arrayEntry{1}, valuePrefix);
+                valJSON = writeValue(arrayEntry{1}, valuePrefix, spaceStruct);
             else
-                valJSON = writeValue(arrayEntry, valuePrefix);
+                valJSON = writeValue(arrayEntry, valuePrefix, spaceStruct);
             end
         else
-            [valJSON,bSingleLine] = writeArray(arrayEntry, valuePrefix);
+            [valJSON,bSingleLine] = writeArray(arrayEntry, valuePrefix, spaceStruct);
         end
         
         % Combine brackets on one line if all the root array is a single line
@@ -67,11 +78,12 @@ function [json,bSingleLine] = writeArray(data, spacePrefix)
             json = sprintf('[%s]',valJSON);
             return
         else
-            arrayJSON = [arrayJSON sprintf('\n%s%s%s', valuePrefix, valJSON, valSep)];
+            arrayJSON = [arrayJSON sprintf([spaceStruct.line valPattern], valuePrefix, valJSON, valSep)];
         end
     end
     
-    json = sprintf('[%s\n%s]', arrayJSON,spacePrefix);
+    arrayPattern = ['[%s' spaceStruct.line '%s]'];
+    json = sprintf(arrayPattern, arrayJSON,spacePrefix);
 end
 
 function arrayEntry = squashSelect(arrayData, i)
@@ -88,27 +100,27 @@ function arrayEntry = squashSelect(arrayData, i)
     arrayEntry = reshape(arrayData(i,:), dimSizes(2:end));
 end
 
-function json = writeSingleLineArray(data)
-    valSep = ', ';
+function json = writeSingleLineArray(data, spaceStruct)
+    valSep = [',' spaceStruct.space];
     arrayJSON = '';
     for i=1:length(data)
         if ( i == length(data) )
             valSep = '';
         end
         
-        valJSON = writeValue(data(i),'');
+        valJSON = writeValue(data(i),'', spaceStruct);
         arrayJSON = [arrayJSON sprintf('%s%s', valJSON,valSep)];
     end
     json = sprintf('[%s]', arrayJSON);
 end
 
-function json = writeValue(data, spacePrefix)
+function json = writeValue(data, spacePrefix, spaceStruct)
     if ( ischar(data) )
         json = sprintf('"%s"',escapeString(data));
     elseif ( iscell(data) || any(size(data) > 1) )
-        json = writeArray(data, spacePrefix);
+        json = writeArray(data, spacePrefix, spaceStruct);
     elseif ( isstruct(data) )
-        json = writeObject(data, spacePrefix);
+        json = writeObject(data, spacePrefix, spaceStruct);
     elseif ( islogical(data) )
         if ( data )
             json = 'true';
