@@ -1,10 +1,7 @@
-function inds = CoordToInd(siz,coords)
-pro = zeros(size(siz));
-pro(1) = 1;
-
-for i = 2:numel(siz)
-    pro(i) = prod(siz(1:i-1));
-end
-
-inds = (coords-1)*pro'+1;
+% CoordToInd - Convert subscript indices to linear array indices.
+% 
+% arrayIdx = CoordToInd(arraySize, coords)
+function arrayIdx = CoordToInd(arraySize, coords)
+    linSize = [1 cumprod(arraySize(1:end-1))];
+    arrayIdx = sum((coords-1) .* repmat(linSize, size(coords,1),1), 2) + 1;
 end
