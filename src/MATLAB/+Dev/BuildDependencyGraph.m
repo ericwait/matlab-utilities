@@ -1,6 +1,10 @@
-function graphStruct = BuildDependencyGraph(chkPath)
+function graphStruct = BuildDependencyGraph(chkPath, bRecurseExternal)
     if ( ~exist('chkPath','var') || isempty(chkPath) )
         chkPath = pwd();
+    end
+    
+    if ( ~exist('bRecurseExternal','var'))
+        bRecurseExternal = true;
     end
     
     %% Make sure we get back to our current dir even on error.
@@ -14,7 +18,7 @@ function graphStruct = BuildDependencyGraph(chkPath)
     n = length(filenames);
     graphStruct = struct('nodes',{filenames}, 'graph',{sparse([],[],[],n,n,10*n)});
     
-    graphStruct = recursiveGetDeps(chkPath, graphStruct, filenames);
+    graphStruct = recursiveGetDeps(chkPath, graphStruct, filenames, bRecurseExternal);
     graphStruct = sortNodes(chkPath,graphStruct);
 end
 
@@ -34,17 +38,18 @@ function graphStruct = sortNodes(localPath, graphStruct)
     graphStruct.graph = graphStruct.graph(:,srtIdx);
 end
 
-function graphStruct = recursiveGetDeps(localPath,graphStruct, checkNames)
+function graphStruct = recursiveGetDeps(localPath,graphStruct, checkNames, bRecurseExternal)
     if ( isempty(checkNames) )
         return;
     end
 
     newEntries = {};
     
+    matRoot = matlabroot();
     % Get single-link dependencies
     for i=1:length(checkNames)
         [fList,pList] = matlab.codetools.requiredFilesAndProducts(checkNames{i}, 'toponly');
-        toolboxes = arrayfun(@(x)(fullfile(matlabroot(),'toolbox',x.Name)),pList, 'UniformOutput',false);
+        toolboxes = arrayfun(@(x)(fullfile(matRoot,'toolbox',x.Name)),pList, 'UniformOutput',false);
 
         selfIdx = find(strcmp(checkNames{i},fList));
         if ( isempty(selfIdx) )
@@ -61,10 +66,14 @@ function graphStruct = recursiveGetDeps(localPath,graphStruct, checkNames)
     end
     
     % Don't recurse through external dependencies
-    bNewLocal = strncmp(localPath,newEntries, length(localPath));
-    newEntries = newEntries(bNewLocal);
+    bMatlab = strncmp(matRoot,newEntries, length(matRoot));
+    newEntries = newEntries(~bMatlab);
+    if ( ~bRecurseExternal )
+        bNewLocal = strncmp(localPath,newEntries, length(localPath));
+        newEntries = newEntries(bNewLocal);
+    end
     
-    graphStruct = recursiveGetDeps(localPath,graphStruct, newEntries);
+    graphStruct = recursiveGetDeps(localPath,graphStruct, newEntries, bRecurseExternal);
 end
 
 function callGraph = createCallGraph(callerIdx,newNodes)
