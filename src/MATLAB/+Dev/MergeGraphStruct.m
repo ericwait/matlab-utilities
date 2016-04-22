@@ -14,5 +14,5 @@ function [graphStruct,newNodes] = MergeGraphStruct(graphStruct, newStruct)
     graphStruct.nodes = [graphStruct.nodes; newNodes];
     graphStruct.graph = [graphStruct.graph zeros(n,p); zeros(p,n+p)];
     
-    graphStruct.graph(idxMap,idxMap) = newStruct.graph;
+    graphStruct.graph(idxMap,idxMap) = (graphStruct.graph(idxMap,idxMap) | newStruct.graph);
 end
