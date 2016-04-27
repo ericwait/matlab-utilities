@@ -22,7 +22,12 @@ end
 if (normalize)
     for t=1:size(imageIn,5)
         for c=1:size(imageIn,4)
-            imTemp = double(imageIn(:,:,:,c,t));
+            inType = class(imageIn);
+            if (strcmpi(inType,'double') || strcmpi(inType,'uint64') || strcmpi(inType,'int64'))
+                imTemp = double(imageIn(:,:,:,c,t));
+            else
+                imTemp = single(imageIn(:,:,:,c,t));
+            end
             imTemp = imTemp-min(imTemp(:));
             imTemp = imTemp./max(imTemp(:));
             
