@@ -49,12 +49,12 @@ colormap(axesHandle,'gray');
 %axesHandle.Position = [0 0 1 1];
 axesHandle.Color = [1 1 1] * 95/255;
 
-set(get(axesHandle,'Parent'),'ResizeFcn',@KeepPlotEqual);
+set(get(axesHandle,'Parent'),'SizeChangedFcn',@KeepPlotEqual);
 set(zoom(axesHandle),'ActionPostCallback',@KeepPlotEqual);
 
 KeepPlotEqual();
 end
 
-function KeepPlotEqual(~,~)
+function KeepPlotEqual(hObject, eventdata)
 axis equal
 end 
