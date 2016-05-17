@@ -44,11 +44,11 @@ else
     imageData = [];
     imageData.DatasetName = dName;
 
-    imageData.Dimensions = Utils.SwapXY_RC(size(im))';
+    imageData.Dimensions = Utils.SwapXY_RC(size(im));
     imageData.NumberOfChannels = size(im,4);
     imageData.NumberOfFrames = size(im,5);
 
-    imageData.PixelPhysicalSizes = [1.0; 1.0; 1.0]; 
+    imageData.PixelPhysicalSize = [1.0, 1.0, 1.0]; 
 end
 
 w = whos('im');
