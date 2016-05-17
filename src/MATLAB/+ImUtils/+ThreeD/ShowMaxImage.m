@@ -51,6 +51,8 @@ axesHandle.Color = [1 1 1] * 95/255;
 
 set(get(axesHandle,'Parent'),'ResizeFcn',@KeepPlotEqual);
 set(zoom(axesHandle),'ActionPostCallback',@KeepPlotEqual);
+
+KeepPlotEqual();
 end
 
 function KeepPlotEqual(~,~)
