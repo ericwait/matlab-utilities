@@ -267,7 +267,9 @@ imD.Dimensions = [size(im,2),size(im,1),size(im,3)];
 imD.NumberOfChannels = size(im,4);
 imD.NumberOfFrames = size(im,5);
 if (isfield(imD,'ChannelNames') && ~isempty(imD.ChannelNames))
-    imD.ChannelNames = {imD.ChannelNames{chanList}}';
+    if (length(chanList)>1)
+        imD.ChannelNames = {imD.ChannelNames{chanList}}';
+    end
 else
     imD.ChannelNames = {};
 end
