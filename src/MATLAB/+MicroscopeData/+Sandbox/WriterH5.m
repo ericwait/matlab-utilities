@@ -122,14 +122,14 @@ if ( ~exist(fileName,'file') )
     totalImSize = Utils.SwapXY_RC([args.imageData.Dimensions args.imageData.NumberOfChannels args.imageData.NumberOfFrames]);
     chunkSize = min(totalImSize,[64,64,8,1,1]);
     
-    h5create(fileName,'/data',totalImSize, 'DataType',args.imageData.PixelFormat, 'ChunkSize',chunkSize, 'Deflate',2)
+    h5create(fileName,'/Data',totalImSize, 'DataType',args.imageData.PixelFormat, 'ChunkSize',chunkSize, 'Deflate',2)
 end
 
 h5writeatt(fileName,'/','Metadata',Utils.CreateJSON(args.imageData,false));
 
 imSize = [diff(Utils.SwapXY_RC(args.roi_xyz),1)+1, length(args.chanList), (args.timeRange(2)-args.timeRange(1)+1)];
 for c=1:length(args.chanList)
-    h5write(fileName,'/data',im(:,:,:,c,:), [Utils.SwapXY_RC(args.roi_xyz(1,:)),args.chanList(c),args.timeRange(1)],[imSize(1:3),1,imSize(5)]);
+    h5write(fileName,'/Data',im(:,:,:,c,:), [Utils.SwapXY_RC(args.roi_xyz(1,:)),args.chanList(c),args.timeRange(1)],[imSize(1:3),1,imSize(5)]);
 end
 
 if (args.verbose)

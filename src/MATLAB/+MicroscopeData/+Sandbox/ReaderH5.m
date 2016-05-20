@@ -70,7 +70,7 @@ if (~exist(fullfile(path,[imD.DatasetName '.h5']),'file'))
     return
 end
 
-inType = class(h5read(fullfile(path,[imD.DatasetName '.h5']),'/data',[1 1 1 1 1],[1 1 1 1 1]));
+inType = class(h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data',[1 1 1 1 1],[1 1 1 1 1]));
 chkIdx = find(strcmp(inType,dataTypeLookup));
 if ( isempty(chkIdx) )
     error('Unsupported image type!');
@@ -116,7 +116,7 @@ end
 if ( convert )
     for c=1:length(args.chanList)
         for t=args.timeRange(1):imSize(4)
-            tempIm = h5read(fullfile(path,[imD.DatasetName '.h5']),'/data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t], [imSize(1:3) 1 1]);
+            tempIm = h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t], [imSize(1:3) 1 1]);
             im(:,:,:,c,t) = ImUtils.ConvertType(tempIm,args.outType,args.normalize);
         end
     end
@@ -124,7 +124,7 @@ if ( convert )
     clear tempIm;
 else
     for c=1:length(args.chanList)
-        im(:,:,:,c,:) = h5read(fullfile(path,[imD.DatasetName '.h5']),'/data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
+        im(:,:,:,c,:) = h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
     end
 end
 
