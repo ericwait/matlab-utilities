@@ -23,8 +23,16 @@ dataTypeSize = [1;2;4;8;
                 4;8];
 
 p = inputParser();
+p.StructExpand = false;
 
-addOptional(p,'path',[],@ischar);
+% This is ridiculous, but we assume that the optional path is specified if
+% length(varargin) is odd
+if ( mod(length(varargin),2) == 1 )
+    addOptional(p,'path','',@ischar);
+else
+    addParameter(p,'path','',@ischar);
+end
+
 addParameter(p,'imageData',[],@isstruct);
 
 addParameter(p,'chanList',[],@isvector);

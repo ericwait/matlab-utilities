@@ -20,8 +20,16 @@ dataTypeSize = [1;2;4;8;
                 4;8];
 
 p = inputParser();
+p.StructExpand = false;
 
-addOptional(p,'path',[],@ischar);
+% This is ridiculous, but we assume that the optional path is specified if
+% length(varargin) is odd
+if ( mod(length(varargin),2) == 1 )
+    addOptional(p,'path','',@ischar);
+else
+    addParameter(p,'path','',@ischar);
+end
+
 addParameter(p,'datasetName',[],@ischar);
 addParameter(p,'imageData',[],@isstruct);
 
@@ -61,7 +69,9 @@ if ( isempty(args.imageData) )
     args.imageData.NumberOfChannels = chkSize(4);
     args.imageData.NumberOfFrames = chkSize(5);
 
-    args.imageData.PixelPhysicalSizes = [1.0; 1.0; 1.0];
+    args.imageData.PixelPhysicalSizes = [1.0, 1.0, 1.0];
+elseif ( ~isempty(datasetName) )
+    args.imageData.DatasetName = datasetName;
 end
 
 % Remove any quotes from the dataset name
