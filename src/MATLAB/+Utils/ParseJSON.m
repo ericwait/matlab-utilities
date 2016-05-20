@@ -23,6 +23,7 @@ function [objData parsePos] = parseObjectJSON(json, startPos, quoteMap)
     objData = [];
     assertInStr('parseObject', '''STRING'' or ''}''', json, parsePos);
     if ( json(parsePos) == '}' )
+        parsePos = ignoreSpace(json,parsePos+1);
         return;
     end
     
@@ -56,6 +57,7 @@ function [arrayData parsePos] = parseArrayJSON(json, startPos, quoteMap)
     
     arrayData = cell(0,1);
     if ( json(parsePos) == ']' )
+        parsePos = ignoreSpace(json,parsePos+1);
         return;
     end
     
