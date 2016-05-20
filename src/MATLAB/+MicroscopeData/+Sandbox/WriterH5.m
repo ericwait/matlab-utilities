@@ -138,8 +138,12 @@ end
 h5writeatt(fileName,'/','Metadata',Utils.CreateJSON(args.imageData,false));
 
 imSize = [diff(Utils.SwapXY_RC(args.roi_xyz),1)+1, length(args.chanList), (args.timeRange(2)-args.timeRange(1)+1)];
-for c=1:length(args.chanList)
-    h5write(fileName,'/Data',im(:,:,:,c,:), [Utils.SwapXY_RC(args.roi_xyz(1,:)),args.chanList(c),args.timeRange(1)],[imSize(1:3),1,imSize(5)]);
+if (length(args.chanList)==args.imageData.NumberOfChannels)
+    h5write(fileName,'/Data',im, [Utils.SwapXY_RC(args.roi_xyz(1,:)),1,args.timeRange(1)],[imSize(1:3),args.imageData.NumberOfChannels,imSize(5)]);
+else
+    for c=1:length(args.chanList)
+        h5write(fileName,'/Data',im(:,:,:,c,:), [Utils.SwapXY_RC(args.roi_xyz(1,:)),args.chanList(c),args.timeRange(1)],[imSize(1:3),1,imSize(5)]);
+    end
 end
 
 if (args.verbose)
