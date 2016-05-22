@@ -166,9 +166,10 @@ else
 end
 
 if (args.verbose)
-    fprintf('Wrote %.0fMB in %s\n',...
+    f = dir(fileName);
+    fprintf('Wrote %.0fMB-->%.0fMB in %s\n',...
         (bytes*prod(args.imageData.Dimensions)*args.imageData.NumberOfChannels*args.imageData.NumberOfFrames)/(1024*1024),...
-        Utils.PrintTime(toc));
+        f.bytes/(1024*1024),Utils.PrintTime(toc));
 end
 end
 
