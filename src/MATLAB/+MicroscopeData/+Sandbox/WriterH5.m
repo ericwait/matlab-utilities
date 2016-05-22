@@ -152,6 +152,11 @@ if ( ~exist(fileName,'file') )
     chunkSize = min(totalImSize,[64,64,8,1,1]);
     
     h5create(fileName,'/Data',totalImSize, 'DataType',outType, 'ChunkSize',chunkSize, 'Deflate',2)
+else
+    inType = class(h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data',[1 1 1 1 1],[1 1 1 1 1]));
+    if (~strcmp(inType,outType))
+        error('You are trying to write to an existing file that holds a different data type %s-->%s',inType,outType);
+    end
 end
 
 h5writeatt(fileName,'/','Metadata',Utils.CreateJSON(args.imageData,false));
