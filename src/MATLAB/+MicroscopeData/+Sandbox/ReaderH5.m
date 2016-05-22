@@ -16,11 +16,13 @@ im = [];
 
 dataTypeLookup = {'uint8';'uint16';'uint32';'uint64';
                   'int8';'int16';'int32';'int64';
-                  'single';'double'};
+                  'single';'double';
+                  'logical'};
 
 dataTypeSize = [1;2;4;8;
                 1;2;4;8;
-                4;8];
+                4;8;
+                1];
 
 p = inputParser();
 p.StructExpand = false;
@@ -79,30 +81,30 @@ if (~exist(fullfile(path,[imD.DatasetName '.h5']),'file'))
 end
 
 inType = class(h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data',[1 1 1 1 1],[1 1 1 1 1]));
-chkIdx = find(strcmp(inType,dataTypeLookup));
-if ( isempty(chkIdx) )
+inIdx = find(strcmp(inType,dataTypeLookup));
+if ( ~isempty(inIdx) )
+    inBytes = dataTypeSize(inIdx);
+else
     error('Unsupported image type!');
 end
 
-inBytes = dataTypeSize(chkIdx);
+if (~isfield(imD,'PixelFormat'))
+    imD.PixelFormat = inType;
+end
 
 if ( isempty(args.outType) )
-    args.outType = inType;
-elseif (strcmp(args.outType,'logical'))
-    bytes=1;
+    if (strcmp(imD.PixelFormat,'logical'))
+        args.outType = 'logical';
+    else
+        args.outType = inType;
+    end
 elseif ( ~any(strcmp(args.outType,dataTypeLookup)) )
     error('Unsupported output type!');
 end
 
 outIdx = find(strcmp(args.outType,dataTypeLookup));
 if ( ~isempty(outIdx) )
-    bytes = dataTypeSize(outIdx);
-end
-
-if (~isfield(imD,'PixelFormat'))
-    imD.PixelFormat = inType;
-elseif (strcmpi(inType,args.outType) && strcmpi(imD.PixelFormat,'logical'))
-    args.outType = 'logical';
+    outBytes = dataTypeSize(outIdx);
 end
 
 convert = ~strcmpi(inType,args.outType) || args.normalize;

@@ -13,11 +13,13 @@ function WriterH5(im, varargin)
 
 dataTypeLookup = {'uint8';'uint16';'uint32';'uint64';
                   'int8';'int16';'int32';'int64';
-                  'single';'double'};
+                  'single';'double';
+                  'logical'};
 
 dataTypeSize = [1;2;4;8;
                 1;2;4;8;
-                4;8];
+                4;8;
+                1];
 
 p = inputParser();
 p.StructExpand = false;
@@ -81,6 +83,8 @@ w = whos('im');
 typeIdx = find(strcmp(w.class,dataTypeLookup));
 if ( ~isempty(typeIdx) )
     bytes = dataTypeSize(typeIdx);
+else
+    error('Unsuported pixel type!');
 end
 
 if (~isfield(args.imageData,'PixelFormat'))
@@ -95,6 +99,13 @@ if ( isempty(outDir) )
 end
 
 outDir = strrep(outDir, '"','');
+% fix if image type if the image is different
+if (~isfield(args.imageData,'PixelFormat'))
+    args.imageData.PixelFormat = class(im);
+elseif (~strcmp(args.imageData.PixelFormat,class(im)))
+    args.imageData.PixelFormat = class(im);
+end
+
 MicroscopeData.CreateMetadata(outDir,args.imageData,~args.verbose);
 
 if ( isempty(args.chanList) )
@@ -127,12 +138,20 @@ end
 
 tic
 
+%save metadata for the type we want not the type we have to store
+if (strcmp(args.imageData.PixelFormat,'logical'))
+    outType = 'uint8';
+    im = ImUtils.ConvertType(im,'uint8',false);
+else
+    outType = args.imageData.PixelFormat;
+end
+
 fileName = fullfile(outDir,[args.imageData.DatasetName '.h5']);
 if ( ~exist(fileName,'file') )
     totalImSize = Utils.SwapXY_RC([args.imageData.Dimensions args.imageData.NumberOfChannels args.imageData.NumberOfFrames]);
     chunkSize = min(totalImSize,[64,64,8,1,1]);
     
-    h5create(fileName,'/Data',totalImSize, 'DataType',args.imageData.PixelFormat, 'ChunkSize',chunkSize, 'Deflate',2)
+    h5create(fileName,'/Data',totalImSize, 'DataType',outType, 'ChunkSize',chunkSize, 'Deflate',2)
 end
 
 h5writeatt(fileName,'/','Metadata',Utils.CreateJSON(args.imageData,false));
