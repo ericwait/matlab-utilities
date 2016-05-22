@@ -126,7 +126,7 @@ end
 
 if ( convert )
     for c=1:length(args.chanList)
-        for t=args.timeRange(1):imSize(4)
+        for t=args.timeRange(1):imSize(5)
             tempIm = h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t], [imSize(1:3) 1 1]);
             im(:,:,:,c,t) = ImUtils.ConvertType(tempIm,args.outType,args.normalize);
         end
