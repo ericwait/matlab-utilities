@@ -117,13 +117,14 @@ end
 
 if ( args.verbose )
     orgSize = [imSize(1),imD.Dimensions(2),imD.Dimensions(3),imD.NumberOfChannels,imD.NumberOfFrames];
-    fprintf('Reading (%d,%d,%d,%d,%d) %s %5.2fMB --> Into (%d,%d,%d,%d,%d) %s %5.2fMB\n',...
+    fprintf('Reading (%d,%d,%d,%d,%d) %s %5.2fMB --> Into (%d,%d,%d,%d,%d) %s %5.2fMB,',...
         orgSize(1),orgSize(2),orgSize(3),orgSize(4),orgSize(5),inType,...
         (prod(orgSize)*inBytes)/(1024*1024),...
         imSize(1),imSize(2),imSize(3),imSize(4),imSize(5),args.outType,...
         (prod(imSize)*outBytes)/(1024*1024));
 end
 
+tic
 if ( convert )
     for c=1:length(args.chanList)
         for t=args.timeRange(1):imSize(5)
@@ -137,6 +138,9 @@ else
     for c=1:length(args.chanList)
         im(:,:,:,c,:) = h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
     end
+end
+if (args.verbose)
+    fprintf(' took:%s\n',Utils.PrintTime(toc));
 end
 
 imD.Dimensions = Utils.SwapXY_RC(imSize(1:3));
