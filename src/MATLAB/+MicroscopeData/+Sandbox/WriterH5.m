@@ -93,9 +93,6 @@ end
 
 if ( isempty(outDir) )
     outDir = '.';
-    if ( isfield(args.imageData,'imageDir') && ~isempty(args.imageData.imageDir) )
-        outDir = args.imageData.imageDir;
-    end
 end
 
 outDir = strrep(outDir, '"','');
