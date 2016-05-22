@@ -61,7 +61,7 @@ if (isempty(imD))
     return
 end
 
-path = imD.imageDir;
+imPath = imD.imageDir;
 
 if (isempty(args.chanList))
     args.chanList = 1:imD.NumberOfChannels;
@@ -75,12 +75,12 @@ if (isempty(args.roi_xyz))
     args.roi_xyz = [1 1 1; imD.Dimensions];
 end
 
-if (~exist(fullfile(path,[imD.DatasetName '.h5']),'file'))
+if (~exist(fullfile(imPath,[imD.DatasetName '.h5']),'file'))
     warning('No image to read!');
     return
 end
 
-inType = class(h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data',[1 1 1 1 1],[1 1 1 1 1]));
+inType = class(h5read(fullfile(imPath,[imD.DatasetName '.h5']),'/Data',[1 1 1 1 1],[1 1 1 1 1]));
 inIdx = find(strcmp(inType,dataTypeLookup));
 if ( ~isempty(inIdx) )
     inBytes = dataTypeSize(inIdx);
@@ -128,7 +128,7 @@ tic
 if ( convert )
     for c=1:length(args.chanList)
         for t=args.timeRange(1):imSize(5)
-            tempIm = h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t], [imSize(1:3) 1 1]);
+            tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t], [imSize(1:3) 1 1]);
             im(:,:,:,c,t) = ImUtils.ConvertType(tempIm,args.outType,args.normalize);
         end
     end
@@ -136,7 +136,7 @@ if ( convert )
     clear tempIm;
 else
     for c=1:length(args.chanList)
-        im(:,:,:,c,:) = h5read(fullfile(path,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
+        im(:,:,:,c,:) = h5read(fullfile(imPath,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
     end
 end
 if (args.verbose)
