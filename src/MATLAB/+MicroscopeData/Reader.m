@@ -256,7 +256,7 @@ for t=1:length(timeList)
 end
 
 if (~quiet)
-    cp.ClearProgress();
+    cp.ClearProgress(true);
 end
 
 if (convert)
