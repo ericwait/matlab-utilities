@@ -16,7 +16,7 @@ dataTypeSize = [1;2;4;8;
 
 imD = MicroscopeData.ReadMetadata(fullfile(root,dataDir));
 
-if (~isempty(imD))
+if (~isempty(imD) && isfield(imD,'DatasetName'))
    if (~exist(fullfile(newRoot,dataDir,[imD.DatasetName,'.h5']),'file'))
        m = memory;
        if (isfield(imD,'PixelFormat'))
