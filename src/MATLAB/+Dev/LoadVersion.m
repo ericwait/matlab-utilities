@@ -57,7 +57,7 @@ function verInfo = gitVersionInfo()
     [majorVer,minorVer] = Dev.ParseVerTag(verString);
 
     if ( verStatus ~= 0 || isempty(majorVer) || isempty(minorVer) )
-        fprintf('WARNING: There was an error retrieving tag from git:\n %s\n', verTag);
+        fprintf('WARNING: There was an error retrieving tag from git:\n %s\n', verString);
         return;
     end
 
