@@ -1,7 +1,7 @@
 % [IM, IMAGEDATA] = MicroscopeData.Sandbox.ReaderH5([path], varargin)
 %
 % Optional Parameters (Key,Value pairs):
-% 
+%
 % imageData
 % chanList
 % timeRange
@@ -116,7 +116,7 @@ else
 end
 
 if ( args.verbose )
-    orgSize = [imSize(1),imD.Dimensions(2),imD.Dimensions(3),imD.NumberOfChannels,imD.NumberOfFrames];
+    orgSize = [imD.Dimensions(1),imD.Dimensions(2),imD.Dimensions(3),imD.NumberOfChannels,imD.NumberOfFrames];
     fprintf('Reading (%d,%d,%d,%d,%d) %s %5.2fMB --> Into (%d,%d,%d,%d,%d) %s %5.2fMB,',...
         orgSize(1),orgSize(2),orgSize(3),orgSize(4),orgSize(5),inType,...
         (prod(orgSize)*inBytes)/(1024*1024),...
@@ -132,7 +132,7 @@ if ( convert )
             im(:,:,:,c,t) = ImUtils.ConvertType(tempIm,args.outType,args.normalize);
         end
     end
-    
+
     clear tempIm;
 else
     for c=1:length(args.chanList)
