@@ -34,7 +34,9 @@ if (~isempty(imD) && isfield(imD,'DatasetName'))
        zStackSize = prod(imD.Dimensions)*pixelSize;
 
        if (fullSize<m.MemAvailableAllArrays*0.8)
+           tic
            im = MicroscopeData.Reader(imD);
+           fprintf('Read in %s\n',Utils.PrintTime(toc));
            MicroscopeData.WriterH5(im,fullfile(newRoot,dataDir),'imageData',imD,'verbose',true);
        elseif (allFrameSize<m.MemAvailableAllArrays*0.8)
            for c=1:imD.NumberOfChannels
