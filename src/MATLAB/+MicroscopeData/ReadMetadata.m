@@ -35,13 +35,11 @@ end
 % TODO rework this logic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if (exist([root,'.json'],'file'))
     root = [root,'.json'];
-elseif (exist([root,'.txt'],'file'))
-    root = [root,'.txt'];
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if (~isempty(prompt) && prompt)
-    [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt;','Metadata files (*.json, *.txt)';'*.*','All Files (*.*)'},[],root);
+    [fileName,rootDir,filterIndex] = uigetfile({'*.json','Metadata files (*.json)';'*.*','All Files (*.*)'},[],root);
     if (filterIndex==0)
         return
     end
@@ -52,7 +50,7 @@ end
 
 if (~isempty(ext))
     % case root has an extension
-    if (~strcmp(ext,'.json') && ~strcmp(ext,'.txt'))
+    if (~strcmp(ext,'.json'))
         seriesMetaData =  MicroscopeData.Original.ReadMetadata(rootDir,[fileName,'.',ext]);
         if (~isempty(seriesMetaData))
             if (length(seriesMetaData)>1)
@@ -94,10 +92,8 @@ elseif (~isempty(fileName))
     % case root has a file name
     if (exist(fullfile(rootDir,fileName,[fileName,'.json']),'file'))
         root = fullfile(rootDir,fileName,[fileName,'.json']);
-    elseif (exist(fullfile(rootDir,fileName,[fileName,'.txt']),'file'));
-        root = fullfile(rootDir,fileName,[fileName,'.txt']);
     elseif (prompt)
-        [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt','Metadata files'},[],root);
+        [fileName,rootDir,filterIndex] = uigetfile({'*.json','Metadata files'},[],root);
         if (filterIndex==0)
             return
         end
@@ -109,22 +105,19 @@ elseif (~isempty(rootDir))
     % case root is a path (e.g. \ terminated)
     dirList = dir(fullfile(rootDir,'*.json'));
     if (isempty(dirList))
-        dirList = dir(fullfile(rootDir,'*.txt'));
-        if (isempty(dirList))
             return
-        end
     end
     root = fullfile(rootDir,dirList(1).name);
 elseif (isempty(prompt) || prompt)
     % case where root is empty
-    [fileName,rootDir,filterIndex] = uigetfile({'*.json;*.txt;','Metadata files (*.json, *.txt)';'*.*','All Files (*.*)'},[],root);
+    [fileName,rootDir,filterIndex] = uigetfile({'*.json;','Metadata files *.json';'*.*','All Files (*.*)'},[],root);
     if (filterIndex==0)
         return
     end
 
     [~,~,ext] = fileparts(fileName);
 
-    if (~strcmp(ext,'.txt') && ~strcmp(ext,'.json'))
+    if (~strcmp(ext,'.json'))
         seriesMetaData =  MicroscopeData.Original.ReadMetadata(rootDir,fileName);
         if (length(seriesMetaData)>1)
             prompt={sprintf('Enter the dataset number desired 1-%d',length(seriesMetaData))};
@@ -162,18 +155,8 @@ end
 
 fileHandle = fopen(root);
 
-% Load and fixup txt metadata to be json-formatted for next time.
-[~,~,chkExt] = fileparts(root);
-if ( strcmpi(chkExt,'.txt') )
-    imageData = readfile(fileHandle);
-    if (isfield(imageData,'StartCaptureDate') && ~isempty(imageData.StartCaptureDate) )
-        imageData.StartCaptureDate = strrep(imageData.StartCaptureDate,'.',':');
-        imageData.StartCaptureDate = strrep(imageData.StartCaptureDate,'T',' ');
-    end
-else
-    jsonData = fread(fileHandle,'*char').';
-    imageData = Utils.ParseJSON(jsonData);
-end
+jsonData = fread(fileHandle,'*char').';
+imageData = Utils.ParseJSON(jsonData);
 
 fclose(fileHandle);
 
