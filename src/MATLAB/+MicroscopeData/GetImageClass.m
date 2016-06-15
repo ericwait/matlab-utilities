@@ -4,7 +4,21 @@ function [ imClass, imInfo ] = GetImageClass( imageData )
 
 if (isfield(imageData,'PixelFormat'))
     imClass = imageData.PixelFormat;
-    imInfo = [];
+    imInfo.BitDepth = 8;
+    switch imClass
+        case 'uint16'
+            imInfo.BitDepth = 16;
+        case 'int16'
+            imInfo.BitDepth = 16;
+        case 'single'
+            imInfo.BitDepth = 32;
+        case 'uint32'
+            imInfo.BitDepth = 32;
+        case 'int32'
+            imInfo.BitDepth = 32;
+        case 'double'
+            imInfo.BitDepth = 64;
+    end
 else
     imInfo = imfinfo(fullfile(imageData.imageDir,sprintf('%s_c%02d_t%04d_z%04d.tif',imageData.DatasetName,1,1,1)),'tif');
     if (imInfo(1).BitDepth==8)
