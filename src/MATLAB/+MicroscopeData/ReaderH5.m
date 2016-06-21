@@ -24,41 +24,21 @@ dataTypeSize = [1;2;4;8;
                 4;8;
                 1];
 
-p = inputParser();
-p.StructExpand = false;
+args = MicroscopeData.Helper.ParseReaderInputs(varargin{:});
 
-% This is ridiculous, but we assume that the optional path is specified if
-% length(varargin) is odd
-if ( mod(length(varargin),2) == 1 )
-    addOptional(p,'path','',@ischar);
-else
-    addParameter(p,'path','',@ischar);
+loadPath = '';
+if ( ~isempty(args.imageData) )
+    loadPath = args.imageData.imageDir;
+elseif ( ~isempty(args.path) )
+    loadPath = args.path;
 end
 
-addParameter(p,'imageData',[],@isstruct);
-
-addParameter(p,'chanList',[],@isvector);
-addParameter(p,'timeRange',[],@(x)(numel(x)==2));
-addParameter(p,'roi_xyz',[],@(x)(all(size(x)==[2,3])));
-
-addParameter(p,'outType',[],@(x)(any(strcmp(x,dataTypeLookup))));
-addParameter(p,'normalize',false,@islogical);
-
-addParameter(p,'verbose',false,@islogical);
-addParameter(p,'prompt',[],@islogical);
-
-parse(p,varargin{:});
-args = p.Results;
-
-if ( isempty(args.imageData) )
-    imD = MicroscopeData.ReadMetadata(args.path,args.prompt);
+if ( args.prompt )
+    imD = MicroscopeData.ReadMetadata(loadPath,args.prompt,args.promptTitle);
+elseif ( isempty(args.imageData) )
+    imD = MicroscopeData.ReadMetadata(loadPath,args.prompt,args.promptTitle);
 else
     imD = args.imageData;
-end
-
-if (isempty(imD))
-    warning('No image read!');
-    return
 end
 
 imPath = imD.imageDir;
@@ -127,8 +107,8 @@ end
 tic
 if ( convert )
     for c=1:length(args.chanList)
-        for t=args.timeRange(1):imSize(5)
-            tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t], [imSize(1:3) 1 1]);
+        for t=1:imSize(5)
+            tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t+args.timeRange(1)-1], [imSize(1:3) 1 1]);
             im(:,:,:,c,t) = ImUtils.ConvertType(tempIm,args.outType,args.normalize);
         end
     end
