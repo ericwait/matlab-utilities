@@ -2,14 +2,15 @@
 %
 % Optional Parameters (Key,Value pairs):
 %
-% imageData
-% chanList
-% timeRange
-% roi_xyz
-% outType
-% normalize
-% verbose
-% prompt
+% imageData - Input metadata, if specified, the optional path argument is ignored
+% chanList - List of channels to read
+% timeRange - Range min and max times to read
+% roi_xyz - x,y,z min and max roi to read
+% outType - Desired output type, conversion is applied if different from image
+% normalize - Normalize images on [0,1] per frame before conersion to output type
+% verbose - Display verbose output and timing information
+% prompt - False to completely disable prompts, true to force prompt, leave unspecified or empty for default prompt behavior
+% promptTitle - Open dialog title in the case that prompting is required
 
 function [im, imD] = ReaderH5(varargin)
 im = [];

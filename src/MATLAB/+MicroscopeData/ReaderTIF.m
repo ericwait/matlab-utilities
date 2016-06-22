@@ -2,13 +2,13 @@
 %
 % Optional Parameters (Key,Value pairs):
 %
-% imageData - Input metadata, if specified, the optional path argument is ignored.
-% chanList - List of channels to read.
-% timeRange - Range min and max times to read.
-% roi_xyz - x,y,z min and max roi to read.
+% imageData - Input metadata, if specified, the optional path argument is ignored
+% chanList - List of channels to read
+% timeRange - Range min and max times to read
+% roi_xyz - x,y,z min and max roi to read
 % outType - Desired output type, conversion is applied if different from image
-% normalize - Should 
-% verbose - 
+% normalize - Normalize images on [0,1] per frame before conersion to output type
+% verbose - Display verbose output and timing information
 % prompt - False to completely disable prompts, true to force prompt, leave unspecified or empty for default prompt behavior
 % promptTitle - Open dialog title in the case that prompting is required
 
@@ -68,7 +68,8 @@ end
 
 useROI = (nnz(args.roi_xyz(:,1:2) ~= [1 1;imD.Dimensions(1:2)]) > 0);
 
-inType = getTypeTIF(fullfile(imPath,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,1,1,1)));
+chkFilename = fullfile(imPath,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,1,1,1));
+inType = MicroscopeData.Helper.GetPixelTypeTIF(chkFilename);
 inIdx = find(strcmp(inType,dataTypeLookup));
 if ( ~isempty(inIdx) )
     inBytes = dataTypeSize(inIdx);
@@ -124,7 +125,7 @@ for t=1:imSize(5)
     for c=1:length(args.chanList)
         for z=1:imSize(3)
             zVal = z+args.roi_xyz(1,3)-1;
-            
+
             tifName = fullfile(imPath,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,args.chanList(c),timeVal,zVal));
             if (convert || useROI)
                 tempIm(:,:,z) = imread(tifName,'TIF');
@@ -167,37 +168,4 @@ if (isfield(imD,'ChannelColors') && ~isempty(imD.ChannelColors))
 else
     imD.ChannelColors = [];
 end
-end
-
-function pixelType = getTypeTIF(tifFile)
-    pixelType = [];
-    
-    dataTypeLookup = {'uint8';'uint16';'uint32';'uint64';
-                  'int8';'int16';'int32';'int64';
-                  'single';'double';
-                  'logical'};
-
-    dataTypeSize = [1;2;4;8;
-                    1;2;4;8;
-                    4;8;
-                    1];
-
-    dataTypeFormat = {'Unsigned integer';'Unsigned integer';'Unsigned integer';'Unsigned integer';
-                            'Integer';'Integer';'Integer';'Integer';
-                            'IEEE floating point';'IEEE floating point';
-                            'Unsigned Integer'};
-    
-    imInfo = imfinfo(tifFile,'tif');
-    sampleFormat = imInfo.SampleFormat;
-    bitDepth = imInfo.BitDepth;
-    
-    bSizeMatch = (dataTypeSize == floor(bitDepth/8));
-    bSampleMatch = strcmpi(sampleFormat,dataTypeFormat);
-    
-    formatIdx = find(bSizeMatch & bSampleMatch);
-    if ( isempty(formatIdx) )
-        return;
-    end
-    
-    pixelType = dataTypeLookup{formatIdx};
 end
