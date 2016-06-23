@@ -1,6 +1,9 @@
 function [ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet, cleanName)
 %[ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet, cleanName)
 
+im = [];
+imD = [];
+
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = false;
 end
@@ -41,25 +44,30 @@ end
 if (~exist(fullfile(outDir,name),'dir') || overwrite)
     
     imD = MicroscopeData.Original.ReadMetadata(imDir,imName);
-    if (~isempty(imD))
-        if (length(imD)>1)
-            [~,datasetName,~] = fileparts(imName);
-            if (cleanName)
-                datasetName = MicroscopeData.Helper.SanitizeString(datasetName);
-            end
-            outDir = fullfile(outDir,datasetName);
+    if ( isempty(imD) )
+        return;
+    end
+    
+    if (length(imD)>1)
+        [~,datasetName,~] = fileparts(imName);
+        if (cleanName)
+            datasetName = MicroscopeData.Helper.SanitizeString(datasetName);
         end
-        
-        if (~exist(fullfile(outDir,imD{1}.DatasetName),'dir') || overwrite)
-            im = MicroscopeData.Original.ReadImages(imDir,imName);
-            for i=1:length(imD)
-                if (cleanName)
-                    imD{i}.DatasetName = MicroscopeData.Helper.SanitizeString(imD{i}.DatasetName);
-                end
-                if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite)
-                    MicroscopeData.Writer(im{i},fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],quiet);
-                end
-            end
+        outDir = fullfile(outDir,datasetName);
+    end
+    
+    % Don't overwrite images that already exist
+    if (exist(fullfile(outDir,imD{1}.DatasetName),'dir') && ~overwrite)
+        return;
+    end
+    
+    im = MicroscopeData.Original.ReadImages(imDir,imName);
+    for i=1:length(imD)
+        if (cleanName)
+            imD{i}.DatasetName = MicroscopeData.Helper.SanitizeString(imD{i}.DatasetName);
+        end
+        if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite)
+            MicroscopeData.Writer(im{i},fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],quiet);
         end
     end
 end

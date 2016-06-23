@@ -19,7 +19,10 @@ function [pixelType,imInfo] = GetPixelTypeTIF(tifFile)
                         'Unsigned Integer'};
     
     imInfo = imfinfo(tifFile,'tif');
-    sampleFormat = imInfo.SampleFormat;
+    sampleFormat = 'Unsigned integer';
+    if ( isfield(imInfo,'SampleFormat') )
+        sampleFormat = imInfo.SampleFormat;
+    end
     bitDepth = imInfo.BitDepth;
     
     bSizeMatch = (dataTypeSize == floor(bitDepth/8));
