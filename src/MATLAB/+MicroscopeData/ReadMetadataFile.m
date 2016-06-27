@@ -3,6 +3,10 @@ function [imageData,jsonDir,jsonFile] = ReadMetadataFile(metadataPath)
     jsonDir = [];
     jsonFile = [];
     
+    if ( isempty(metdataPath) )
+        metadataPath = '';
+    end
+    
     chkPath = findValidJSON(metadataPath);
     if ( isempty(chkPath) )
         return;
@@ -47,7 +51,7 @@ function jsonPath = findValidJSON(chkPath)
         chkPath = fullfile(rootDir,jsonList(1).name);
     end
     
-    [rootDir,fileName,ext] = fileparts(chkPath);
+    [~,~,ext] = fileparts(chkPath);
     if ( ~strcmpi(ext,'.json') )
         return;
     end

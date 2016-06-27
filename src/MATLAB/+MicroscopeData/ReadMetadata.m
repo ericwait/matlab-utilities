@@ -12,7 +12,7 @@ if (~exist('forcePrompt','var'))
     forcePrompt = [];
 end
 
-if (~exist('root','var'))
+if (~exist('root','var') || isempty(root))
     root = '';
 end
 
