@@ -3,7 +3,7 @@ function [imageData,jsonDir,jsonFile] = ReadMetadataFile(metadataPath)
     jsonDir = [];
     jsonFile = [];
     
-    if ( isempty(metdataPath) )
+    if ( isempty(metadataPath) )
         metadataPath = '';
     end
     
