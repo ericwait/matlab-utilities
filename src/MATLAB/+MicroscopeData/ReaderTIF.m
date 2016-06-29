@@ -61,6 +61,10 @@ if (isempty(args.roi_xyz))
     args.roi_xyz = [1 1 1; imD.Dimensions];
 end
 
+if (isempty(args.normalize))
+    args.normalize = false;
+end
+
 if (~exist(fullfile(imPath,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,1,1,1)),'file'))
     warning('No image to read!');
     return
@@ -142,7 +146,7 @@ for t=1:imSize(5)
         if (convert)
             im(:,:,:,c,t) = ImUtils.ConvertType(...
                 tempIm(args.roi_xyz(1,2):args.roi_xyz(2,2),args.roi_xyz(1,1):args.roi_xyz(2,1),:),...
-                outType,normalize);
+                args.outType,args.normalize);
         elseif (useROI)
             im(:,:,:,c,t) = tempIm(args.roi_xyz(1,2):args.roi_xyz(2,2),args.roi_xyz(1,1):args.roi_xyz(2,1),:);
         end
