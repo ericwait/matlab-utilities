@@ -40,11 +40,15 @@ if (strcmp(choice,'No'))
     return;
 end
 
-im = MicroscopeData.Reader(singlePosFiles(1).path,[],[],[],'double',false,true);
-imSinglePos = zeros([size(im), length(singlePosFiles)],'like',im);
-imSinglePos(:,:,:,:,1) = im;
+im = MicroscopeData.ReaderH5(singlePosFiles(1).path);
+imSinglePos = cell(length(singlePosFiles),1);
+imSinglePos{1} = im;
 
+prgs = Utils.CmdlnProgress(length(singlePosFiles)-1,true,'Opening Single Pos');
 for i=2:length(singlePosFiles)
-    imSinglePos(:,:,:,:,i) = MicroscopeData.Reader(singlePosFiles(i).path,[],[],[],'double',false,true);
+    curIm = MicroscopeData.ReaderH5(singlePosFiles(i).path);
+    imSinglePos{i} = curIm;
+    prgs.PrintProgress(i);
 end
+prgs.ClearProgress(true);
 end

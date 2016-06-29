@@ -32,30 +32,17 @@ if (showPlots)
     Unmix.PlotResults(signalMask,'Mask',[]);
 end
 
-% [orgMixing, orgUnmixing, errorMask] = createFactors(imSinglePos,zeroChannels,showPlots,'Orginal Single Positives');
-% if (showPlots)
-%     imSPorgUn = zeros(size(imSinglePos),'single');
-%     for i=1:size(imSinglePos,5)
-%         imSPorgUn(:,:,:,:,i) = CudaMex('LinearUnmixing',imSinglePos(:,:,:,:,i),orgUnmixing);
-%     end
-%     imSPorgUn(imSPorgUn<0) = 0;
-%     plotResults(imSPorgUn,'Orginal Unmixed',[]);
-%     plotResults(imSinglePos,'Orginal errors',errorMask);
-% end
-
 [mixingMatrix, unmixingMatrix, errorMask] = Unmix.CreateFactors(signalImage,zeroChannels,showPlots,'Signal Only Single Positives');
 if (showPlots)
-    imSPsigUn = zeros(size(imSinglePos),'single');
-    for i=1:size(imSinglePos,5)
-        imSPsigUn(:,:,:,:,i) = Cuda.Mex('LinearUnmixing',imSinglePos(:,:,:,:,i),unmixingMatrix);
+    imSPsigUn = cell(length(imSinglePos),1);
+    prgs = Utils.CmdlnProgress(length(imSinglePos),true,'Unmixing Single Pos');
+    for i=1:length(imSinglePos)
+        curIm = imSinglePos{i};
+        imSPsigUn{i} = Cuda.Mex('LinearUnmixing',curIm,unmixingMatrix);
+        prgs.PrintProgress(i);
     end
-    imSPsigUn(imSPsigUn<0) = 0;
+    prgs.ClearProgress(true);
     Unmix.PlotResults(imSPsigUn,'Signal Only Unmixing Factors',[]);
     Unmix.PlotResults(signalImage,'Signal Only Errors',errorMask);
 end
-
-% orgMixing
-% mixingMatrix
-% 
-% orgMixing-mixingMatrix
 end
