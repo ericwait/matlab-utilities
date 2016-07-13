@@ -4,7 +4,7 @@ function [rootPath,rootName,localPath] = SplitDependencyNames(depList)
     localPath = cell(length(depList),1);
     
     dropPostfix = {'src/MATLAB'};
-    localMatches = '^private$|^\+.+$|^@.+$|^.+\.(m|mexw64|mexw32|fig)$';
+    localMatches = '^private$|^\+.+$|^@.+$|^.+\.\w+?$';
     
     for i=1:length(depList)
          qualPath = splitQualifiedPath(depList{i});
