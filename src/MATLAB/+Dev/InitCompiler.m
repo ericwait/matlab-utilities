@@ -24,6 +24,10 @@ function initStruct = InitCompiler(productName,forceVersion)
     %% Get rootPaths and local subdirectories for dependencies
     [rootPaths,rootNames,localPaths] = Dev.SplitDependencyNames(depGraph.nodes);
     
+    %% Get a localized list of java dependencies
+    bJava = cellfun(@(x)(~isempty(regexpi(x,'(\.jar|\.class)$','once'))), localPaths);
+    javaList = localPaths(bJava);
+    
     %% Verify no uncommited changes on dependencies
     changeString = {};
     [chkPaths,ia,ic] = unique(rootPaths);
@@ -72,6 +76,7 @@ function initStruct = InitCompiler(productName,forceVersion)
         copyfile(fullfile(externalPaths{i},externalDeps{i}), fullfile(rootDir,externalDeps{i}));
     end
     
+    initStruct.javaList = javaList;
     initStruct.toolboxList = toolboxList;
     initStruct.cleanupObj = onCleanup(@()(compilerCleanup(copyPaths)));
     
@@ -114,7 +119,7 @@ function fullNames = findFilesInPath(filename, searchPaths)
     
     chkPaths = [];
     while ( ~isempty(searchPaths) )
-        [newPath remainder] = strtok(searchPaths, pathsep);
+        [newPath,remainder] = strtok(searchPaths, pathsep);
         if ( isempty(newPath) )
             searchPaths = remainder;
             continue;

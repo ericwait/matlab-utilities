@@ -73,14 +73,53 @@ function graphStruct = recursiveGetDeps(localPath,graphStruct, checkNames, bRecu
         newEntries = newEntries(bNewLocal);
     end
     
+    % Add java jar/class dependencies
+    % IMPORTANT: This assumes that ALL files in the same folder as the
+    % JAR or CLASS file depend upon it and that these are the ONLY direct
+    % dependencies on the java classes!
+    graphStruct = checkJavaDeps(graphStruct,newEntries);
+    
     graphStruct = recursiveGetDeps(localPath,graphStruct, newEntries, bRecurseExternal);
 end
 
+function graphStruct = checkJavaDeps(graphStruct,checkNodes)
+    [checkDirs,~,ic] = unique(cellfun(@(x)(fileparts(x)),checkNodes, 'UniformOutput',false));
+    
+    for i=1:length(checkDirs)
+        jarList = dir(fullfile(checkDirs{i},'*.jar'));
+        classList = dir(fullfile(checkDirs{i},'*.class'));
+        
+        javaNodes = arrayfun(@(x)(fullfile(checkDirs{i},x.name)), [jarList;classList], 'UniformOutput',false);
+        if ( isempty(javaNodes) )
+            continue;
+        end
+        
+        depNodes = checkNodes(ic==i);
+        [javaGraph,mergeNodes] = createCompleteCallGraph(depNodes,javaNodes);
+        newStruct = struct('nodes',{mergeNodes},'graph',{javaGraph});
+        
+        graphStruct = Dev.MergeGraphStruct(graphStruct,newStruct);
+    end
+end
+
+% This creates a completely connected caller->callee graph, there cannot be
+% any overlap in caller/callee nodes.
+function [callGraph,mergeNodes] = createCompleteCallGraph(callerNodes,callNodes)
+    [iIdx,jIdx] = ndgrid(1:length(callerNodes),length(callerNodes)+(1:length(callNodes)));
+    
+    numEdges = numel(jIdx);
+    
+    mergeNodes = [callerNodes;callNodes];
+    callGraph = sparse(iIdx(:),jIdx(:), ones(numEdges,1), length(mergeNodes),length(mergeNodes));
+end
+
+% This uses a pre-merged node entry list with a single caller and connects
+% the caller to all the other nodes in the graph.
 function callGraph = createCallGraph(callerIdx,newNodes)
     jIdx = setdiff(1:length(newNodes),callerIdx);
     iIdx = repmat(callerIdx,1,length(jIdx));
 
-    callGraph = sparse(iIdx,jIdx, ones(1,length(jIdx)), length(newNodes),length(newNodes), length(jIdx));
+    callGraph = sparse(iIdx,jIdx, ones(1,length(jIdx)), length(newNodes),length(newNodes));
 end
 
 function fullNames = getAllFiles(dirName)
