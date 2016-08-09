@@ -39,15 +39,29 @@ if (islogical(viewIm))
     viewIm = im2uint8(viewIm);
 end
 
+%get axes limits
+xl=xlim(axesHandle);
+yl=ylim(axesHandle);
+imDims = size(viewIm);
+if ( all(xl == [0 1]) )
+    xl = [1 imDims(2)];
+    yl = [1 imDims(1)];
+end
+
 imageHandle = imagesc(viewIm,'Parent',axesHandle);
 
-set(get(axesHandle,'Parent'),'SizeChangedFcn',@KeepPlotEqual);
-set(zoom(axesHandle),'ActionPostCallback',@KeepPlotEqual);
-set(get(axesHandle,'Parent'),'CloseRequestFcn',@CleanUp);
+zoom(axesHandle, 'reset');
 
-KeepPlotEqual([],[],axesHandle);
+xlim(axesHandle, xl);
+ylim(axesHandle, yl);
 
-colormap(axesHandle,'gray');
+% set(get(axesHandle,'Parent'),'SizeChangedFcn',@KeepPlotEqual);
+% set(zoom(axesHandle),'ActionPostCallback',@KeepPlotEqual);
+% set(get(axesHandle,'Parent'),'CloseRequestFcn',@CleanUp);
+% 
+% KeepPlotEqual([],[],axesHandle);
+
+colormap(axesHandle,gray(256));
 end
 
 function KeepPlotEqual(hObject, eventdata,axesHandle)
