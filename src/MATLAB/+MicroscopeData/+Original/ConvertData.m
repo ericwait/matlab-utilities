@@ -1,9 +1,12 @@
-function [ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet, cleanName)
-%[ im, imD ] = Convert2Tiffs( imDir, imName, outDir, overwrite, quiet, cleanName)
+function [ im, imD ] = ConvertData( imDir, imName, outDir, makeH5, overwrite, quiet, cleanName)
+%[ im, imD ] = MicroscopeData.Original.ConvertData( imDir, imName, outDir, makeH5, overwrite, quiet, cleanName)
 
 im = [];
 imD = [];
 
+if (~exist('makeH5','var') || isempty(makeH5))
+    makeH5 = false;
+end
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = false;
 end
@@ -62,14 +65,24 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
     end
     
     im = MicroscopeData.Original.ReadImages(imDir,imName);
+    prgs = Utils.CmdlnProgress(length(imD),quiet,['Writing out ',datasetName]);
     for i=1:length(imD)
         if (cleanName)
             imD{i}.DatasetName = MicroscopeData.Helper.SanitizeString(imD{i}.DatasetName);
         end
         if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite)
-            MicroscopeData.Writer(im{i},fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],quiet);
+            if (makeH5)
+                MicroscopeData.WriterH5(im{i},fullfile(outDir,imD{i}.DatasetName),'imageData',imD{i},'verbose',~quiet);
+            else
+                MicroscopeData.Writer(im{i},fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],~quiet);
+            end
         end
+        prgs.PrintProgress(i);
     end
+    prgs.ClearProgress(quiet);
+    
+    cmd = sprintf('dir "%s" /B /O:N /A:D > "%s"',outDir,fullfile(outDir,'list.txt'));
+    system(cmd);
 end
 end
 
