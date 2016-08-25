@@ -1,3 +1,17 @@
+%function ptsReplicate_xy = Segmentation.PixelReplicate(imSize_rc, indList, subsamplePrct)
+%   Inputs:
+%       imSize_rc - This is the image dimensions that indList was derived. Use
+%           the results from size(im);
+%       indList - This is the indices of the pixels/voxels of the object that
+%           should be replicated.
+%       subsamplePrct - (optional) This is the percentage of the points that will be used
+%           from the original set to replicate. This is done for all lists that
+%           have more than 1e6 points in it.
+%   Outputs:
+%       ptsReplicate_xy - This is a multiset of the orignal points. This list
+%           will have the dimensions n x d, where n is the number of points
+%           after replication and d is the dimension of imSize_rc.
+
 function ptsReplicate_xy = PixelReplicate(imSize_rc, indList, subsamplePrct)
     if (~exist('subsamplePrct','var') || isempty(subsamplePrct))
         subsamplePrct = 1.0;
