@@ -25,9 +25,11 @@ function argStruct = ParseReaderInputs(varargin)
     addParameter(p,'chanList',[], @(x)(validOrEmpty(@isvector,x)));
     addParameter(p,'timeRange',[], @(x)(validOrEmpty(@(y)(numel(y)==2),x)));
     addParameter(p,'roi_xyz',[], @(x)(validOrEmpty(@(y)(all(size(y)==[2,3])),x)));
+    addParameter(p,'getMIP',false,@islogical);
 
     addParameter(p,'outType',[], @(x)(validOrEmpty(@(y)(any(strcmp(y,dataTypeLookup))),x)));
     addParameter(p,'normalize',false,@islogical);
+    addParameter(p,'imVersion','Original',@ischar);
 
     addParameter(p,'verbose',false, @islogical);
     addParameter(p,'prompt',[], @(x)(validOrEmpty(@islogical,x)));

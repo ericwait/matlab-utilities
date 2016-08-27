@@ -1,13 +1,14 @@
 % WriterH5(im, path, varargin)
 % 
 % Optional Parameters (Key,Value pairs):
-% 
-% datasetName
-% imageData
-% chanList
-% timeRange
-% roi_xyz
-% verbose
+%
+% imageData - Input metadata, if specified, the optional path argument is ignored
+% chanList - List of channels to write
+% timeRange - Range min and max times to write
+% roi_xyz - x,y,z min and max roi to write
+% imVersion - open the version of the image (e.g. Original, MIP, Processed)
+%       Default is 'Original'
+% verbose - Display verbose output and timing information
 
 function WriterH5(im, varargin)
 
@@ -38,6 +39,7 @@ addParameter(p,'imageData',[],@isstruct);
 addParameter(p,'chanList',[],@isvector);
 addParameter(p,'timeRange',[],@(x)(numel(x)==2));
 addParameter(p,'roi_xyz',[],@(x)(size(x)==[2,3]));
+addParameter(p,'imVersion','Original',@ischar);
 
 addParameter(p,'verbose',false,@islogical);
 
@@ -145,14 +147,16 @@ end
 
 fileName = fullfile(outDir,[args.imageData.DatasetName '.h5']);
 if ( ~exist(fileName,'file') )
-    totalImSize = Utils.SwapXY_RC([args.imageData.Dimensions args.imageData.NumberOfChannels args.imageData.NumberOfFrames]);
-    chunkSize = min(totalImSize,[64,64,8,1,1]);
-    
-    h5create(fileName,'/Data',totalImSize, 'DataType',outType, 'ChunkSize',chunkSize, 'Deflate',2)
+   writeMIP = setFields(args,fileName,outType);
 else
-    inType = class(h5read(fileName,'/Data',[1 1 1 1 1],[1 1 1 1 1]));
-    if (~strcmp(inType,outType))
-        error('You are trying to write to an existing file that holds a different data type %s-->%s',inType,outType);
+    info = h5info(fileName);
+    if (~any(strcmp(args.imVersion,{info.Groups.Datasets.Name})))
+        writeMIP = setFields(args,fileName,outType);
+    else
+        inType = class(h5read(fileName,['/Images/',args.imVersion],[1 1 1 1 1],[1 1 1 1 1]));
+        if (~strcmp(inType,outType))
+            error('You are trying to write to an existing file that holds a different data type %s-->%s',inType,outType);
+        end
     end
 end
 
@@ -160,10 +164,16 @@ h5writeatt(fileName,'/','Metadata',Utils.CreateJSON(args.imageData,false));
 
 imSize = [diff(Utils.SwapXY_RC(args.roi_xyz),1)+1, length(args.chanList), (args.timeRange(2)-args.timeRange(1)+1)];
 if (length(args.chanList)==args.imageData.NumberOfChannels)
-    h5write(fileName,'/Data',im, [Utils.SwapXY_RC(args.roi_xyz(1,:)),1,args.timeRange(1)],[imSize(1:3),args.imageData.NumberOfChannels,imSize(5)]);
+    h5write(fileName,['/Images/',args.imVersion],im, [Utils.SwapXY_RC(args.roi_xyz(1,:)),1,args.timeRange(1)],[imSize(1:3),args.imageData.NumberOfChannels,imSize(5)]);
+    if (writeMIP)
+        h5write(fileName,['/Images/',args.imVersion,'_MIP'],max(im,[],3), [Utils.SwapXY_RC(args.roi_xyz(1,1:2)),1,1,args.timeRange(1)],[imSize(1:2),1,args.imageData.NumberOfChannels,imSize(5)]);
+    end
 else
     for c=1:length(args.chanList)
-        h5write(fileName,'/Data',im(:,:,:,c,:), [Utils.SwapXY_RC(args.roi_xyz(1,:)),args.chanList(c),args.timeRange(1)],[imSize(1:3),1,imSize(5)]);
+        h5write(fileName,['/Images/',args.imVersion],im(:,:,:,c,:), [Utils.SwapXY_RC(args.roi_xyz(1,:)),args.chanList(c),args.timeRange(1)],[imSize(1:3),1,imSize(5)]);
+        if (writeMIP)
+            h5write(fileName,['/Images/',args.imVersion,'_MIP'],max(im(:,:,:,c,:),[],3), [Utils.SwapXY_RC(args.roi_xyz(1,1:2)),args.chanList(c),args.timeRange(1)],[imSize(1:2),1,imSize(5)]);
+        end
     end
 end
 
@@ -175,3 +185,15 @@ if (args.verbose)
 end
 end
 
+function [writeMIP] = setFields(args,fileName,outType)
+    totalImSize = Utils.SwapXY_RC([args.imageData.Dimensions args.imageData.NumberOfChannels args.imageData.NumberOfFrames]);
+    chunkSize = min(totalImSize,[64,64,8,1,1]);
+    h5create(fileName,['/Images/',args.imVersion],totalImSize, 'DataType',outType, 'ChunkSize',chunkSize, 'Deflate',2);
+    
+    mipImSize = Utils.SwapXY_RC([args.imageData.Dimensions(1:2) 1 args.imageData.NumberOfChannels args.imageData.NumberOfFrames]);
+    writeMIP = prod(mipImSize)~=prod(totalImSize);
+    if (writeMIP)
+        mipchunkSize = min(mipImSize,[64,64,1,1,1]);
+        h5create(fileName,['/Images/',args.imVersion,'_MIP'], mipImSize, 'DataType',outType, 'ChunkSize',mipchunkSize, 'Deflate',2);
+    end
+end

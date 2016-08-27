@@ -8,6 +8,8 @@
 % roi_xyz - x,y,z min and max roi to read
 % outType - Desired output type, conversion is applied if different from image
 % normalize - Normalize images on [0,1] per frame before conersion to output type
+% imVersion - open the version of the image (e.g. Original, MIP, Processed)
+%       Default is 'Original'
 % verbose - Display verbose output and timing information
 % prompt - False to completely disable prompts, true to force prompt, leave unspecified or empty for default prompt behavior
 % promptTitle - Open dialog title in the case that prompting is required
@@ -61,7 +63,22 @@ if (~exist(fullfile(imPath,[imD.DatasetName '.h5']),'file'))
     return
 end
 
-inType = class(h5read(fullfile(imPath,[imD.DatasetName '.h5']),'/Data',[1 1 1 1 1],[1 1 1 1 1]));
+info = h5info(fullfile(imPath,[imD.DatasetName '.h5']));
+imGrpInfo = info.Groups;
+if (isempty(imGrpInfo) || ~strcmp(imGrpInfo.Name,'/Images'))
+    error('File structure malformed!');
+end
+
+hasMIP = false;
+if (any(strcmpi([args.imVersion,'_MIP'],{imGrpInfo.Datasets.Name})))
+    hasMIP = true;
+end
+if (~any(strcmp(args.imVersion,{imGrpInfo.Datasets.Name})))
+    warning('No images with at this data field!');
+    return
+end
+
+inType = class(h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion],[1 1 1 1 1],[1 1 1 1 1]));
 inIdx = find(strcmp(inType,dataTypeLookup));
 if ( ~isempty(inIdx) )
     inBytes = dataTypeSize(inIdx);
@@ -91,10 +108,20 @@ end
 convert = ~strcmpi(inType,args.outType) || args.normalize;
 imSize = [diff(Utils.SwapXY_RC(args.roi_xyz),1)+1,length(args.chanList),(args.timeRange(2)-args.timeRange(1)+1)];
 if (~strcmpi(args.outType,'logical'))
-    im = zeros(imSize, args.outType);
+    if (args.getMIP)
+        im = zeros([imSize([1,2]),1,imSize([4,5])],args.outType);
+    else
+        im = zeros(imSize, args.outType);
+    end
 else
-    im = false(imSize);
+    if (args.getMIP)
+        im = false(imSize([1,2]),1,imSize([4,5]));
+    else
+        im = false(imSize);
+    end
 end
+
+imSize = size(im);
 
 if ( args.verbose )
     orgSize = [imD.Dimensions(1),imD.Dimensions(2),imD.Dimensions(3),imD.NumberOfChannels,imD.NumberOfFrames];
@@ -109,7 +136,16 @@ tic
 if ( convert )
     for c=1:length(args.chanList)
         for t=1:imSize(5)
-            tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t+args.timeRange(1)-1], [imSize(1:3) 1 1]);
+            if (args.getMIP)
+                if (hasMIP)
+                    tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion,'_MIP'], [Utils.SwapXY_RC(args.roi_xyz(1,1:2)) 1 args.chanList(c) t+args.timeRange(1)-1], [imSize(1:2) 1 1 1]);
+                else
+                    tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion], [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t+args.timeRange(1)-1], [imSize(1:3) 1 1]);
+                    tempIm = max(tempIm,[],3);
+                end
+            else
+                tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion], [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t+args.timeRange(1)-1], [imSize(1:3) 1 1]);
+            end
             im(:,:,:,c,t) = ImUtils.ConvertType(tempIm,args.outType,args.normalize);
         end
     end
@@ -117,7 +153,16 @@ if ( convert )
     clear tempIm;
 else
     for c=1:length(args.chanList)
-        im(:,:,:,c,:) = h5read(fullfile(imPath,[imD.DatasetName '.h5']),'/Data', [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
+        if (args.getMIP)
+            if (hasMIP)
+                im(:,:,:,c,:) = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion,'_MIP'], [Utils.SwapXY_RC(args.roi_xyz(1,1:2)) 1 args.chanList(c) args.timeRange(1)], [imSize(1:2) 1 1 imSize(5)]);
+            else
+                tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion], [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
+                im(:,:,:,c,:) = max(tempIm,[],3);
+            end
+        else
+            im(:,:,:,c,:) = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion], [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
+        end
     end
 end
 if (args.verbose)
