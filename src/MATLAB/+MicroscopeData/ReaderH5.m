@@ -106,22 +106,21 @@ if ( ~isempty(outIdx) )
 end
 
 convert = ~strcmpi(inType,args.outType) || args.normalize;
-imSize = [diff(Utils.SwapXY_RC(args.roi_xyz),1)+1,length(args.chanList),(args.timeRange(2)-args.timeRange(1)+1)];
-if (~strcmpi(args.outType,'logical'))
-    if (args.getMIP)
-        im = zeros([imSize([1,2]),1,imSize([4,5])],args.outType);
-    else
-        im = zeros(imSize, args.outType);
-    end
-else
-    if (args.getMIP)
-        im = false(imSize([1,2]),1,imSize([4,5]));
-    else
-        im = false(imSize);
-    end
+
+%build up the imSize by the input arguments
+imSize = ones(1,5);
+imSize(1:3) = 1 + diff(Utils.SwapXY_RC(args.roi_xyz),1); % get the extent of the roi
+imSize(4) = length(args.chanList); % set the number of channeles desired
+imSize(5) = args.timeRange(2) - args.timeRange(1) + 1; % set the number of frames from the frame range
+if (args.getMIP)
+    imSize(3) = 1;
 end
 
-imSize = size(im);
+if (~strcmpi(args.outType,'logical'))
+    im = zeros(imSize, args.outType);
+else
+    im = false(imSize);
+end
 
 if ( args.verbose )
     orgSize = [imD.Dimensions(1),imD.Dimensions(2),imD.Dimensions(3),imD.NumberOfChannels,imD.NumberOfFrames];

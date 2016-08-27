@@ -58,7 +58,7 @@ if ( exist(tifFile,'file'))
     [im,imD] = MicroscopeData.ReaderTIF('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz,...
                                         'outType',args.outType, 'normalize',args.normalize, 'verbose',args.verbose, 'prompt',false);
 
-    if (args.getMIP)
+    if (args.getMIP && size(im,3)>1)
         imMIP = zeros(size(im,1),size(im,2),1,size(im,4),size(im,5),'like',im);
         for t=1:imD.NumberOfFrames
             for c=1:imD.NumberOfChannels
