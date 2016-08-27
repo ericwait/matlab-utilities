@@ -17,7 +17,7 @@ function ptsReplicate_xy = PixelReplicate(imSize_rc, indList, subsamplePrct)
         subsamplePrct = 1.0;
     end
     
-    padding = max(9,max(imSize_rc.*0.05));
+    padding = ceil(max(9,max(imSize_rc.*0.05)));
     [smallBw,startCoords_rcz] = ImUtils.ROI.MakeSubImBW(imSize_rc,indList,padding);
     idx = find(smallBw(:));
     startCoords_xy = Utils.SwapXY_RC(startCoords_rcz);
@@ -38,7 +38,7 @@ function ptsReplicate_xy = PixelReplicate(imSize_rc, indList, subsamplePrct)
             nrep = round(bwd(idx(i)));
             indsReplicate = [indsReplicate;repmat(idx(i),nrep,1)];
         end
-        ptsReplicate_xy = Utils.SwapXY_RC(Utils.IndToCoord(imSize_rc,indsReplicate));
+        ptsReplicate_xy = Utils.SwapXY_RC(Utils.IndToCoord(size(smallBw),indsReplicate));
     end
     
     ptsReplicate_xy = ptsReplicate_xy + repmat(startCoords_xy,size(ptsReplicate_xy,1),1) -1;
