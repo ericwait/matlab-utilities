@@ -55,11 +55,11 @@ zoom(axesHandle, 'reset');
 xlim(axesHandle, xl);
 ylim(axesHandle, yl);
 
-% set(get(axesHandle,'Parent'),'SizeChangedFcn',@KeepPlotEqual);
-% set(zoom(axesHandle),'ActionPostCallback',@KeepPlotEqual);
-% set(get(axesHandle,'Parent'),'CloseRequestFcn',@CleanUp);
-% 
-% KeepPlotEqual([],[],axesHandle);
+set(get(axesHandle,'Parent'),'SizeChangedFcn',@KeepPlotEqual);
+set(zoom(axesHandle),'ActionPostCallback',@KeepPlotEqual);
+set(get(axesHandle,'Parent'),'CloseRequestFcn',@CleanUp);
+
+KeepPlotEqual([],[],axesHandle);
 
 colormap(axesHandle,gray(256));
 end
