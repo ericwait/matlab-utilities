@@ -1,5 +1,5 @@
 %labeledPixels = Segmentation.GapPixelRep(imSize_rc, indList, K_MAX, showplots, turnOffGMMwarn)
-function labeledPixels = GapPixelRep(imSize_rc, indList, K_MAX, showplots, turnOffGMMwarn)
+function labeledPixels = GapPixelRep(imSize_rc, indList, K_MAX, K_MIN, showplots, turnOffGMMwarn)
     if (~exist('showplots','var') || isempty(showplots))
         showplots = false;
     end
@@ -7,6 +7,10 @@ function labeledPixels = GapPixelRep(imSize_rc, indList, K_MAX, showplots, turnO
     if (K_MAX<=1)
         labeledPixels = ones(length(indList),1);
         return
+    end
+    
+    if (~exist('K_MIN','var') || isempty(K_MIN))
+        K_MIN = 1;
     end
     
     if (~exist('turnOffGMMwarn','var') || isempty(turnOffGMMwarn))
@@ -31,12 +35,18 @@ function labeledPixels = GapPixelRep(imSize_rc, indList, K_MAX, showplots, turnO
     maxExtents = max(princeipleComp);
     minExtents = min(princeipleComp);
     
-    pixelsRep_rc = Utils.SwapXY_RC(Segmentation.PixelReplicate(imSize_rc,indList));
-    
-    k_b = pixelsRep_rc;
+%     bw = false(imSize_rc);
+%     bw(indList) = true;
+%     bwPerim = bwperim(bw);
+%     k_b = Utils.IndToCoord(imSize_rc,find(bwPerim));
+%     numPix = size(k_b,1);
+
+    k_b = Utils.SwapXY_RC(Segmentation.PixelReplicate(imSize_rc,indList,0.03));
+    numPix = size(k_b,1);
        
-    for i=1:B
-        k_b = cat(3,k_b,MakeData(V,size(pixelsRep_rc,1),maxExtents,minExtents));
+    for i=2:B+1
+        randPts_rc = Segmentation.MakeObjAlignedUniDist(V,numPix,maxExtents,minExtents);
+        k_b = cat(3,k_b,randPts_rc);
     end
     
     curAx = [];
@@ -55,7 +65,7 @@ function labeledPixels = GapPixelRep(imSize_rc, indList, K_MAX, showplots, turnO
         ImUtils.ThreeD.ShowMaxImage(smallBw,false,3,h);
     end
     
-    k = Segmentation.GapGetBestK(K_MAX,k_b,fH);
+    k = Segmentation.GapGetBestK(K_MAX,K_MIN,k_b,fH);
     
     if (k<=1)
         labeledPixels = ones(size(pixelsOrg_rc,1),1);

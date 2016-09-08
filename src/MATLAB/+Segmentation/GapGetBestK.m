@@ -1,4 +1,4 @@
-function bestK = GapGetBestK(MAX_K, k_b, figureHandle)
+function bestK = GapGetBestK(MAX_K, MIN_K, k_b, figureHandle)
     B = size(k_b,3)-1;
 
     bestK = 0;
@@ -9,29 +9,17 @@ function bestK = GapGetBestK(MAX_K, k_b, figureHandle)
     obsWeight = zeros(MAX_K,1);
     gaps = zeros(MAX_K,1);
     sigs = zeros(MAX_K,1);
-    divisor = size(k_b,1) + 2;
+
+    d = size(k_b,2);
+    divisor = (d+2)*(d+3)/(d+1); % scales to the triangular eliptical distribution
 
     tic
-    for k=1:MAX_K
-        try
-            gmModel = fitgmdist(k_b(:,:,1),k,'Replicates',5,'Options',statset('Display','off','MaxIter',100,'TolFun',1e-6));
-        catch err
-            warning(err.message);
-            bestK = 1;
-            return
-        end
+    for k=MIN_K:MAX_K
         for j=1:B+1
             D_r = zeros(1,k);
             curKB = k_b(:,:,j);
-            idx = cluster(gmModel,curKB);
-            for i=1:k
-                curCluster = curKB(idx==i,:);
-                dx = gmModel.mahal(curCluster);
-                dx = dx(:,i);
-                dx = dx/divisor;
-                D_r(i) = std(sqrt(dx));
-            end
-            W_k(j) = log(sum(D_r));
+            gmModel = fitgmdist(curKB,k,'Replicates',5,'Options',statset('Display','off','MaxIter',100,'TolFun',1e-6));
+            W_k(j) = gmModel.NegativeLogLikelihood;
         end
 
         W_kb = sum(W_k(2:end)) / (B);
@@ -55,7 +43,7 @@ function bestK = GapGetBestK(MAX_K, k_b, figureHandle)
     finishTime = toc;
 
     if (bestK>=MAX_K)
-        bestK = 1;
+        bestK = MIN_K;
     end
 
     if (exist('figureHandle','var') && ~isempty(figureHandle))
