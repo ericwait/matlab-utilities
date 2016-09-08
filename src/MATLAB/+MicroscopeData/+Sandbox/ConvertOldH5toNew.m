@@ -1,3 +1,4 @@
+% ConvertOldH5toNew( rootDir, fileName )
 function ConvertOldH5toNew( rootDir, fileName )
     if (~exist('fileName','var') || isempty(fileName))
         dList = dir(fullfile(rootDir,'*.h5'));
@@ -18,13 +19,17 @@ function ConvertOldH5toNew( rootDir, fileName )
         
         h5Path = fullfile(rootDir,fileName);
         jsonPath = fullfile(rootDir,[datasetName,'.json']);
+        fprintf('%s...',jsonPath);
         if (exist(h5Path,'file'))
             info = h5info(h5Path);
-            if (any(strcmpi('Data',{info.Datasets.Name})))
+            if (isempty(info.Groups) && ~isempty(info.Datasets) && any(strcmpi('Data',{info.Datasets.Name})))
                 imD = MicroscopeData.ReadMetadataFile(jsonPath);
                 im = h5read(h5Path,'/Data', [1 1 1 1 1], [Utils.SwapXY_RC(imD.Dimensions) imD.NumberOfChannels imD.NumberOfFrames]);
                 delete(h5Path);
-                MicroscopeData.WriterH5(im,imD.imageDir,'imageData',imD);
+                fprintf('deleted\n');
+                MicroscopeData.WriterH5(im,imD.imageDir,'imageData',imD,'verbose',true);
+            else
+                fprintf('skipped\n');
             end
         end
     end
