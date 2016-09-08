@@ -115,7 +115,9 @@ for i=1:length(hs)
     op([3,4]) = min(op([3,4]),[1,1]);
     set(hs(i),'Position',op);
     set(hs(i),'Color', [1 1 1] * 95/255);
-    set(hs(i),'XLim',xl,'YLim',yl);
+    if (xl(1)<xl(2) && yl(1)<yl(2))
+        set(hs(i),'XLim',xl,'YLim',yl);
+    end
     axis(hs(i),'equal');    
 end
 end 
