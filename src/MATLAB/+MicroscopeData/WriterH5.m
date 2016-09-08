@@ -154,6 +154,7 @@ else
         writeMIP = setFields(args,fileName,outType);
     else
         inType = class(h5read(fileName,['/Images/',args.imVersion],[1 1 1 1 1],[1 1 1 1 1]));
+        writeMIP = true;
         if (~strcmp(inType,outType))
             error('You are trying to write to an existing file that holds a different data type %s-->%s',inType,outType);
         end
