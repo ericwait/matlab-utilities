@@ -173,7 +173,7 @@ else
     for c=1:length(args.chanList)
         h5write(fileName,['/Images/',args.imVersion],im(:,:,:,c,:), [Utils.SwapXY_RC(args.roi_xyz(1,:)),args.chanList(c),args.timeRange(1)],[imSize(1:3),1,imSize(5)]);
         if (writeMIP)
-            h5write(fileName,['/Images/',args.imVersion,'_MIP'],max(im(:,:,:,c,:),[],3), [Utils.SwapXY_RC(args.roi_xyz(1,1:2)),args.chanList(c),args.timeRange(1)],[imSize(1:2),1,imSize(5)]);
+            h5write(fileName,['/Images/',args.imVersion,'_MIP'],max(im(:,:,:,c,:),[],3), [Utils.SwapXY_RC(args.roi_xyz(1,1:2)),1,args.chanList(c),args.timeRange(1)],[imSize(1:2),1,1,imSize(5)]);
         end
     end
 end
