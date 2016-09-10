@@ -52,7 +52,7 @@ function changeLines = GitStatus(chkPath,chkFiles)
         
         cFiles = changeFiles(bMatched);
         for i=1:length(cFiles)
-            changeLines = [changeLines; ['Possible MEX dependency - ' cFiles{i}]];
+            changeLines = [changeLines; {['Possible MEX dependency - ' cFiles{i}]}];
         end
     end
 end
