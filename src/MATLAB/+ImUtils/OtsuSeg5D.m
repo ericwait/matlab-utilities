@@ -15,7 +15,7 @@ prgs = Utils.CmdlnProgress(nChan*nFrms,true,prgStr);
 for t=1:nFrms
     for c=1:nChan
         curIm = im(:,:,:,c,t);
-        level = graythresh(curIm(curIm>0));
+        level = multithresh(curIm(curIm>0),1);
         imBW(:,:,:,c,t) = curIm > level*alpha;
         
         prgs.PrintProgress((t-1)*nChan + c);
