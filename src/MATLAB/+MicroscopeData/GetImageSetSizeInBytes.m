@@ -10,7 +10,7 @@ function memSize = GetImageSetSizeInBytes(metaData,typeStr)
                     1];
 
 	if (exist('typeStr','var') || ~isempty(typeStr))
-		bytIdx = strcmp(typeStr,dataTypeLookup);
+		byteIdx = strcmp(typeStr,dataTypeLookup);
 	else
 		byteIdx = strcmp(metaData.PixelFormat,dataTypeLookup);
 	end
