@@ -60,7 +60,7 @@ if (normalize)
                 case 'int16'
                     imageOut(:,:,:,c,t) = im2int16(imTemp);
                 case 'uint32'
-                    imageOut(:,:,:,c,t) = im2uint32(imTemp);
+                    imageOut(:,:,:,c,t) = uint32(imTemp*(2^32-1));
                 case 'int32'
                     imageOut(:,:,:,c,t) = im2int32(imTemp);
                 case 'single'
