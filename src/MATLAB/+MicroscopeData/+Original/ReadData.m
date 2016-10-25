@@ -25,6 +25,12 @@ end
 MicroscopeData.Original.BioFormats.CheckJarPath();
 
 bfReader = MicroscopeData.Original.BioFormats.GetReader(fullfile(datasetPath,[datasetName,datasetExt]));
+if (isempty(bfReader))
+    warning('Unable to open %s in BioFormats!',fullfile(datasetPath,[datasetName,datasetExt]));
+    seriesImages = {};
+    seriesMetaData = {};
+    return
+end
 
 seriesMetaData = MicroscopeData.Original.BioFormats.GetMetadata(bfReader,datasetExt);
 seriesImages = MicroscopeData.Original.BioFormats.GetImages(bfReader);
