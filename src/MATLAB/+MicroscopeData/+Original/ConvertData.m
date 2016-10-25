@@ -51,8 +51,8 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
         return;
     end
     
+    [~,datasetName,~] = fileparts(imName);
     if (length(imD)>1)
-        [~,datasetName,~] = fileparts(imName);
         if (cleanName)
             datasetName = MicroscopeData.Helper.SanitizeString(datasetName);
         end
