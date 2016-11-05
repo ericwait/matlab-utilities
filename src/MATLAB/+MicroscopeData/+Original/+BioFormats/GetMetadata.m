@@ -17,7 +17,7 @@ if (bfReader.getSeriesCount()>1)
     onlyOneSeries = false;
 end
 
-for series=0:bfReader.getSeriesCount()-1;
+for series=0:bfReader.getSeriesCount()-1
     bfReader.setSeries(series);
 
     imageData = [];
