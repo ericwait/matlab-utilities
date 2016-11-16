@@ -10,6 +10,8 @@
 % normalize - Normalize images on [0,1] per frame before conersion to output type
 % imVersion - open the version of the image (e.g. Original, MIP, Processed)
 %       Default is 'Original'
+% getMIP - return only a 2D image.  A precomputed Maximum Intensity
+%       Projection (MIP) will be returned if the orignal was 3D
 % verbose - Display verbose output and timing information
 % prompt - False to completely disable prompts, true to force prompt, leave unspecified or empty for default prompt behavior
 % promptTitle - Open dialog title in the case that prompting is required
