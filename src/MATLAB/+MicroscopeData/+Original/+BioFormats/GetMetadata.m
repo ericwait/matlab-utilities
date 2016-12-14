@@ -109,6 +109,8 @@ for series=0:bfReader.getSeriesCount()-1
             size(imageData.TimeStampDelta,3)~=imageData.NumberOfFrames)
         imageData = rmfield(imageData,'TimeStampDelta');
     end
+    
+    imageData.imageDir = fileparts(char(bfReader.getCurrentFile));
 
     seriesMetadata{series+1} = imageData;
 
