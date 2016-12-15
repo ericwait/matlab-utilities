@@ -27,5 +27,6 @@ obj/
 [Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
-src/MATLAB/tifflib.mexw64
-*.asv
+*.ipch
+*.sdf
+*.tif
