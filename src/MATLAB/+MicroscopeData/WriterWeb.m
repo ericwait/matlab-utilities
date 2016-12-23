@@ -1,17 +1,16 @@
 %% This function creates CloneView3D multiresolution atlas from smoothed montage images
-%   @inPath - the input image path, for example:\\bioimagefs\Process\Images
+%   @inPath - the input image path, for example:P\Images
 %              \Temple\3d\SVZ\Montage\Deep\Itga9 kd4(J2) Deep Labels 8-13-13
 %              Take2\20x_Montage_wDelta\Smoothed
 %	@outPath - the output path, for example: B:\javascript\experiments
 %   @Llist - the desired detail levels, for example, we want
 %       to create 2-5 LoD( level of detail), set Llist = [2:5]
 %   example:
-%       inPath = '\\bioimagefs\Process\Images\Temple\3d\SVZ\Montage\Deep\Deep Panel Feb2016 DAPI Mash1-647 Dcx-488 ki67-514 Laminin-Cy3 GFAP-594\18mF1 DeepPanel 10x01\normalized';
+%       inPath = 'P:\Images\Temple\3d\SVZ\Montage\Deep\Deep Panel Feb2016 DAPI Mash1-647 Dcx-488 ki67-514 Laminin-Cy3 GFAP-594\18mF1 DeepPanel 10x01\normalized';
 %       outPath = [inPath, '\CV3d'];
 %       createMRTexture(0:4, inPath, outPath);
 
 function [imOutPath] = WriterWeb(im,imDataOriginal, outPath, Llist)
-
 
 if (~exist('im','var') || isempty(im))
 [im,imDataOriginal] = MicroscopeData.Reader('verbose',true,'normalize',true);
