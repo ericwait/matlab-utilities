@@ -54,7 +54,7 @@ imDataOut.XPixelPhysicalSize = imDataIn.PixelPhysicalSize(2) * reductions(2);
 imDataOut.YPixelPhysicalSize = imDataIn.PixelPhysicalSize(1)* reductions(1);
 imDataOut.ZPixelPhysicalSize = imDataIn.PixelPhysicalSize(3) * reductions(3);
 
-imDataOut = Web.ConvertMetadata(imDataOut);
+imDataOut = MicroscopeData.Web.ConvertMetadata(imDataOut);
 
 end
 

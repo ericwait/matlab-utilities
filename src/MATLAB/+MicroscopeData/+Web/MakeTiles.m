@@ -7,7 +7,7 @@ for c = 1:imData.NumberOfChannels
     for l = 1:numel(Llist)
         level = Llist(l);
         %         levelData = GetLevelDims(channelData, level);
-        [tileData, reductions] = Web.GetReductions(imData, maxTextureSize,level);
+        [tileData, reductions] = MicroscopeData.Web.GetReductions(imData, maxTextureSize,level);
         tileData.Level = level;
         %% reduce image size to fit into the texture dimension
         %         [totalImageSize, ~] = Cloneview3D.Helper.calcMemory(levelData);
@@ -17,7 +17,7 @@ for c = 1:imData.NumberOfChannels
         %             useCUDAMex = 0;
         %         end
         useCUDAMex = 0;
-        [imReduc, imD] = Web.ReduceImageTemp(im, imData, reductions, false, useCUDAMex);
+        [imReduc, imD] = MicroscopeData.Web.ReduceImageTemp(im, imData, reductions, false, useCUDAMex);
         
         tileData.XPixelPhysicalSize = imD.XPixelPhysicalSize;
         tileData.YPixelPhysicalSize = imD.YPixelPhysicalSize;
@@ -44,8 +44,8 @@ for c = 1:imData.NumberOfChannels
                 ROI_Y = y*tileData.YDimension + 1:(y+1)*tileData.YDimension;
                 fprintf('Creating atlas for level %d, tile %02d%02d \r\n', level, x,y);
                 
-                [tileAtlasIm, tileData] = Web.makeAtlas(imReduc(ROI_Y, ROI_X, :,c,:), tileData);
-                Web.ExportAtlasIm(tileAtlasIm, tileData, tileDir, c);
+                [tileAtlasIm, tileData] = MicroscopeData.Web.makeAtlas(imReduc(ROI_Y, ROI_X, :,c,:), tileData);
+                MicroscopeData.Web.ExportAtlasIm(tileAtlasIm, tileData, tileDir, c);
                 tileData.isEmpty = 0;
                 
                 %% Make tile metadata 
@@ -55,9 +55,9 @@ for c = 1:imData.NumberOfChannels
                     tileData.ChannelColors = imData.ChannelColors;
                     tileData.Reduction = reductions(1);
                     %% Export Json for Atlas
-                    Web.ExportAtlasJSON(tileDir, tileData);
+                    MicroscopeData.Web.ExportAtlasJSON(tileDir, tileData);
                     %% Create blended atlas
-                    Web.blendThisTile(tileDir, 'png');
+                    MicroscopeData.Web.blendThisTile(tileDir, 'png');
                 end
             end
         end

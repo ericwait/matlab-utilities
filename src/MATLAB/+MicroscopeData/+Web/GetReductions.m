@@ -26,7 +26,7 @@ while (~fit)
         
         numImInY = ceil(imDataOut.ZDimension / numImInX);
         if(numImInY * (imDataOut.YDimension + 2*PaddingSize) > maxTextureSize)
-            [imDataOut,reductionsIn] = Web.reduce(reductionsIn,tileData);
+            [imDataOut,reductionsIn] = MicroscopeData.Web.reduce(reductionsIn,tileData);
             continue;
         end
         
@@ -35,13 +35,13 @@ while (~fit)
 
         % if the reduced image can't be exactly divided by number of tiles
         if(mod(DimX, numTilesXY) > 0)
-            [imDataOut,reductionsIn] = Web.reduce(reductionsIn,tileData, 0.0001);
+            [imDataOut,reductionsIn] = MicroscopeData.Web.reduce(reductionsIn,tileData, 0.0001);
             continue;
         end
         
         DimY = floor(imDataIn.YDimension/reductionsIn(1));
         if(mod(DimY, numTilesXY) > 0)
-            [imDataOut,reductionsIn] = Web.reduce(reductionsIn,tileData, 0.0001);
+            [imDataOut,reductionsIn] = MicroscopeData.Web.reduce(reductionsIn,tileData, 0.0001);
             continue;
         else
             fit = true;
@@ -63,5 +63,5 @@ end
     else
         imDataOut.outImHeight = maxTextureSize;
     end
-    imDataOut = Web.ConvertMetadata(imDataOut);
+    imDataOut = MicroscopeData.Web.ConvertMetadata(imDataOut);
 end

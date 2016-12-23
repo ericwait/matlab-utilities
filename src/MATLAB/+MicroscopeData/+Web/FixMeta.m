@@ -24,6 +24,6 @@ if ~isfield(MetaOut,'imageDir') || isempty(MetaOut.imageDir) || any(strfind(Meta
 end
 
 MetaOut.DatasetName = MicroscopeData.Helper.SanitizeString(MetaOut.DatasetName);
-MetaOut = Web.ConvertMetadata(MetaOut,isfield(MetaOut, 'XDimension'));
+MetaOut = MicroscopeData.Web.ConvertMetadata(MetaOut,isfield(MetaOut, 'XDimension'));
 end
 

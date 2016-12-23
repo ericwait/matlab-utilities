@@ -25,7 +25,7 @@ if(~exist('outPath','var') || isempty(outPath))
     outPath = uigetdir('','Choose the Atlas output Directory (Experiments Folder)');
 end
 
-[imData] = Web.FixMeta(imDataOriginal);
+[imData] = MicroscopeData.Web.FixMeta(imDataOriginal);
 
 
 %% Make Folders 
@@ -40,17 +40,17 @@ if(~exist(fullfile(outPath, parentFolder, imData.DatasetName), 'dir'));     mkdi
 
 %% Export Html
 htmlOutPath = fullfile(outPath, parentFolder);
-Web.ExportHTML(htmlOutPath, parentFolder, imData.DatasetName);
+MicroscopeData.Web.ExportHTML(htmlOutPath, parentFolder, imData.DatasetName);
 %% Export Thumbnail
 imOutPath = fullfile(outPath, parentFolder, imData.DatasetName);
-Web.makeThumbnail(imOutPath,im,imData);
+MicroscopeData.Web.makeThumbnail(imOutPath,im,imData);
 %% Export Metameta 
 MicroscopeData.CreateMetadata(imOutPath, imData);
 %% Export Tiles in Tree Structure
-Web.MakeTiles(im,imData,imOutPath,Llist);
+MicroscopeData.Web.MakeTiles(im,imData,imOutPath,Llist);
 fprintf('Atlas exported to %s\n', imOutPath);
 %% Update Json List of Experiments 
-Web.createDataList(outPath);
+MicroscopeData.Web.createDataList(outPath);
 end
 
 function parentFolder = findParentFolder(inPath)
