@@ -1,4 +1,4 @@
-function makeThumbnail(Outpath, im, imData)
+function makeThumbnail(Outpath,imData,im)
     nChannels = imData.NumberOfChannels;
 %     cList = 1:nChannels;
 %     channelString = regexprep(num2str(cList), '\s*', '');
@@ -14,7 +14,7 @@ function makeThumbnail(Outpath, im, imData)
 %     end
 
         disp('Making thumbnail...');
-        imThumbnail = imresize(im(:,:,1,1,1),[300 500]);
+        imThumbnail = imresize(max(im,[300 500]);
         imThumbnail = mat2gray(imThumbnail);
         imwrite(imThumbnail, fullfile(Outpath, 'thumbnail.png'));
 

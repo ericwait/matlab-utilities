@@ -24,20 +24,32 @@ end
         imData.YPixelPhysicalSize = imData.PixelPhysicalSize(2);
         imData.ZPixelPhysicalSize = imData.PixelPhysicalSize(3);        
     end
-    
-
 end
 
 function ChannelColorsOut = ConvertColor(ChannelColorsIn)
     ChannelColorsOut = [];
     if(iscell(ChannelColorsIn))                
         for i = 1:numel(ChannelColorsIn)
-            ChannelColorsOut = [ChannelColorsOut; Cloneview3D.Helper.HexToDecimal(ChannelColorsIn{i})];
+            ChannelColorsOut = [ChannelColorsOut; HexToDecimal(ChannelColorsIn{i})];
         end
     else
-        if(size(ChannelColorsIn,2) > 1)
-            return
-        end
-        ChannelColorsOut = Cloneview3D.Helper.HexToDecimal(ChannelColorsIn);
+%         if(size(ChannelColorsIn,2) > 1)
+%             return
+%         end
+        ChannelColorsOut = ChannelColorsIn;
     end
+end
+
+%% A function that convert hex color to decimal float
+function colorOut = HexToDecimal(color)
+    
+    if(iscell(color))
+        color = cell2mat(color);
+    end
+    
+    r = hex2dec(color(2:3))/255;
+    g = hex2dec(color(4:5))/255;
+    b = hex2dec(color(6:7))/255;
+    
+    colorOut = [r g b];    
 end

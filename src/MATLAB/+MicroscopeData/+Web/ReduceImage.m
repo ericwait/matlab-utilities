@@ -1,4 +1,4 @@
-function [ imOut, imDataOut ] = ReduceImageTemp( imIn, imDataIn, reductions,showProgress, useCUDAMex)
+function [imOut] = ReduceImage(imIn,tileData,reductions,showProgress,useCUDAMex)
 %REDUCEIMAGETEMP Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,7 +6,6 @@ if (~exist('showProgress','var') || isempty(showProgress))
     showProgress = false;
 end
 
-imDataOut = imDataIn;
 % if (showProgress)
 %     PrintProgress(imDataIn.NumberOfFrames*imDataIn.NumberOfChannels,true,true);
 %     i = 0;
@@ -33,28 +32,13 @@ imDataOut = imDataIn;
 % else   
 %     imOut = ReduceImageCPU(imIn, imDataIn, reductions);
 % end
-for t=1:imDataIn.NumberOfFrames
-    for c=1:imDataIn.NumberOfChannels  
-       imOut(:,:,:,c,t) = imIn(1:reductions(2):end,1:reductions(1):end,1:reductions(3):end,c,t);    
-    end
-end
 
+%% Downsample image 
+imIn = imresize(imIn,[tileData.YDimension,tileData.XDimension]);    
+imOut = uint8(imIn);
 
-imOut = uint8(imOut);
-% 
 % if (showProgress)
 % %     PrintProgress(0,false);
 % end
-
-imDataOut.XDimension = size(imOut,2);
-imDataOut.YDimension = size(imOut,1);
-imDataOut.ZDimension = size(imOut,3);
-
-imDataOut.XPixelPhysicalSize = imDataIn.PixelPhysicalSize(2) * reductions(2);
-imDataOut.YPixelPhysicalSize = imDataIn.PixelPhysicalSize(1)* reductions(1);
-imDataOut.ZPixelPhysicalSize = imDataIn.PixelPhysicalSize(3) * reductions(3);
-
-imDataOut = MicroscopeData.Web.ConvertMetadata(imDataOut);
-
-end
+ end
 

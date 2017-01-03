@@ -1,67 +1,73 @@
 %% anisotropic downsampling of the montage data, i.e., the Z dimension is
 % not downsampled, only in X and Y since X and Y are much larger than Z
 function [imDataOut, reductionsOut] = GetReductions(imDataIn, maxTextureSize, level)
-    
-    PaddingSize = 1;
-    numTilesXY = 2^level;
-    tileData = imDataIn;
-    tileData.XDimension = floor(imDataIn.XDimension / numTilesXY);
-    tileData.YDimension = floor(imDataIn.YDimension / numTilesXY);
 
-    imDataOut = imDataIn;
-    
-    imDataOut.XDimension = tileData.XDimension;
-    imDataOut.YDimension = tileData.YDimension;
-    imDataOut.ZDimension = tileData.ZDimension;
-    
-    fit = false;
-    reductionsIn = [1 1 1];
+PaddingSize = 1;
+numTilesXY = 2^level;
+
+%Make New Metadata for Tiles
+imDataOut = imDataIn;
+% imDataOut.XDimension = floor(imDataIn.XDimension / numTilesXY);
+% imDataOut.YDimension = floor(imDataIn.YDimension / numTilesXY);
+imDataOut.ZDimension = imDataOut.ZDimension;
+
+fit = false;
+reductionsIn = [1 1 1];
 
 while (~fit)
-        numImInX = min(floor(maxTextureSize/(imDataOut.XDimension + 2*PaddingSize)),imDataOut.ZDimension);
-        if(numImInX < 1)
-            [imDataOut,reductionsIn] = reduc(reductionsIn,tileData);
-            continue;
-        end
-        
-        numImInY = ceil(imDataOut.ZDimension / numImInX);
-        if(numImInY * (imDataOut.YDimension + 2*PaddingSize) > maxTextureSize)
-            [imDataOut,reductionsIn] = MicroscopeData.Web.reduce(reductionsIn,tileData);
-            continue;
-        end
-        
-        % DimX and DimY is dimension of the resized orginal image
-        DimX = floor(imDataIn.XDimension/reductionsIn(2));        
-
-        % if the reduced image can't be exactly divided by number of tiles
-        if(mod(DimX, numTilesXY) > 0)
-            [imDataOut,reductionsIn] = MicroscopeData.Web.reduce(reductionsIn,tileData, 0.0001);
-            continue;
-        end
-        
-        DimY = floor(imDataIn.YDimension/reductionsIn(1));
-        if(mod(DimY, numTilesXY) > 0)
-            [imDataOut,reductionsIn] = MicroscopeData.Web.reduce(reductionsIn,tileData, 0.0001);
-            continue;
-        else
-            fit = true;
-            
-        end    
-end
-    reductionsOut = reductionsIn; 
     
-    imDataOut.XDimension = DimX/numTilesXY;
-    imDataOut.YDimension = DimY/numTilesXY;
-    imDataOut.numImInX = numImInX;
-    imDataOut.numImInY = numImInY;
-    imDataOut.outImWidth = maxTextureSize;
+    imDataOut.XDimension = floor(floor(imDataIn.XDimension / numTilesXY)/reductionsIn(2));
+    imDataOut.YDimension = floor(floor(imDataIn.YDimension / numTilesXY)/reductionsIn(1));
+    %Too Large in X
     
-    % reduce atlas Y dimension by power of 2
-    pwr2 = log2(maxTextureSize/(imDataOut.YDimension*imDataOut.numImInY));
-    if(pwr2 > 1)
-        imDataOut.outImHeight = maxTextureSize / 2^floor(pwr2);
-    else
-        imDataOut.outImHeight = maxTextureSize;
+%     if mod(reductionsIn(1),2)==0 && mod(imDataOut.ZDimension,reductionsIn(3))==0
+%         reductionsIn(3) = reductionsIn(3)*2;
+%     end
+    numPanelsZ = imDataOut.ZDimension/reductionsIn(3);
+    
+    numPanelsX = min(floor(maxTextureSize/(imDataOut.XDimension + 2*PaddingSize)),numPanelsZ);
+    if(numPanelsX < 1)
+        [reductionsIn] = MicroscopeData.Web.reduce(reductionsIn,1);
+        continue;
     end
-    imDataOut = MicroscopeData.Web.ConvertMetadata(imDataOut);
+    %% Too Large in Y
+    numPanelsY = ceil(numPanelsZ / numPanelsX);
+    if(numPanelsY * (imDataOut.YDimension + 2*PaddingSize)) > maxTextureSize
+        [reductionsIn] = MicroscopeData.Web.reduce(reductionsIn,1);
+        continue;
+    end
+    
+    % DimX and DimY is dimension of the resized image
+    
+%     % if the reduced image can't be exactly divided by number of tiles
+%     DimX = floor(imDataIn.XDimension/reductionsIn(2));
+%     if(mod(DimX, numTilesXY) > 0)
+%         [reductionsIn] = MicroscopeData.Web.reduce(reductionsIn, 0.01);
+%         continue;
+%     end
+%     
+%     DimY = floor(imDataIn.YDimension/reductionsIn(1));
+%     if(mod(DimY, numTilesXY) > 0)
+%         [reductionsIn] = MicroscopeData.Web.reduce(reductionsIn, 0.01);
+%         continue;
+%     else
+%      end      
+        fit = true;
+
+end
+reductionsOut = reductionsIn;
+
+% imDataOut.XDimension = DimX/numTilesXY;
+% imDataOut.YDimension = DimY/numTilesXY;
+imDataOut.numImInX = numPanelsX;
+imDataOut.numImInY = numPanelsY;
+imDataOut.numImInZ = numPanelsZ;
+imDataOut.outImWidth = maxTextureSize;
+
+% reduce atlas Y dimension by power of 2
+pwr2 = log2(maxTextureSize/(imDataOut.YDimension*imDataOut.numImInY));
+
+imDataOut.outImHeight = maxTextureSize / 2^floor(pwr2);
+
+imDataOut = MicroscopeData.Web.ConvertMetadata(imDataOut);
 end
