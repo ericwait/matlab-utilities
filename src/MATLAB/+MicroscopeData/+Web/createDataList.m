@@ -1,8 +1,4 @@
-function [] = createDataList(Path)
-    if (~exist('Path','var') || isempty(Path))
-        Path = uigetdir('B:\Users\Bingyao\Documents\git\clone-view-3d\src\javascript\experiments','Choose the Directory');            
-    end
-    
+function [] = createDataList(Path)   
     
     % Overwrite old List.json file
     if (exist(fullfile(Path, 'List.json'),'file'))

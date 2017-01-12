@@ -34,9 +34,7 @@ function [] = ExportAtlasJSON(outputPath, imData)
 
     end
     
-    if (~exist('colors','var') || isempty(colors))
-        colors = [0 0 0.5;1 1 0; 1 0 0;0 1 1; 0 1 0; 1 0 1];
-    end
+    colors = imData.ChannelColors;
 
     fprintf(fout,'"ChannelColors" : [');
     for c=1:imData.NumberOfChannels
