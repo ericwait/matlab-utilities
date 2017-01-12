@@ -1,20 +1,24 @@
 function [MetaOut] = FixMeta(MetaIn)
 MetaOut = MetaIn;
 
+defaultmap = [1 0 0; 0 1 0; 0 0 1; 1 1 0; 1 0 1; 0 1 1];
 %% Initalize Colors if they dont exist
 if ~isfield(MetaOut,'ChannelColors') || isempty(MetaOut.ChannelColors)
     if MetaOut.NumberOfChannels == 1
         MetaOut.ChannelColors = ones(MetaOut.NumberOfChannels,3);
-    elseif  MetaOut.NumberOfChannels == 3
-        MetaOut.ChannelColors = diag(MetaOut.NumberOfChannels,3);
     else
-        MetaOut.ChannelColors = prism(MetaOut.NumberOfChannels);
+        MetaOut.ChannelColors = defaultmap(1:MetaOut.NumberOfChannels,:);
     end
 end
 
 %% Initalize channel Names if they dont exist
 if ~isfield(MetaOut,'ChannelNames') || isempty(MetaOut.ChannelNames)
     MetaOut.ChannelNames = arrayfun(@num2str, 1:MetaOut.NumberOfChannels, 'UniformOutput', false);
+end
+
+%% Make sure channel Names are 1x6
+if size(MetaOut.ChannelNames,1) > size(MetaOut.ChannelNames,2)
+MetaOut.ChannelNames = MetaOut.ChannelNames';
 end
 
 %% Initalize Image directory if it doesnt exist

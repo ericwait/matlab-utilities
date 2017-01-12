@@ -39,7 +39,7 @@ else
     [DimX, DimY] = size(imTemp);
     im = zeros(DimX,DimY,imData.NumberOfChannels, imData.NumberOfFrames,'uint8');
     
-    % read all the atlas into 4D data structure
+    %%  read all the atlas into 4D data structure
     for c = 1:imData.NumberOfChannels
         for t = 1:imData.NumberOfFrames
             imName = fullfile(tilePath, sprintf(imInFormat,imData.DatasetName,c,t));
@@ -48,12 +48,13 @@ else
         end
     end
     
-    % TODO: maybe use intensity threshold to identify empty space?
+    %% TODO: maybe use intensity threshold to identify empty space?
     if(nnz(im) <= imData.NumberOfChannels)
         imData.isEmpty = 1;
         MicroscopeData.Web.ExportAtlasJSON(tilePath, imData);
         return;
     else
+
         %% has 2 channels
         if(imData.NumberOfChannels == 2)
             atlasSize = size(im);

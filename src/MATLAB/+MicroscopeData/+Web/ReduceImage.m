@@ -34,8 +34,13 @@ end
 % end
 
 %% Downsample image 
-imIn = imresize(imIn,[tileData.YDimension,tileData.XDimension]);    
-imOut = uint8(imIn);
+if reductions(3) ~= 1
+    sampleZ = round(linspace(1,size(imIn,3),tileData.ZDimension));
+    imIn = imIn(:,:,sampleZ);
+end
+imIn = imresize(imIn,[tileData.YDimension,tileData.XDimension],'method','bilinear');
+ 
+imOut = im2uint8(imIn);
 
 % if (showProgress)
 % %     PrintProgress(0,false);
