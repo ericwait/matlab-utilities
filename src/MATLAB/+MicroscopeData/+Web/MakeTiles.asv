@@ -1,4 +1,5 @@
 function [] = MakeTiles(imData,imOutPath)
+
 Levels = imData.Levels;
 for c = 1:imData.NumberOfChannels
     for t = 1:imData.NumberOfFrames
@@ -31,7 +32,7 @@ for c = 1:imData.NumberOfChannels
                 
                 % Reduce The Image Section
                 fprintf('Creating atlas for level %d, channel %d, time %d, tile %02d%02d%02d \r\n', Levels(L), c, t,x,y,z);
-                [imr] = MicroscopeData.Web.ReduceImage(im(ROI_Y,ROI_X,ROI_Z,1,1), tileData, imData.Reductions(L,:));
+                [imr] = MicroscopeData.Web.ReduceImage(im(ROI_Y,ROI_X,ROI_Z,1,1), tileData, imDatReductions(L,:));
                 %% Reshape Sections to make Atlas
                 MicroscopeData.Web.makeAtlas(imr, tileData,tileDir,c,t);
             end

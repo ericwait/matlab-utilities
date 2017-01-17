@@ -1,20 +1,26 @@
-function [TileDataOut] = ReduceMeta(imDataIn,reductions,x,y,level,maxTextureSize)
+function [TileDataOut] = ReduceMeta(imDataIn,x,y,z,L)
+
+%% Calculate Reductions
+AtlasSize = imDataIn.AtlasSize(L,:);
+nPartitions = imDataIn.nPartitions(L,:);
+Reductions = imDataIn.Reductions(L,:);
 
 PaddingSize = 1;
 %% Downsample Metadata
 TileDataOut = imDataIn;
 
-TileDataOut.Level = level;
-numTilesXY = 2^level;
-TileSizeX = floor((imDataIn.XDimension / numTilesXY)/reductions(2));
-TileSizeY = floor((imDataIn.YDimension / numTilesXY)/reductions(1));
-numPanelsZ = floor(imDataIn.ZDimension / reductions(3));
+% TileDataOut.Level = Levelinfo.BULevel;
+% TileDataOut.TDLevel = Levelinfo.TDLevel;
 
-numPanelsX = floor(maxTextureSize/(TileSizeX + 2*PaddingSize));
-numPanelsX = min(numPanelsX,numPanelsZ);
-numPanelsY = ceil(numPanelsZ / numPanelsX);
+    TileSizeX = floor((imDataIn.Dimensions(1) / nPartitions(1)) / Reductions(1));
+    TileSizeY = floor((imDataIn.Dimensions(2) / nPartitions(2)) / Reductions(2));
+    
+    numPanelsZ = floor((imDataIn.Dimensions(3) / nPartitions(3) / Reductions(3)));
+    numPanelsX = max(floor(AtlasSize(1)/(TileSizeX + 2*PaddingSize)),1);
+    numPanelsX = min(numPanelsX,numPanelsZ);
+    numPanelsY = ceil(numPanelsZ / numPanelsX);
 
-TileDataOut.Reduction = reductions;
+TileDataOut.Reduction = Reductions;
 
 %% Update the Tile Dimensions
 TileDataOut.XDimension = TileSizeX;
@@ -27,25 +33,24 @@ TileDataOut.numImInY = numPanelsY;
 TileDataOut.numImInZ = numPanelsZ;
 
 %% Update the Atlas Dimensions
-TileDataOut.outImWidth = maxTextureSize;
+TileDataOut.outImWidth = AtlasSize(1);
 % reduce atlas Y dimension to smallest power of two
-pwr2 = log2(maxTextureSize/(TileDataOut.YDimension*TileDataOut.numImInY+PaddingSize));
-TileDataOut.outImHeight = maxTextureSize / 2^floor(pwr2);
-TileDataOut = MicroscopeData.Web.ConvertMetadata(TileDataOut);
+pwr2 = log2(AtlasSize(1)/(TileDataOut.YDimension*TileDataOut.numImInY+PaddingSize));
+TileDataOut.outImHeight = AtlasSize(1) / 2^floor(pwr2);
 
 %% Update Channels 
 TileDataOut.NumberOfChannels = imDataIn.NumberOfChannels;
 TileDataOut.ChannelNames = imDataIn.ChannelNames;
 TileDataOut.ChannelColors = imDataIn.ChannelColors;
 %% Update Resolution
-TileDataOut.XPixelPhysicalSize = TileDataOut.PixelPhysicalSize(2) * reductions(2);
-TileDataOut.YPixelPhysicalSize = TileDataOut.PixelPhysicalSize(1) * reductions(1);
-TileDataOut.ZPixelPhysicalSize = TileDataOut.PixelPhysicalSize(3) * reductions(3);
+TileDataOut.PixelPhysicalSize(1) = TileDataOut.PixelPhysicalSize(1) * Reductions(1);
+TileDataOut.PixelPhysicalSize(2) = TileDataOut.PixelPhysicalSize(2) * Reductions(2);
+TileDataOut.PixelPhysicalSize(3) = TileDataOut.PixelPhysicalSize(3) * Reductions(3);
 
 %% Pixel Location
 TileDataOut.XLocation = x;
 TileDataOut.YLocation = y;
-TileDataOut.PaddingSize = 1;
+TileDataOut.ZLocation = z;
 
-TileDataOut = MicroscopeData.Web.ConvertMetadata(TileDataOut);
+TileDataOut.PaddingSize = 1;
 end

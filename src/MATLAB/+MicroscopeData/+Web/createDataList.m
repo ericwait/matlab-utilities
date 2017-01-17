@@ -1,5 +1,19 @@
 function [] = createDataList(Path)   
-    
+
+% Json = MicroscopeData.ReadMetadataFile(fullfile(Path, 'List.json'));
+% List = Json(1).List;
+% Paths = [List{:}];
+% 
+% for i = 1:length(Paths)
+% Path = Paths(i).Path;
+% Roots{i} = Paths(i).Path(1:strfind(Path,'/')-1);  
+% Sub{i} = Paths(i).Path(strfind(Path,'/')+1:end);    
+% end     
+% 
+% newList = [];
+% for i= 1:length(Paths)
+% newList = setfield(newList,Roots,Sub);
+% end
     % Overwrite old List.json file
     if (exist(fullfile(Path, 'List.json'),'file'))
         fout = fopen(fullfile(Path, 'List.json'),'w'); 

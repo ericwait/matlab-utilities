@@ -12,8 +12,8 @@ end
 if (~exist('imData','var') || isempty(imData))
 [imData] = MicroscopeData.ReadMetadata('verbose',true);
 end
+[imData] = MicroscopeData.Web.FixMeta(imData);
 
-[imData] = MicroscopeData.Web.MakeRootMeta(imData,Llist);
 
 %% Make Folder Structure
 inPath = imData.imageDir;
@@ -33,10 +33,10 @@ MicroscopeData.Web.ExportHTML(htmlOutPath, parentFolder, imData.DatasetName);
 MicroscopeData.CreateMetadata(imOutPath, imData);
 MicroscopeData.Web.ExportVesselJSON(imData, imOutPath,[]);
 %% Export Tiles in Tree Structure
-MicroscopeData.Web.MakeTiles(imData,imOutPath);
-fprintf('Atlas exported to %s\n', imOutPath);
-%% Update Json List of Experiments 
-MicroscopeData.Web.createDataList(outPath);
+% MicroscopeData.Web.MakeTiles(imData,imOutPath,Llist);
+% fprintf('Atlas exported to %s\n', imOutPath);
+% %% Update Json List of Experiments 
+ MicroscopeData.Web.createDataList(outPath);
 %% Export Thumbnail
 MicroscopeData.Web.makeThumbnail(imData,imOutPath);
 end

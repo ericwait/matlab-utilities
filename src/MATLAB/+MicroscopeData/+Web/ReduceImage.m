@@ -1,4 +1,4 @@
-function [imOut] = ReduceImage(imIn,tileData,reductions,showProgress,useCUDAMex)
+function [imOut] = ReduceImage(imIn,tileData,reductions,showProgress)
 %REDUCEIMAGETEMP Summary of this function goes here
 %   Detailed explanation goes here
 

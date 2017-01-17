@@ -28,9 +28,12 @@ end
 %% only one channel, just rename it
 if(imData.NumberOfChannels == 1)
     parfor t = 1:imData.NumberOfFrames
+        try 
         imOrgName = fullfile(tilePath, sprintf(imInFormat, imData.DatasetName, 1, t));
         imOutName = fullfile(tilePath, sprintf(imOutFormat, [imData.DatasetName, '_blend'], 1, t));
         movefile(imOrgName,imOutName,'f');
+        catch 
+        end
     end
     
 %% has more than one channel    

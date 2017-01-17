@@ -1,4 +1,4 @@
-function [MetaOut] = MakeRootMeta(imData,Llist)
+function [MetaOut] = MakeRootMeta(MetaIn,Llist)
 MetaOut = MetaIn;
 
 defaultmap = [1 0 0; 0 1 0; 0 0 1; 1 1 0; 1 0 1; 0 1 1];
@@ -28,5 +28,31 @@ if ~isfield(MetaOut,'imageDir') || isempty(MetaOut.imageDir) || any(strfind(Meta
 end
 
 MetaOut.DatasetName = MicroscopeData.Helper.SanitizeString(MetaOut.DatasetName);
+
+%% Make Level Infomation List
+Levelinfo = [];
+for L = 1:length(Llist)
+    Levelinfo(L).TDLevel = Llist(L);
+    for LL = 1:L
+        Levelinfo(LL).BULevel = Llist(L) - Llist(LL);
+    end
+    %% Number of volume Subdivisions
+    nPartitions = max(2^Llist(L),1);
+    Levelinfo(L).nPartitions = [nPartitions,nPartitions,1];
+    %% Size of each volume Subdivision
+    AtlasSize = min(4096*2^(Llist(L)),4096);
+    Levelinfo(L).AtlasSize = [AtlasSize,AtlasSize];
+    %% Calculate Reductions
+    Levelinfo(L).Reductions = MicroscopeData.Web.GetReductions(MetaOut, AtlasSize, Llist(L));
+    %% Stop if image is not reduced
+    if prod(Levelinfo(L).Reductions) == 1
+        break
+    end 
+end
+
+MetaOut.Levels = [Levelinfo(:).BULevel;];
+MetaOut.AtlasSize = vertcat(Levelinfo(:).AtlasSize);
+MetaOut.nPartitions = vertcat(Levelinfo(:).nPartitions);
+MetaOut.Reductions = vertcat(Levelinfo(:).Reductions);
 end
 

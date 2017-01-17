@@ -1,5 +1,5 @@
 %% Put z slices into the atlas texture
-function makeAtlas(im, imData, maxTextureSize,tileDir,c,t)
+function makeAtlas(im, imData,tileDir,c,t)
 imOut = zeros(imData.outImHeight,imData.outImWidth,1,'uint8');
 
 %% pad the atlas to get rid of shader interpolation artifact, for png, 2 is enough
