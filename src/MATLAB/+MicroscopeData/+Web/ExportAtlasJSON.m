@@ -16,7 +16,7 @@ if(imData.isEmpty ~= 1)
 end
 
 
-MicroscopeData.CreateMetadata(outputPath, imData);
+MicroscopeData.CreateMetadata(outputPath, imData,1);
 
 % fout = fopen((fullPath),'w');
 %     fprintf(fout,'{\n\t');

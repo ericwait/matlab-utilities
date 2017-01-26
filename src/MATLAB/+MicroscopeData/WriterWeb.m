@@ -21,10 +21,9 @@ parentFolder = findParentFolder(inPath);
 imOutPath = fullfile(outPath, parentFolder, imData.DatasetName);
 
 if(~exist(outPath, 'dir'));    mkdir(outPath);   end
-
 if(~exist(fullfile(outPath, parentFolder), 'dir'));    mkdir(fullfile(outPath, parentFolder)); end
-
-if(~exist(fullfile(outPath, parentFolder, imData.DatasetName), 'dir'));     mkdir(fullfile(outPath, parentFolder, imData.DatasetName)); end
+if(exist(fullfile(outPath, parentFolder, imData.DatasetName), 'dir'));     rmdir(fullfile(outPath, parentFolder, imData.DatasetName),'s'); end
+mkdir(fullfile(outPath, parentFolder, imData.DatasetName));
 
 %% Export Html
 htmlOutPath = fullfile(outPath, parentFolder);

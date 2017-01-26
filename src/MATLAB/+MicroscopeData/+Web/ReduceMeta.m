@@ -16,7 +16,7 @@ TileDataOut = imDataIn;
     TileSizeY = floor((imDataIn.Dimensions(2) / nPartitions(2)) / Reductions(2));
     
     numPanelsZ = floor((imDataIn.Dimensions(3) / nPartitions(3) / Reductions(3)));
-    numPanelsX = max(floor(AtlasSize(1)/(TileSizeX + 2*PaddingSize)),1);
+    numPanelsX = ceil(sqrt(numPanelsZ));
     numPanelsX = min(numPanelsX,numPanelsZ);
     numPanelsY = ceil(numPanelsZ / numPanelsX);
 
@@ -26,7 +26,7 @@ TileDataOut.Reduction = Reductions;
 TileDataOut.XDimension = TileSizeX;
 TileDataOut.YDimension = TileSizeY;
 TileDataOut.ZDimension = numPanelsZ;
-
+TileDataOut.Dimensions = [TileSizeX,TileSizeY,numPanelsZ];
 %% Update Number of Tiles in Atlas
 TileDataOut.numImInX = numPanelsX;
 TileDataOut.numImInY = numPanelsY;
@@ -35,8 +35,8 @@ TileDataOut.numImInZ = numPanelsZ;
 %% Update the Atlas Dimensions
 TileDataOut.outImWidth = AtlasSize(1);
 % reduce atlas Y dimension to smallest power of two
-pwr2 = log2(AtlasSize(1)/(TileDataOut.YDimension*TileDataOut.numImInY+PaddingSize));
-TileDataOut.outImHeight = AtlasSize(1) / 2^floor(pwr2);
+pwr2 = log2(TileDataOut.numImInY*(TileDataOut.YDimension+2*PaddingSize));
+TileDataOut.outImHeight = 2^ceil(pwr2);
 
 %% Update Channels 
 TileDataOut.NumberOfChannels = imDataIn.NumberOfChannels;

@@ -15,7 +15,7 @@ while (~fit)
     TileSizeY = floor((imDataIn.Dimensions(2) / numTilesXY)/reductionsIn(2));
     numPanelsZ = floor(imDataIn.Dimensions(3) /reductionsIn(3));
       
-    numPanelsX = max(floor(maxTextureSize/(TileSizeX + 2*PaddingSize)),1);
+    numPanelsX = ceil(sqrt(numPanelsZ));
     numPanelsX = min(numPanelsX,numPanelsZ);
     numPanelsY = ceil(numPanelsZ / numPanelsX);
     

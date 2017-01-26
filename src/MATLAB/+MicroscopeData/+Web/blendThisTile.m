@@ -9,9 +9,9 @@ function [] = blendThisTile(tilePath, outputFormat)
 [imData,~,~] = MicroscopeData.ReadMetadata(tilePath);
 imData.DatasetName = MicroscopeData.Helper.SanitizeString(imData.DatasetName);
 
-%     if(imData.isEmpty)
-%         return;
-%     end
+ if(imData.isEmpty)
+    return;
+end
 
 % set the input single channel atlas format
 imInFormat = '%s_c%02d_t%04d.png';
@@ -28,15 +28,15 @@ end
 %% only one channel, just rename it
 if(imData.NumberOfChannels == 1)
     parfor t = 1:imData.NumberOfFrames
-        try 
-        imOrgName = fullfile(tilePath, sprintf(imInFormat, imData.DatasetName, 1, t));
-        imOutName = fullfile(tilePath, sprintf(imOutFormat, [imData.DatasetName, '_blend'], 1, t));
-        movefile(imOrgName,imOutName,'f');
-        catch 
+        try
+            imOrgName = fullfile(tilePath, sprintf(imInFormat, imData.DatasetName, 1, t));
+            imOutName = fullfile(tilePath, sprintf(imOutFormat, [imData.DatasetName, '_blend'], 1, t));
+            movefile(imOrgName,imOutName,'f');
+        catch
         end
     end
     
-%% has more than one channel    
+    %% has more than one channel
 else
     imTemp = imread(fullfile(tilePath, sprintf(imInFormat,imData.DatasetName,1,1)));
     [DimX, DimY] = size(imTemp);
@@ -57,7 +57,7 @@ else
         MicroscopeData.Web.ExportAtlasJSON(tilePath, imData);
         return;
     else
-
+        
         %% has 2 channels
         if(imData.NumberOfChannels == 2)
             atlasSize = size(im);
@@ -100,19 +100,4 @@ else
         end
     end
 end
-end
-
-
-
-function convertToGray(imName)
-
-temp = imread(imName);
-sizeTemp = size(temp);
-if(length(sizeTemp)>2)
-    if(sizeTemp(3) == 3)
-        temp = rgb2gray(temp);
-        imwrite(temp, imName);
-    end
-end
-
 end
