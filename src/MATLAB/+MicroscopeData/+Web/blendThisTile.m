@@ -9,7 +9,7 @@ function [] = blendThisTile(tilePath, outputFormat)
 [imData,~,~] = MicroscopeData.ReadMetadata(tilePath);
 imData.DatasetName = MicroscopeData.Helper.SanitizeString(imData.DatasetName);
 
- if(imData.isEmpty)
+if(imData.isEmpty)
     return;
 end
 
@@ -25,15 +25,13 @@ else
     imOutFormat = '%s_c%02d_t%04d.jpg';
 end
 
-%% only one channel, just rename it
+
 if(imData.NumberOfChannels == 1)
-    parfor t = 1:imData.NumberOfFrames
-        try
-            imOrgName = fullfile(tilePath, sprintf(imInFormat, imData.DatasetName, 1, t));
-            imOutName = fullfile(tilePath, sprintf(imOutFormat, [imData.DatasetName, '_blend'], 1, t));
-            movefile(imOrgName,imOutName,'f');
-        catch
-        end
+    for t = 1%:imData.NumberOfFrames
+        imOrgName = fullfile(tilePath, sprintf(imInFormat, imData.DatasetName, 1, t));
+        imOutName = fullfile(tilePath, sprintf(imOutFormat, [imData.DatasetName, '_blend'], 1, t));
+        %movefile(imOrgName,imOutName,'f');
+        imwrite(imread(imOrgName),imOutName)
     end
     
     %% has more than one channel
@@ -44,7 +42,7 @@ else
     
     %%  read all the atlas into 4D data structure
     for c = 1:imData.NumberOfChannels
-        for t = 1:imData.NumberOfFrames
+        for t = 1%:imData.NumberOfFrames
             imName = fullfile(tilePath, sprintf(imInFormat,imData.DatasetName,c,t));
             %                 convertToGray(imName);
             im(:,:,c,t) = imread(imName);
@@ -52,49 +50,49 @@ else
     end
     
     %% TODO: maybe use intensity threshold to identify empty space?
-    if(nnz(im) <= imData.NumberOfChannels)
-        imData.isEmpty = 1;
-        MicroscopeData.Web.ExportAtlasJSON(tilePath, imData);
-        return;
+    %     if(nnz(im) <= imData.NumberOfChannels)
+    %         imData.isEmpty = 1;
+    %         MicroscopeData.Web.ExportAtlasJSON(tilePath, imData);
+    %         return;
+    %     else
+    
+    %% has 2 channels
+    if(imData.NumberOfChannels == 2)
+        atlasSize = size(im);
+        imEmpty = zeros(atlasSize(1), atlasSize(2), 'uint8');
+        for t = 1%:imData.NumberOfFrames
+            imMix = cat(3,im(:,:,1,t), im(:,:,2,t), imEmpty);
+            imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'], 1, t));
+            imwrite(imMix, imOutName);
+        end
     else
-        
-        %% has 2 channels
-        if(imData.NumberOfChannels == 2)
-            atlasSize = size(im);
-            imEmpty = zeros(atlasSize(1), atlasSize(2), 'uint8');
-            for t = 1:imData.NumberOfFrames
-                imMix = cat(3,im(:,:,1,t), im(:,:,2,t), imEmpty);
-                imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'], 1, t));
-                imwrite(imMix, imOutName);
-            end
-        else
-            %% has more than 2 channels
-            numMix = ceil(imData.NumberOfChannels / 3);
-            remainMix = mod(imData.NumberOfChannels, 3);
-            for t = 1:imData.NumberOfFrames
-                if(remainMix > 0)
-                    for j = 1:numMix -1
-                        imMix = cat(3,im(:,:,3*j -2,t),im(:,:,3*j -1,t),im(:,:,3*j,t));
-                        imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'],j,t));
-                        imwrite(imMix, imOutName);
-                    end
-                    
-                    if(remainMix == 2)
-                        imMix = cat(3,im(:,:,3*numMix -2,t),im(:,:,3*numMix - 1,t));
-                        imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'],numMix,t));
-                        imwrite(imMix, imOutName);
-                    end
-                    
-                    if(remainMix == 1)
-                        imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'],numMix,t));
-                        imwrite(im(:,:,end,t), imOutName);
-                    end
-                else
-                    for j = 1:numMix
-                        imMix = cat(3,im(:,:,3*j -2,t),im(:,:,3*j -1,t),im(:,:,3*j,t));
-                        imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'],j,t));
-                        imwrite(imMix, imOutName);
-                    end
+        %% has more than 2 channels
+        numMix = ceil(imData.NumberOfChannels / 3);
+        remainMix = mod(imData.NumberOfChannels, 3);
+        for t = 1%:imData.NumberOfFrames
+            if (remainMix == 0)
+                for j = 1:numMix
+                    imMix = cat(3,im(:,:,3*j -2,t),im(:,:,3*j -1,t),im(:,:,3*j,t));
+                    imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'],j,t));
+                    imwrite(imMix, imOutName);
+                end  
+                
+            elseif(remainMix > 0)
+                for j = 1:numMix -1
+                    imMix = cat(3,im(:,:,3*j -2,t),im(:,:,3*j -1,t),im(:,:,3*j,t));
+                    imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'],j,t));
+                    imwrite(imMix, imOutName);
+                end
+                
+                if(remainMix == 2)
+                    imMix = cat(3,im(:,:,3*numMix -2,t),im(:,:,3*numMix - 1,t));
+                    imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'],numMix,t));
+                    imwrite(imMix, imOutName);
+                end
+                
+                if(remainMix == 1)
+                    imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'],numMix,t));
+                    imwrite(im(:,:,end,t), imOutName);
                 end
             end
         end
