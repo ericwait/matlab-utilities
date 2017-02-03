@@ -63,20 +63,20 @@ function [im, imD] = ReaderH5(varargin)
         return
     end
 
-    info = h5info(fullfile(imPath,[imD.DatasetName '.h5']));
-    imGrpInfo = info.Groups;
-    if (isempty(imGrpInfo) || ~strcmp(imGrpInfo.Name,'/Images'))
-        error('File structure malformed!');
-    end
-
-    hasMIP = false;
-    if (any(strcmpi([args.imVersion,'_MIP'],{imGrpInfo.Datasets.Name})))
-        hasMIP = true;
-    end
-    if (~any(strcmp(args.imVersion,{imGrpInfo.Datasets.Name})))
-        warning('No images with at this data field!');
-        return
-    end
+%     info = h5info(fullfile(imPath,[imD.DatasetName '.h5']));
+%     imGrpInfo = info.Groups;
+%     if (isempty(imGrpInfo) || ~strcmp(imGrpInfo.Name,'/Images'))
+%         error('File structure malformed!');
+%     end
+% 
+%     hasMIP = false;
+%     if (any(strcmpi([args.imVersion,'_MIP'],{imGrpInfo.Datasets.Name})))
+%         hasMIP = true;
+%     end
+%     if (~any(strcmp(args.imVersion,{imGrpInfo.Datasets.Name})))
+%         warning('No images with at this data field!');
+%         return
+%     end
 
     inType = class(h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion],[1 1 1 1 1],[1 1 1 1 1]));
     inIdx = find(strcmp(inType,dataTypeLookup));
