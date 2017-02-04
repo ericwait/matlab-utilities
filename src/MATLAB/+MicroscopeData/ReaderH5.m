@@ -183,16 +183,28 @@ function [im, imD] = ReaderH5(varargin)
     end
 
     imD.Dimensions = Utils.SwapXY_RC(imSize(1:3));
-    imD.NumberOfChannels = size(im,4);
-    imD.NumberOfFrames = size(im,5);
+    if (ndims(im)>3)
+        imD.NumberOfChannels = size(im,4);
+    else
+        imD.NumberOfChannels = 1;
+    end
+    if (ndims(im)>4)
+        imD.NumberOfFrames = size(im,5);
+    else
+        imD.NumberOfFrames = 1;
+    end
 
     if (isfield(imD,'ChannelNames') && ~isempty(imD.ChannelNames))
-        imD.ChannelNames = imD.ChannelNames(args.chanList)';
+        if(length(imD.ChannelNames)>length(args.chanList))
+            imD.ChannelNames = imD.ChannelNames(args.chanList)';
+        end
     else
         imD.ChannelNames = {};
     end
     if (isfield(imD,'ChannelColors') && ~isempty(imD.ChannelColors))
-        imD.ChannelColors = imD.ChannelColors(args.chanList,:);
+        if (size(imD.ChannelColors,1)>length(args.chanList))
+            imD.ChannelColors = imD.ChannelColors(args.chanList,:);
+        end
     else
         imD.ChannelColors = [];
     end
