@@ -161,6 +161,9 @@ else
     end
 end
 
+if (isfield(args.imageData,'TimeStampDelta'))
+    args.imageData = rmfield(args.imageData,'TimeStampDelta');
+end
 h5writeatt(fileName,'/','Metadata',Utils.CreateJSON(args.imageData,false));
 
 imSize = [diff(Utils.SwapXY_RC(args.roi_xyz),1)+1, length(args.chanList), (args.timeRange(2)-args.timeRange(1)+1)];
