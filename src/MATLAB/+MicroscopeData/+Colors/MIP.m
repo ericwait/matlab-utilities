@@ -10,7 +10,7 @@ if (~exist('colors','var') || isempty(colors))
 end
 
 if (isempty(im))
-    imChans = MicroscopeData.ReaderParZ(imD,[],curChans);
+    error('Image must not be empty!');
 else
     imChans = im(:,:,:,channelList);
 end

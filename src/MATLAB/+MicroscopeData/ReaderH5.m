@@ -63,20 +63,20 @@ function [im, imD] = ReaderH5(varargin)
         return
     end
 
-    info = h5info(fullfile(imPath,[imD.DatasetName '.h5']));
-    imGrpInfo = info.Groups;
-    if (isempty(imGrpInfo) || ~strcmp(imGrpInfo.Name,'/Images'))
-        error('File structure malformed!');
-    end
-
-    hasMIP = false;
-    if (any(strcmpi([args.imVersion,'_MIP'],{imGrpInfo.Datasets.Name})))
-        hasMIP = true;
-    end
-    if (~any(strcmp(args.imVersion,{imGrpInfo.Datasets.Name})))
-        warning('No images with at this data field!');
-        return
-    end
+%     info = h5info(fullfile(imPath,[imD.DatasetName '.h5']));
+%     imGrpInfo = info.Groups;
+%     if (isempty(imGrpInfo) || ~strcmp(imGrpInfo.Name,'/Images'))
+%         error('File structure malformed!');
+%     end
+% 
+%     hasMIP = false;
+%     if (any(strcmpi([args.imVersion,'_MIP'],{imGrpInfo.Datasets.Name})))
+%         hasMIP = true;
+%     end
+%     if (~any(strcmp(args.imVersion,{imGrpInfo.Datasets.Name})))
+%         warning('No images with at this data field!');
+%         return
+%     end
 
     inType = class(h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion],[1 1 1 1 1],[1 1 1 1 1]));
     inIdx = find(strcmp(inType,dataTypeLookup));
@@ -183,16 +183,28 @@ function [im, imD] = ReaderH5(varargin)
     end
 
     imD.Dimensions = Utils.SwapXY_RC(imSize(1:3));
-    imD.NumberOfChannels = size(im,4);
-    imD.NumberOfFrames = size(im,5);
+    if (ndims(im)>3)
+        imD.NumberOfChannels = size(im,4);
+    else
+        imD.NumberOfChannels = 1;
+    end
+    if (ndims(im)>4)
+        imD.NumberOfFrames = size(im,5);
+    else
+        imD.NumberOfFrames = 1;
+    end
 
     if (isfield(imD,'ChannelNames') && ~isempty(imD.ChannelNames))
-        imD.ChannelNames = imD.ChannelNames(args.chanList)';
+        if(length(imD.ChannelNames)>length(args.chanList))
+            imD.ChannelNames = imD.ChannelNames(args.chanList)';
+        end
     else
         imD.ChannelNames = {};
     end
     if (isfield(imD,'ChannelColors') && ~isempty(imD.ChannelColors))
-        imD.ChannelColors = imD.ChannelColors(args.chanList,:);
+        if (size(imD.ChannelColors,1)>length(args.chanList))
+            imD.ChannelColors = imD.ChannelColors(args.chanList,:);
+        end
     else
         imD.ChannelColors = [];
     end
