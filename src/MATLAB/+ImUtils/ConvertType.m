@@ -13,6 +13,12 @@ if (~exist('normalize','var') || isempty(normalize))
     normalize = 0;
 end
 
+w = whos('imageIn');
+if (strcmpi(w.class,typ) && ~normalize)
+    imageOut = imageIn;
+    return
+end
+
 if (~strcmpi(typ,'logical'))
     imageOut = zeros(size(imageIn),typ);
 else
@@ -20,7 +26,6 @@ else
 end
 
 % deal with images that come in as 16 bit but are really a lesser bit depth
-w = whos('imageIn');
 if (strcmpi(w.class,'uint16'))
     imMax = max(imageIn(:));
     maxTypes = [2^8-1,2^10-1,2^12-1];
