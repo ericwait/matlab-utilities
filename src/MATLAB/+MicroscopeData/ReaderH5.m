@@ -144,12 +144,7 @@ function [im, imD] = ReaderH5(varargin)
         for c=1:length(args.chanList)
             for t=1:imSize(5)
                 if (args.getMIP)
-                    if (hasMIP)
-                        tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion,'_MIP'], [Utils.SwapXY_RC(args.roi_xyz(1,1:2)) 1 args.chanList(c) t+args.timeRange(1)-1], [imSize(1:2) 1 1 1]);
-                    else
-                        tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion], [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t+args.timeRange(1)-1], [imSize(1:3) 1 1]);
-                        tempIm = max(tempIm,[],3);
-                    end
+                    tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion,'_MIP'], [Utils.SwapXY_RC(args.roi_xyz(1,1:2)) 1 args.chanList(c) t+args.timeRange(1)-1], [imSize(1:2) 1 1 1]);
                 else
                     tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion], [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) t+args.timeRange(1)-1], [imSize(1:3) 1 1]);
                 end
