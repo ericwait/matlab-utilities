@@ -28,6 +28,10 @@ else
     end
 end
 
+if (length(seriesImages)==1)
+    seriesImages = seriesImages{1};
+end
+
 prgs.ClearProgress();
 end
 

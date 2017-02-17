@@ -119,6 +119,10 @@ end
 
 prgs.ClearProgress();
 
+if (length(seriesMetadata)==1)
+    seriesMetadata = seriesMetadata{1};
+end
+
 if (nargout>1)
     varargout{1} = omeMetadata;
 end

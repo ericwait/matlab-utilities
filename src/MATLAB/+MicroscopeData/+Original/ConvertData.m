@@ -66,6 +66,12 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
     
     im = MicroscopeData.Original.ReadImages(imDir,imName);
     prgs = Utils.CmdlnProgress(length(imD),quiet,['Writing out ',datasetName]);
+    if (~iscell(imD))
+        imDcell = {};
+        imDcell{1} = imD;
+    else
+        imDcell = imD;
+    end
     for i=1:length(imD)
         if (cleanName)
             imD{i}.DatasetName = MicroscopeData.Helper.SanitizeString(imD{i}.DatasetName);
