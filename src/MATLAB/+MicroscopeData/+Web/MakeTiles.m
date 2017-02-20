@@ -7,10 +7,12 @@ if exist(maskDir,'file');   mask = imread(maskDir);
 else;     mask = [];
 end 
 
-for t = 1%:imData.NumberOfFrames
+for t = 1:imData.NumberOfFrames
     for c = 1:imData.NumberOfChannels
             %% Get Image Chunk
-        [im] = mat2gray(MicroscopeData.Reader('imageData',imData,'chanList',c,'timeRange',[t t],'outType','uint8','verbose',true));
+        [im] = MicroscopeData.Reader('imageData',imData,'chanList',c,'timeRange',[t t],'outType','uint8','verbose',true);
+        %im = im2uint8(mat2gray(im));
+        
         %% For each tile...
         for L = 1:length(Levels)
             
@@ -19,12 +21,14 @@ for t = 1%:imData.NumberOfFrames
             nPartZ = imData.nPartitions(L,3);
             
             [TileListX,TileListY,TileListZ] = meshgrid(0:nPartX-1, 0:nPartY-1, 0:nPartZ-1);
-            fprintf(['Creating atlas for level %d,', imData.DatasetName,'\r\n'],Levels(L));
+            fprintf(['Creating atlas for level %d, ', imData.DatasetName,'\r\n'],Levels(L));
             for i = 1:numel(TileListX)
                 x = TileListX(i);        y = TileListY(i);    z = TileListZ(i);
                 %% Make Tree File Structure
                 tileDir = fullfile(imOutPath, num2str(Levels(L)), sprintf('%02d%02d%02d', x, y, z));
-                if ~exist(tileDir, 'dir');  mkdir(tileDir); end
+                if ~exist(tileDir, 'dir');  mkdir(tileDir); 
+                %else; continue;                
+                end
                 
                 %% Get Region of Interest
                 ROI_X = round(x*imData.Dimensions(1)/nPartX + 1:(x+1)*imData.Dimensions(1)/nPartX);
@@ -51,22 +55,5 @@ for t = 1%:imData.NumberOfFrames
         end
     end 
 end
-
-%% Blend The Tiles
-for L = 1:numel(Levels)
-    fprintf(['Creating atlas for level %d,', imData.DatasetName,'\r\n'],Levels(L));
-    nPartX = imData.nPartitions(L,1);
-    nPartY = imData.nPartitions(L,2);
-    nPartZ = imData.nPartitions(L,3);
-    [TileListX,TileListY,TileListZ] = meshgrid(0:nPartX-1, 0:nPartY-1, 0:nPartZ-1);
-    for i = 1:numel(TileListX)
-        x = TileListX(i);        y = TileListY(i);    z = TileListZ(i);
-        tileDir = fullfile(imOutPath, num2str(Levels(L)), sprintf('%02d%02d%02d', x, y, z));
-        %% Create blended atlas
-        MicroscopeData.Web.blendThisTile(tileDir, 'png');
-    end
-
-end
-fprintf('Atlas exported to %s\n', imOutPath);
 end
 

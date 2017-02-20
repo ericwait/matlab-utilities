@@ -27,7 +27,7 @@ end
 
 
 if(imData.NumberOfChannels == 1)
-    for t = 1%:imData.NumberOfFrames
+    for t = 1:imData.NumberOfFrames
         imOrgName = fullfile(tilePath, sprintf(imInFormat, imData.DatasetName, 1, t));
         imOutName = fullfile(tilePath, sprintf(imOutFormat, [imData.DatasetName, '_blend'], 1, t));
         %movefile(imOrgName,imOutName,'f');
@@ -42,7 +42,7 @@ else
     
     %%  read all the atlas into 4D data structure
     for c = 1:imData.NumberOfChannels
-        for t = 1%:imData.NumberOfFrames
+        for t = 1:imData.NumberOfFrames
             imName = fullfile(tilePath, sprintf(imInFormat,imData.DatasetName,c,t));
             %                 convertToGray(imName);
             im(:,:,c,t) = imread(imName);
@@ -60,7 +60,7 @@ else
     if(imData.NumberOfChannels == 2)
         atlasSize = size(im);
         imEmpty = zeros(atlasSize(1), atlasSize(2), 'uint8');
-        for t = 1%:imData.NumberOfFrames
+        for t = 1:imData.NumberOfFrames
             imMix = cat(3,im(:,:,1,t), im(:,:,2,t), imEmpty);
             imOutName = fullfile(tilePath, sprintf(imOutFormat,[imData.DatasetName, '_blend'], 1, t));
             imwrite(imMix, imOutName);
@@ -69,7 +69,7 @@ else
         %% has more than 2 channels
         numMix = ceil(imData.NumberOfChannels / 3);
         remainMix = mod(imData.NumberOfChannels, 3);
-        for t = 1%:imData.NumberOfFrames
+        for t = 1:imData.NumberOfFrames
             if (remainMix == 0)
                 for j = 1:numMix
                     imMix = cat(3,im(:,:,3*j -2,t),im(:,:,3*j -1,t),im(:,:,3*j,t));
