@@ -1,9 +1,8 @@
 %% anisotropic downsampling of the montage data, i.e., the Z dimension is
 % not downsampled, only in X and Y since X and Y are much larger than Z
-function [reductionsOut] = GetReductions(imDataIn, maxTextureSize, level)
+function [reductionsOut] = GetReductions(imDataIn, maxTextureSize,NumTiles)
 
 PaddingSize = 1;
-numTilesXY = 2^level;
 
 %Make New Metadata for Tiles
 fit = false;
@@ -11,9 +10,9 @@ reductionsIn = [1 1 1];
 
 while (~fit)
     
-    TileSizeX = floor((imDataIn.Dimensions(1) / numTilesXY)/reductionsIn(1));
-    TileSizeY = floor((imDataIn.Dimensions(2) / numTilesXY)/reductionsIn(2));
-    numPanelsZ = floor(imDataIn.Dimensions(3) /reductionsIn(3));
+    TileSizeX  = floor((imDataIn.Dimensions(1) / NumTiles(1))/reductionsIn(1));
+    TileSizeY  = floor((imDataIn.Dimensions(2) / NumTiles(2))/reductionsIn(2));
+    numPanelsZ = floor((imDataIn.Dimensions(3) / NumTiles(3))/reductionsIn(3));
       
     numPanelsX = ceil(sqrt(numPanelsZ));
     numPanelsX = min(numPanelsX,numPanelsZ);

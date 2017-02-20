@@ -43,7 +43,7 @@ for L = 1:length(Llist)
     AtlasSize = min(4096*2^(Llist(L)),4096);
     Levelinfo(L).AtlasSize = [AtlasSize,AtlasSize];
     %% Calculate Reductions
-    Levelinfo(L).Reductions = MicroscopeData.Web.GetReductions(MetaOut, AtlasSize, Llist(L));
+    Levelinfo(L).Reductions = MicroscopeData.Web.GetReductions(MetaOut, AtlasSize, Levelinfo(L).nPartitions);
     %% Stop if image is not reduced
     if prod(Levelinfo(L).Reductions) == 1
         break
