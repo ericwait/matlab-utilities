@@ -7,10 +7,11 @@
 function [imOut, imData] = ReadBlendedTile(root, channelList, AtlasColorChannels)
 	
 if (~exist('root','var') || isempty(root))
-    root = uigetdir('B:\javascript\experiments\Itga9 WT2 Deep Labels 8-04-13_pad1\DAPI GFAP-514 laminin-488 EdU-647\4\1413','Choose Output Directory');
+return   
+   %root = uigetdir('B:\javascript\experiments\Itga9 WT2 Deep Labels 8-04-13_pad1\DAPI GFAP-514 laminin-488 EdU-647\4\1413','Choose Output Directory');
 end
 
-imData = MicroscopeData.ReadMetadata(root);
+imData = MicroscopeData.ReadMetadata(root,0);
 if (~exist('AtlasColorChannels','var') || isempty(AtlasColorChannels))
     AtlasColorChannels = min(3,imData.NumberOfChannels);
 end
