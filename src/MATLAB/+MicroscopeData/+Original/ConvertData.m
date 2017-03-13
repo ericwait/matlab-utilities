@@ -59,28 +59,27 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
         outDir = fullfile(outDir,datasetName);
     end
     
+    if ( ~iscell(imD) )
+        imD = {imD};
+    end
+    
     % Don't overwrite images that already exist
     if (exist(fullfile(outDir,imD{1}.DatasetName),'dir') && ~overwrite)
         return;
     end
     
-    im = MicroscopeData.Original.ReadImages(imDir,imName);
     prgs = Utils.CmdlnProgress(length(imD),quiet,['Writing out ',datasetName]);
-    if (~iscell(imD))
-        imDcell = {};
-        imDcell{1} = imD;
-    else
-        imDcell = imD;
-    end
     for i=1:length(imD)
         if (cleanName)
             imD{i}.DatasetName = MicroscopeData.Helper.SanitizeString(imD{i}.DatasetName);
         end
         if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite)
+            im = MicroscopeData.Original.ReadImages(imDir,imName);
+            
             if (makeH5)
-                MicroscopeData.WriterH5(im{i},fullfile(outDir,imD{i}.DatasetName),'imageData',imD{i},'verbose',~quiet);
+                MicroscopeData.WriterH5(im,fullfile(outDir,imD{i}.DatasetName),'imageData',imD{i},'verbose',~quiet);
             else
-                MicroscopeData.Writer(im{i},fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],~quiet);
+                MicroscopeData.Writer(im,fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],~quiet);
             end
         end
         prgs.PrintProgress(i);
