@@ -1,5 +1,6 @@
 function verInfo = LoadVersion()
     %% Use compiled VersionInfo function when deployed
+    verInfo = [];
     if ( isdeployed )
         verInfo = Dev.VersionInfo();
         return;
@@ -7,9 +8,8 @@ function verInfo = LoadVersion()
     
     %% Try to load version tag and branch using git
     bFoundGit = Dev.SetupGit();
-    verInfo = [];
     if ( bFoundGit )
-        chkVerInfo = gitVersionInfo();
+        verInfo = gitVersionInfo();
     end
     
     %% Use fallback file for name (set by Dev.MakeVersion)
@@ -21,15 +21,13 @@ function verInfo = LoadVersion()
         return;
     end
     
-    if ( isempty(chkVerInfo) )
+    if ( isempty(verInfo) )
         fprintf('WARNING: Could not find git directory, using fallback %s\n', fallbackFile);
-        chkVerInfo = fallbackVerInfo;
+        verInfo = fallbackVerInfo;
     end
     
     % Always use the name from fallback file
-    chkVerInfo.name = fallbackVerInfo.name;
-    
-    verInfo = chkVerInfo;
+    verInfo.name = fallbackVerInfo.name;
 end
 
 %% Read fallback json version file
