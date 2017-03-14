@@ -37,7 +37,7 @@ for i=1:length(folderList)
     
     if (folderList(i).isdir)
         subDirs = fullfile(subDirsIn,folderList(i).name);
-        MicroscopeData.Original.ConvertDir(fullfile(readPath,folderList(i).name),outDir,subDirs,overwrite,includeTiff);
+        MicroscopeData.Original.ConvertDir(fullfile(readPath,folderList(i).name),outDir,subDirs,overwrite,includeTiff,cleanName);
     else
         [~,~,exten] = fileparts(folderList(i).name);
         if (strcmpi(exten,'.lif') || strcmpi(exten,'.lsm') || strcmpi(exten,'.zvi') || strcmpi(exten,'.nd2') ||...
