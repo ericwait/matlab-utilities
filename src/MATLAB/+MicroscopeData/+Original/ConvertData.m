@@ -1,7 +1,5 @@
-function [ im, imD ] = ConvertData( imDir, imName, outDir, makeH5, overwrite, quiet, cleanName)
+function imD = ConvertData( imDir, imName, outDir, makeH5, overwrite, quiet, cleanName)
 %[ im, imD ] = MicroscopeData.Original.ConvertData( imDir, imName, outDir, makeH5, overwrite, quiet, cleanName)
-
-im = [];
 imD = [];
 
 if (~exist('makeH5','var') || isempty(makeH5))
@@ -29,7 +27,7 @@ end
 if (~exist('outDir','var') || isempty(outDir))
     outDir = uigetdir('.','Choose a folder to output to');
     if (outDir==0)
-        warning('No where to write!');
+        warning('Nowhere to write!');
         return
     end
 end
@@ -61,26 +59,13 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
         imD = {imD};
     end
     
-    if ( ~iscell(imD) )
-        imD = {imD};
-    end
-    
-    % Don't overwrite images that already exist
-    if (exist(fullfile(outDir,imD{1}.DatasetName),'dir') && ~overwrite)
-        return;
-    end
-    
-    im = MicroscopeData.Original.ReadImages(imDir,imName);
     prgs = Utils.CmdlnProgress(length(imD),quiet,['Writing out ',datasetName]);
-    if (~iscell(im))
-        im = {im};
-    end
     for i=1:length(imD)
         if (cleanName)
             imD{i}.DatasetName = MicroscopeData.Helper.SanitizeString(imD{i}.DatasetName);
         end
         if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite)
-            im = MicroscopeData.Original.ReadImages(imDir,imName);
+            im = MicroscopeData.Original.ReadImages(imDir,imName,i);
             
             if (makeH5)
                 MicroscopeData.WriterH5(im,fullfile(outDir,imD{i}.DatasetName),'imageData',imD{i},'verbose',~quiet);
