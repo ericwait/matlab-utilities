@@ -21,8 +21,8 @@ for series=0:bfReader.getSeriesCount()-1
     bfReader.setSeries(series);
 
     imageData = [];
-
-    [~,imageData.DatasetName,~] = fileparts(char(omeMetadata.getImageName(series)));
+    
+    imageData.DatasetName = parseImageName(char(omeMetadata.getImageName(series)), datasetExt);
 
     imageData.Dimensions = [safeGetValue(omeMetadata.getPixelsSizeX(series)),...
                             safeGetValue(omeMetadata.getPixelsSizeY(series)),...
@@ -129,6 +129,40 @@ end
 if (nargout>2)
     varargout{2} = orgMetadata;
 end
+end
+
+% Remove extension from image names while maintaining series information
+function datasetName = parseImageName(imageName, datasetExt)
+    datasetName = imageName;
+
+    extPattern = '(\.\w+?)';
+    if ( ~isempty(datasetExt) )
+        extPattern = ['(' regexptranslate('escape', datasetExt) ')'];
+    end
+    
+    tokMatch = regexp(imageName,['(.+?)' extPattern '\s*(.*)'], 'tokens','once');
+    if ( isempty(tokMatch) )
+        return;
+    end
+    
+    datasetName = [tokMatch{1} '_' parseSuffix(tokMatch{3})];
+end
+
+function seriesSuffix = parseSuffix(suffixString)
+    seriesSuffix = suffixString;
+    
+    % Strip leading spaces and surrounding parens
+    tokMatch = regexp(suffixString,'^\s*\(?(.+?)\)?\s*$','tokens','once');
+    if ( isempty(tokMatch) )
+        return;
+    end
+    
+    seriesSuffix = tokMatch{1};
+    
+    abbrev = {'series','s'; 'position','p'};
+    for i=1:size(abbrev,1)
+        seriesSuffix = regexprep(seriesSuffix,[abbrev{i,1} '\s*' '(\d+)'], [abbrev{i,2} '$1']);
+    end
 end
 
 function ind = calcPlaneInd(order,z,c,t,imageData)
