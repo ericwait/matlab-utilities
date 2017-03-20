@@ -44,7 +44,7 @@ for i=1:length(folderList)
                 strcmpi(exten,'.oif') || strcmpi(exten,'.czi') || strcmpi(exten,'.stk') || (strcmpi(exten,'.tif') && includeTiff))
             fprintf('%s ...\n',fullfile(readPath,folderList(i).name));
             tic
-            MicroscopeData.Original.ConvertData(readPath,folderList(i).name,fullfile(outDir,subDirsIn),true,overwrite,cleanName);
+            MicroscopeData.Original.ConvertData(readPath,folderList(i).name,fullfile(outDir,subDirsIn),false,overwrite,cleanName);
             fprintf('took %s\n\n',Utils.PrintTime(toc));
         end
     end
