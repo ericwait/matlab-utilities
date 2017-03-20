@@ -22,7 +22,7 @@ for series=0:bfReader.getSeriesCount()-1
 
     imageData = [];
     
-    imageData.DatasetName = parseImageName(char(omeMetadata.getImageName(series)), datasetExt);
+    imageData.DatasetName = parseImageName(char(omeMetadata.getImageName(series)), datasetExt, bfReader.getSeriesCount());
 
     imageData.Dimensions = [safeGetValue(omeMetadata.getPixelsSizeX(series)),...
                             safeGetValue(omeMetadata.getPixelsSizeY(series)),...
@@ -132,7 +132,7 @@ end
 end
 
 % Remove extension from image names while maintaining series information
-function datasetName = parseImageName(imageName, datasetExt)
+function datasetName = parseImageName(imageName, datasetExt, numSeries)
     datasetName = imageName;
 
     extPattern = '(\.\w+?)';
@@ -142,6 +142,12 @@ function datasetName = parseImageName(imageName, datasetExt)
     
     tokMatch = regexp(imageName,['(.+?)' extPattern '\s*(.*)'], 'tokens','once');
     if ( isempty(tokMatch) )
+        return;
+    end
+    
+    % Drop the series suffix if there's only one
+    if ( numSeries == 1 )
+        datasetName = tokMatch{1};
         return;
     end
     
