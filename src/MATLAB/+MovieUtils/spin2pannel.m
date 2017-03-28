@@ -49,6 +49,7 @@ for j=1:2
     D3d.Viewer.TextureLighting(true);
     
     D3d.Viewer.SetWindowSize(1920/2,1080);    
+    D3d.Viewer.SetCaptureSize(1920/2,1080);
     D3d.Viewer.ShowFrameNumber(true);
     D3d.Viewer.ShowScaleBar(true);
     D3d.Viewer.ShowWidget(false);
