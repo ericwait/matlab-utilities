@@ -14,7 +14,7 @@ str = strrep(str, '=', '');
 str = strrep(str, '+', '');
 str = strrep(str, '$', '');
 str = strrep(str, ',', '');
-str = strrep(str, '/', '');
+str = strrep(str, '/', '_');
 str = strrep(str, '?', '');
 str = strrep(str, '#', '');
 str = strrep(str, '[', '');
