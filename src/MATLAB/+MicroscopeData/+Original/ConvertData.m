@@ -70,6 +70,7 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
             
             MicroscopeData.WriterH5(im,outDir,'imageData',imD{i},'verbose',~quiet);
             if ( generateJPG )
+                im = ImUtils.ConvertType(im,'uint8',true);
                 MicroscopeData.WriterJPG(im,fullfile(outDir,imD{i}.DatasetName),'imageData',imD{i},'verbose',~quiet);
             end
         end
