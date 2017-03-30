@@ -60,7 +60,7 @@ for series=0:bfReader.getSeriesCount()-1
 
     imageData.ChannelNames = cell(imageData.NumberOfChannels,1);
     for c=1:imageData.NumberOfChannels
-        colr = char(omeMetadata.getChannelName(series,c-1));
+        colr = deblank(char(omeMetadata.getChannelName(series,c-1)));
 
         if (isempty(colr))
             colr = sprintf('Channel:%d',c);
