@@ -137,7 +137,7 @@ for t=args.timeRange(1):args.timeRange(2)
             chan = args.chanList(c);
             imFilename = [args.imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.jpg',chan,t,z)];
             
-            im8 = ImUtils.ConvertType(im(:,:,z,chan,t),'uint8');
+            im8 = ImUtils.ConvertType(im(:,:,z,chan,t),'uint8',true);
             imwrite(im8,fullfile(outDir,imFilename),'jpg');
             
             if (args.verbose)
