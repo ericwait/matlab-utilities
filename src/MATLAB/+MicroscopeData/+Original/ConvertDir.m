@@ -37,14 +37,14 @@ for i=1:length(folderList)
     
     if (folderList(i).isdir)
         subDirs = fullfile(subDirsIn,folderList(i).name);
-        MicroscopeData.Original.ConvertDir(fullfile(readPath,folderList(i).name),outDir,subDirs,overwrite,includeTiff);
+        MicroscopeData.Original.ConvertDir(fullfile(readPath,folderList(i).name),outDir,subDirs,overwrite,includeTiff,cleanName);
     else
         [~,~,exten] = fileparts(folderList(i).name);
         if (strcmpi(exten,'.lif') || strcmpi(exten,'.lsm') || strcmpi(exten,'.zvi') || strcmpi(exten,'.nd2') ||...
                 strcmpi(exten,'.oif') || strcmpi(exten,'.czi') || strcmpi(exten,'.stk') || (strcmpi(exten,'.tif') && includeTiff))
             fprintf('%s ...\n',fullfile(readPath,folderList(i).name));
             tic
-            MicroscopeData.Original.ConvertData(readPath,folderList(i).name,fullfile(outDir,subDirsIn),true,overwrite,cleanName);
+            MicroscopeData.Original.ConvertData(readPath,folderList(i).name,fullfile(outDir,subDirsIn),true,overwrite,false,cleanName);
             fprintf('took %s\n\n',Utils.PrintTime(toc));
         end
     end
