@@ -1,4 +1,4 @@
-function ConvertDir(readPath,outDir,subDirsIn,overwrite,includeTiff,cleanName)
+function ConvertDir(readPath,outDir,overwrite,includeTiff,cleanName)
 %convertDir Recursivly converts microscope data to tiff files plus metadata
 %           text
 %   Walks through the dirPath and converts all microscope data found in the
@@ -16,9 +16,6 @@ if (~exist('outDir','var') || isempty(outDir))
     outDir = uigetdir('.',['Choose destination folder for source: ' name]);
     if (outDir==0), return, end
 end
-if (~exist('subDirsIn','var'))
-    subDirsIn = '.';
-end
 
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
@@ -31,29 +28,40 @@ if (~exist('cleanName','var'))
     cleanName = true;
 end
 
-folderList = dir(readPath);
-for i=1:length(folderList)
-    if (strcmp(folderList(i).name,'.') || strcmp(folderList(i).name,'..')), continue, end
-    
-    if (folderList(i).isdir)
-        subDirs = fullfile(subDirsIn,folderList(i).name);
-        MicroscopeData.Original.ConvertDir(fullfile(readPath,folderList(i).name),outDir,subDirs,overwrite,includeTiff,cleanName);
-    else
-        [~,~,exten] = fileparts(folderList(i).name);
-        if ( ~MicroscopeData.Original.CanExportFormat({folderList(i).name}) )
-            continue;
-        end
-        
-        if ( (any(strcmpi(exten,{'.tif','.tiff'})) && ~includeTiff) )
-            continue;
-        end
-        
-        fprintf('%s ...\n',fullfile(readPath,folderList(i).name));
-        tic
-        MicroscopeData.Original.ConvertData(readPath,folderList(i).name,fullfile(outDir,subDirsIn),true,overwrite,false,cleanName);
-        fprintf('took %s\n\n',Utils.PrintTime(toc));
-    end
-end
+recursiveConverDir(readPath,outDir,'', overwrite,includeTiff,cleanName);
 
 system(sprintf('dir "%s" /B /O:N /A:D > "%s\\list.txt"',outDir,outDir));
+end
+
+function recursiveConverDir(rootDir,outDir,subDir, overwrite,includeTiff,cleanName)
+    folderList = dir(rootDir);
+    
+    bInvalidName = arrayfun(@(x)(strncmpi(x.name,'.',1) || strncmpi(x.name,'..',2)), folderList);
+    bValidDir = ~bInvalidName & (vertcat(folderList.isdir) > 0);
+    
+    dirList = folderList(bValidDir);
+    fileList = folderList(vertcat(folderList.isdir) == 0);
+    
+    fileNames = {fileList.name}.';
+    [bCanExport,guessType] = MicroscopeData.Original.CanExportFormat(fileNames);
+    
+    guessType = guessType(bCanExport);
+    fileNames = fileNames(bCanExport);
+    
+    for i=1:length(fileNames)
+        [~,~,fext] = fileparts(fileNames{i});
+        if ( any(strcmpi(fext,{'.tif','.tiff'})) && ~includeTiff )
+            continue;
+        end
+        
+        fprintf('Export %s (%s) ...\n',fullfile(rootDir,subDir,fileNames{i}),guessType{i});
+        tic
+        MicroscopeData.Original.ConvertData(fullfile(rootDir,subDir),fileNames{i},fullfile(outDir,subDir),true,overwrite,false,cleanName);
+        fprintf('took %s\n\n',Utils.PrintTime(toc));
+    end
+    
+    for i=1:length(dirList)
+        newSubDir = fullfile(subDir, dirList(i).name);
+        recursiveConverDir(rootDir,outDir,newSubDir, overwrite,includeTiff,cleanName)
+    end
 end
