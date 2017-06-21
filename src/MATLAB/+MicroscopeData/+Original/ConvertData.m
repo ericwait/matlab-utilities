@@ -33,7 +33,7 @@ if (~exist('outDir','var') || isempty(outDir))
 end
 
 if (~exist('cleanName','var') || isempty(cleanName))
-    cleanName = false;
+    cleanName = true;
 end
 
 if (cleanName)
