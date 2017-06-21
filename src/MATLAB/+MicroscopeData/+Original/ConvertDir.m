@@ -28,7 +28,7 @@ if (~exist('includeTiff','var') || isempty(includeTiff))
     includeTiff = false;
 end
 if (~exist('cleanName','var'))
-    cleanName = [];
+    cleanName = true;
 end
 
 folderList = dir(readPath);
