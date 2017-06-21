@@ -36,10 +36,6 @@ if (~exist('cleanName','var') || isempty(cleanName))
     cleanName = true;
 end
 
-if (cleanName)
-    outDir = MicroscopeData.Helper.CreateUniqueWordedPath(outDir);
-end
-
 [~,name,~] = fileparts(imName);
 
 if (~exist(fullfile(outDir,name),'dir') || overwrite)
