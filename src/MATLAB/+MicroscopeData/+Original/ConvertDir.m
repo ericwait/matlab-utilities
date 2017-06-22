@@ -28,13 +28,13 @@ if (~exist('cleanName','var'))
     cleanName = true;
 end
 
-recursiveConverDir(readPath,outDir,'', overwrite,includeTiff,cleanName);
+recursiveConvertDir(readPath,outDir,'', overwrite,includeTiff,cleanName);
 
 system(sprintf('dir "%s" /B /O:N /A:D > "%s\\list.txt"',outDir,outDir));
 end
 
-function recursiveConverDir(rootDir,outDir,subDir, overwrite,includeTiff,cleanName)
-    folderList = dir(rootDir);
+function recursiveConvertDir(rootDir,outDir,subDir, overwrite,includeTiff,cleanName)
+    folderList = dir(fullfile(rootDir,subDir));
     
     bInvalidName = arrayfun(@(x)(strncmpi(x.name,'.',1) || strncmpi(x.name,'..',2)), folderList);
     bValidDir = ~bInvalidName & (vertcat(folderList.isdir) > 0);
@@ -62,6 +62,6 @@ function recursiveConverDir(rootDir,outDir,subDir, overwrite,includeTiff,cleanNa
     
     for i=1:length(dirList)
         newSubDir = fullfile(subDir, dirList(i).name);
-        recursiveConverDir(rootDir,outDir,newSubDir, overwrite,includeTiff,cleanName)
+        recursiveConvertDir(rootDir,outDir,newSubDir, overwrite,includeTiff,cleanName)
     end
 end
