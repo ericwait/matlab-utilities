@@ -38,7 +38,7 @@ addParameter(p,'imageData',[],@isstruct);
 
 addParameter(p,'chanList',[],@isvector);
 addParameter(p,'timeRange',[],@(x)(numel(x)==2));
-addParameter(p,'roi_xyz',[],@(x)(size(x)==[2,3]));
+addParameter(p,'roi_xyz',[],@(x)(all(size(x)==[2,3])));
 addParameter(p,'imVersion','Original',@ischar);
 
 addParameter(p,'verbose',false,@islogical);
@@ -48,6 +48,8 @@ args = p.Results;
 
 outDir = '';
 datasetName = '';
+
+% If a path is specified we will use that instead of imageDir in matadata
 if ( ~isempty(args.path) )
     [outDir,chkFile,chkExt] = fileparts(args.path);
     if ( ~isempty(chkExt) )
