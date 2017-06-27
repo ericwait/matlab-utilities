@@ -41,16 +41,8 @@ addParameter(p,'verbose',false,@islogical);
 parse(p,varargin{:});
 args = p.Results;
 
-outDir = '';
-datasetName = '';
-if ( ~isempty(args.path) )
-    [outDir,chkFile,chkExt] = fileparts(args.path);
-    if ( ~isempty(chkExt) )
-        datasetName = chkFile;
-    else
-        outDir = args.path;
-    end
-end
+% If a path is specified we will use that instead of imageDir in matadata
+[outDir,datasetName] = MicroscopeData.Helper.ParsePathArg(args.path,'.jpg');
 
 if ( ~isempty(args.datasetName) )
     datasetName = args.datasetName;
