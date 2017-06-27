@@ -28,12 +28,12 @@ if (~exist('cleanName','var'))
     cleanName = true;
 end
 
-recursiveConvertDir(readPath,outDir,'', overwrite,includeTiff,cleanName);
+recursiveConvertDir(readPath,outDir,'','', overwrite,includeTiff,cleanName);
 
 system(sprintf('dir "%s" /B /O:N /A:D > "%s\\list.txt"',outDir,outDir));
 end
 
-function recursiveConvertDir(rootDir,outDir,subDir, overwrite,includeTiff,cleanName)
+function recursiveConvertDir(rootDir,outDir, subDir,outSub, overwrite,includeTiff,cleanName)
     folderList = dir(fullfile(rootDir,subDir));
     
     bInvalidName = arrayfun(@(x)(strncmpi(x.name,'.',1) || strncmpi(x.name,'..',2)), folderList);
@@ -54,14 +54,22 @@ function recursiveConvertDir(rootDir,outDir,subDir, overwrite,includeTiff,cleanN
             continue;
         end
         
+
         fprintf('Export %s (%s) ...\n',fullfile(rootDir,subDir,fileNames{i}),guessType{i});
         tic
-        MicroscopeData.Original.ConvertData(fullfile(rootDir,subDir),fileNames{i},fullfile(outDir,subDir),true,overwrite,false,cleanName);
+        MicroscopeData.Original.ConvertData(fullfile(rootDir,subDir),fileNames{i},fullfile(outDir,outSub),false,overwrite,false,cleanName);
         fprintf('took %s\n\n',Utils.PrintTime(toc));
     end
     
     for i=1:length(dirList)
-        newSubDir = fullfile(subDir, dirList(i).name);
-        recursiveConvertDir(rootDir,outDir,newSubDir, overwrite,includeTiff,cleanName)
+        folderName = dirList(i).name;
+        newSubDir = fullfile(subDir, folderName);
+        
+        if ( cleanName )
+            folderName = MicroscopeData.Helper.SanitizeString(folderName);
+        end
+        newOutSub = fullfile(outSub, folderName);
+        
+        recursiveConvertDir(rootDir,outDir, newSubDir,newOutSub, overwrite,includeTiff,cleanName)
     end
 end
