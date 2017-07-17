@@ -16,7 +16,7 @@ if ~isfield(MetaOut,'ChannelNames') || isempty(MetaOut.ChannelNames)
     MetaOut.ChannelNames = arrayfun(@num2str, 1:MetaOut.NumberOfChannels, 'UniformOutput', false);
 end
 
-%% Make sure channel Names are 1x6
+%% Make sure channel Names are 1xN
 if size(MetaOut.ChannelNames,1) > size(MetaOut.ChannelNames,2)
 MetaOut.ChannelNames = MetaOut.ChannelNames';
 end
@@ -27,32 +27,42 @@ if ~isfield(MetaOut,'imageDir') || isempty(MetaOut.imageDir) || any(strfind(Meta
     MetaOut.imageDir = newpath(1:end-1);
 end
 
+OldDatasetName = MetaOut.DatasetName;
 MetaOut.DatasetName = MicroscopeData.Helper.SanitizeString(MetaOut.DatasetName);
+if ~strcmp(OldDatasetName,MetaOut.DatasetName)
+MetaOut.OldDatasetName = OldDatasetName;
+end 
 
 %% Make Level Infomation List
 Levelinfo = [];
-for L = 1:length(Llist)
-    Levelinfo(L).TDLevel = Llist(L);
+for L = 1:8
+    Levelinfo(L).TDLevel = min(Llist)+L-1;
+    TDLevel = Levelinfo(L).TDLevel;
     for LL = 1:L
-        Levelinfo(LL).BULevel = Llist(L) - Llist(LL);
+        Levelinfo(LL).BULevel = TDLevel - Levelinfo(LL).TDLevel;
     end
     %% Number of volume Subdivisions
-    nPartitions = max(2^Llist(L),1);
+    nPartitions = max(2^TDLevel,1);
     Levelinfo(L).nPartitions = [nPartitions,nPartitions,1];
     %% Size of each volume Subdivision
-    AtlasSize = min(4096*2^(Llist(L)),4096);
+    AtlasSize = min(4096*2^(TDLevel),4096);
     Levelinfo(L).AtlasSize = [AtlasSize,AtlasSize];
     %% Calculate Reductions
     Levelinfo(L).Reductions = MicroscopeData.Web.GetReductions(MetaOut, AtlasSize, Levelinfo(L).nPartitions);
     %% Stop if image is not reduced
-    if prod(Levelinfo(L).Reductions) == 1
+    if prod(Levelinfo(L).Reductions) == 1 && TDLevel>=0
         break
     end 
 end
+
+Levelinfo = Levelinfo(ismember([Levelinfo.TDLevel],Llist));
 
 MetaOut.Levels = [Levelinfo(:).BULevel;];
 MetaOut.AtlasSize = vertcat(Levelinfo(:).AtlasSize);
 MetaOut.nPartitions = vertcat(Levelinfo(:).nPartitions);
 MetaOut.Reductions = vertcat(Levelinfo(:).Reductions);
+
+%% Timestamp Export
+MetaOut.ExportDate = date();
 end
 

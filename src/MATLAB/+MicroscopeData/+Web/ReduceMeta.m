@@ -23,19 +23,13 @@ TileDataOut = imDataIn;
 TileDataOut.Reduction = Reductions;
 
 %% Update the Tile Dimensions
-TileDataOut.XDimension = TileSizeX;
-TileDataOut.YDimension = TileSizeY;
-TileDataOut.ZDimension = numPanelsZ;
 TileDataOut.Dimensions = [TileSizeX,TileSizeY,numPanelsZ];
 %% Update Number of Tiles in Atlas
-TileDataOut.numImInX = numPanelsX;
-TileDataOut.numImInY = numPanelsY;
-TileDataOut.numImInZ = numPanelsZ;
-
+TileDataOut.numImIn = [numPanelsX,numPanelsY,numPanelsZ];
 %% Update the Atlas Dimensions
 TileDataOut.outImWidth = AtlasSize(1);
 % reduce atlas Y dimension to smallest power of two
-pwr2 = log2(TileDataOut.numImInY*(TileDataOut.YDimension+2*PaddingSize));
+pwr2 = log2(TileDataOut.numImIn(2)*(TileDataOut.Dimensions(2)+2*PaddingSize));
 TileDataOut.outImHeight = 2^ceil(pwr2);
 
 %% Update Channels 

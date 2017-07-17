@@ -5,7 +5,7 @@ function makeThumbnail(imd,Outpath)
         
         BlendedPath = fullfile(Outpath,num2str(imd.Levels(1)),'\000000');
         try 
-        [im,imd] = MicroscopeData.Web.ReadBlendedTile(BlendedPath,[], []);
+        [im,~] = MicroscopeData.Web.ReadBlendedTile(imd, BlendedPath,[], []);
         catch
         disp(['Broken at ',imd.DatasetName]);
         return

@@ -4,11 +4,11 @@ imOut = zeros(imData.outImHeight,imData.outImWidth,1,'uint8');
 
 %% pad the atlas to get rid of shader interpolation artifact, for png, 2 is enough
 PaddingSize = imData.PaddingSize;
-XDimension = imData.XDimension+2*PaddingSize;
-YDimension = imData.YDimension+2*PaddingSize;
+XDimension = imData.Dimensions(1)+2*PaddingSize;
+YDimension = imData.Dimensions(2)+2*PaddingSize;
 
-numImInX = imData.numImInX;
-numImInY = imData.numImInY;
+numImInX = imData.numImIn(1);
+numImInY = imData.numImIn(2);
 %% Pack the tiles into atlas, Reshape Z into XY
 
 z = 1;
@@ -20,9 +20,9 @@ for y = 0:numImInY-1
         xEnd = xStart +XDimension -1;
         imOut(yStart:yEnd,xStart:xEnd,:) = padarray(im(:,:,z,:,:), [PaddingSize PaddingSize],'replicate','both');
         z = z + 1;
-        if (z>imData.numImInZ), break; end
+        if (z>imData.numImIn(3)), break; end
     end
-    if (z>imData.numImInZ), break; end
+    if (z>imData.numImIn(3)), break; end
 end
 
 if round(log2(size(imOut,1))) ~= log2(size(imOut,1)) || round(log2(size(imOut,2))) ~= log2(size(imOut,2))

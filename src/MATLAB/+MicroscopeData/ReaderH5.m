@@ -78,7 +78,6 @@ function [im, imD] = ReaderH5(varargin)
 %         return
 %     end
 
-    inType = class(h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion],[1 1 1 1 1],[1 1 1 1 1]));
     inIdx = find(strcmp(inType,dataTypeLookup));
     if ( ~isempty(inIdx) )
         inBytes = dataTypeSize(inIdx);

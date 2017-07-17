@@ -1,4 +1,7 @@
-function [] = BlendTiles(imData,imOutPath)
+function [] = BlendTiles(imData,imOutPath,bOverwrite,bExportText)
+
+MicroscopeData.Web.MakeTiles(imData,imOutPath,bOverwrite,bExportText);
+
 Levels = imData.Levels;
 %% Blend The Tiles
 for L = 1:numel(Levels)
@@ -8,9 +11,16 @@ for L = 1:numel(Levels)
     [TileListX,TileListY,TileListZ] = meshgrid(0:nPartX-1, 0:nPartY-1, 0:nPartZ-1);
     
     for i = 1:numel(TileListX)
-        x = TileListX(i);        y = TileListY(i);    z = TileListZ(i);
+        x = TileListX(i);
+        y = TileListY(i); 
+        z = TileListZ(i);
         tileDir = fullfile(imOutPath, num2str(Levels(L)), sprintf('%02d%02d%02d', x, y, z));
+
+        if exist(fullfile(tileDir,sprintf('%s_blend_c%02d_t%04d.png',imData.DatasetName,1,imData.NumberOfFrames)),'file')
+            continue;
+        end
+
         %% Create blended atlas
-        MicroscopeData.Web.blendThisTile(tileDir, 'png');
+        MicroscopeData.Web.blendThisTile(imData,tileDir, 'png');
     end
 end

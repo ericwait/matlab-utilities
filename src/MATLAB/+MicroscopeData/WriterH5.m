@@ -38,7 +38,7 @@ addParameter(p,'imageData',[],@isstruct);
 
 addParameter(p,'chanList',[],@isvector);
 addParameter(p,'timeRange',[],@(x)(numel(x)==2));
-addParameter(p,'roi_xyz',[],@(x)(size(x)==[2,3]));
+addParameter(p,'roi_xyz',[],@(x)(all(size(x)==[2,3])));
 addParameter(p,'imVersion','Original',@ischar);
 
 addParameter(p,'verbose',false,@islogical);

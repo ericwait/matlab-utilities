@@ -6,14 +6,14 @@ if (~exist('showProgress','var') || isempty(showProgress))
     showProgress = false;
 end
 
-OutDims = [tileData.YDimension,tileData.XDimension,tileData.ZDimension];
+OutDims = [tileData.Dimensions(2),tileData.Dimensions(1),tileData.Dimensions(3)];
 %% Downsample image 
 
 if reductions(3) ~= 1
-    sampleZ = round(linspace(1,size(imIn,3),tileData.ZDimension));
+    sampleZ = round(linspace(1,size(imIn,3),tileData.Dimensions(3)));
     imIn = imIn(:,:,sampleZ);
 end
-imOut = imresize(imIn,[tileData.YDimension,tileData.XDimension],'method','bilinear');
+imOut = imresize(imIn,[tileData.Dimensions(2),tileData.Dimensions(1)],'method','bilinear');
 
 
 
