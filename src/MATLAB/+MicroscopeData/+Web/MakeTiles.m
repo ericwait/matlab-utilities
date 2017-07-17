@@ -1,4 +1,4 @@
-function [] = MakeTiles(imData,imOutPath,bOverwrite,bExportText)
+function [] = MakeTiles(imData,imOutPath,bOverwrite,bExportTexture)
 Levels = imData.Levels;
 
 maskDir = fullfile(imData.imageDir,['_',imData.DatasetName,'_Mask.tif']);
@@ -28,7 +28,7 @@ for t = 1:imData.NumberOfFrames
         end
             
         %% Get Image Chunk
-        if bExportText
+        if bExportTexture
             [im] = MicroscopeData.Reader('imageData',imData2,'chanList',c,'timeRange',[t t],'outType','uint8','verbose',false,'normalize',true,'imVersion',Version);
             if isempty(im)
                 Version = 'Original';
@@ -68,7 +68,7 @@ for t = 1:imData.NumberOfFrames
                 %% Reduce The MetaData, Check if Empty, Export
                 [tileData] = MicroscopeData.Web.ReduceMeta(imData,x,y,z,L);
                 tileData.isEmpty = MicroscopeData.Web.checkMask(mask,ROI);
-                if  bExportText && isempty(im)
+                if  bExportTexture && isempty(im)
                     tileData.isEmpty = 1;
                 end
                 MicroscopeData.Web.ExportAtlasJSON(tileDir, tileData);
@@ -82,7 +82,7 @@ for t = 1:imData.NumberOfFrames
                 %[imsect] = MicroscopeData.Reader('imageData',imData,'roi_xyz',ROI,'chanList',c,'timeRange',[t t],'outType','uint8','verbose',true);
                 %[imr] = MicroscopeData.Web.ReduceImage(imsect, tileData, imData.Reductions(L,:));
                 %
-                if  bExportText
+                if  bExportTexture
                     [imr] = MicroscopeData.Web.ReduceImage(im(ROI_Y,ROI_X,ROI_Z,1,1), tileData, imData.Reductions(L,:));
                     MicroscopeData.Web.makeAtlas(imr, tileData,tileDir,c,t);
                 end

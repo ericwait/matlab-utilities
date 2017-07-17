@@ -1,16 +1,11 @@
-function [TileDataOut] = ReduceMeta(imDataIn,x,y,z,L)
+function [TileDataOut] = ReduceMeta(imDataIn,LevelIn,x,y,z)
 
 %% Calculate Reductions
-AtlasSize = imDataIn.AtlasSize(L,:);
-nPartitions = imDataIn.nPartitions(L,:);
-Reductions = imDataIn.Reductions(L,:);
+nPartitions = LevelIn.nPartitions(1,:);
+Reductions = LevelIn.Reductions(1,:);
 
-PaddingSize = 1;
 %% Downsample Metadata
 TileDataOut = imDataIn;
-
-% TileDataOut.Level = Levelinfo.BULevel;
-% TileDataOut.TDLevel = Levelinfo.TDLevel;
 
     TileSizeX = floor((imDataIn.Dimensions(1) / nPartitions(1)) / Reductions(1));
     TileSizeY = floor((imDataIn.Dimensions(2) / nPartitions(2)) / Reductions(2));
@@ -27,10 +22,6 @@ TileDataOut.Dimensions = [TileSizeX,TileSizeY,numPanelsZ];
 %% Update Number of Tiles in Atlas
 TileDataOut.numImIn = [numPanelsX,numPanelsY,numPanelsZ];
 %% Update the Atlas Dimensions
-TileDataOut.outImWidth = AtlasSize(1);
-% reduce atlas Y dimension to smallest power of two
-pwr2 = log2(TileDataOut.numImIn(2)*(TileDataOut.Dimensions(2)+2*PaddingSize));
-TileDataOut.outImHeight = 2^ceil(pwr2);
 
 %% Update Channels 
 TileDataOut.NumberOfChannels = imDataIn.NumberOfChannels;
