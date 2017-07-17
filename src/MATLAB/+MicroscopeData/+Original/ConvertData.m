@@ -1,11 +1,9 @@
-function [ im, imD ] = ConvertData( imDir, imName, outDir, makeH5, overwrite, quiet, cleanName)
-%[ im, imD ] = MicroscopeData.Original.ConvertData( imDir, imName, outDir, makeH5, overwrite, quiet, cleanName)
-
-im = [];
+function imD = ConvertData( imDir, imName, outDir, generateJPG, overwrite, quiet, cleanName)
+%[ im, imD ] = MicroscopeData.Original.ConvertData( imDir, imName, outDir, generateJPG, overwrite, quiet, cleanName)
 imD = [];
 
-if (~exist('makeH5','var') || isempty(makeH5))
-    makeH5 = false;
+if (~exist('generateJPG','var') || isempty(generateJPG))
+    generateJPG = false;
 end
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = false;
@@ -29,17 +27,13 @@ end
 if (~exist('outDir','var') || isempty(outDir))
     outDir = uigetdir('.','Choose a folder to output to');
     if (outDir==0)
-        warning('No where to write!');
+        warning('Nowhere to write!');
         return
     end
 end
 
 if (~exist('cleanName','var') || isempty(cleanName))
-    cleanName = false;
-end
-
-if (cleanName)
-    outDir = MicroscopeData.Helper.CreateUniqueWordedPath(outDir);
+    cleanName = true;
 end
 
 [~,name,~] = fileparts(imName);
@@ -57,32 +51,26 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
             datasetName = MicroscopeData.Helper.SanitizeString(datasetName);
         end
         outDir = fullfile(outDir,datasetName);
-    end
-    
-    % Don't overwrite images that already exist
-    if (exist(fullfile(outDir,imD{1}.DatasetName),'dir') && ~overwrite)
-        return;
-    end
-    
-    im = MicroscopeData.Original.ReadImages(imDir,imName);
-    prgs = Utils.CmdlnProgress(length(imD),quiet,['Writing out ',datasetName]);
-    if (~iscell(imD))
-        imDcell = {};
-        imDcell{1} = imD;
     else
-        imDcell = imD;
+        imD = {imD};
     end
+    
+    prgs = Utils.CmdlnProgress(length(imD),quiet,['Writing out ',datasetName]);
     for i=1:length(imD)
         if (cleanName)
             imD{i}.DatasetName = MicroscopeData.Helper.SanitizeString(imD{i}.DatasetName);
         end
+        
         if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite)
-            if (makeH5)
-                MicroscopeData.WriterH5(im{i},fullfile(outDir,imD{i}.DatasetName),'imageData',imD{i},'verbose',~quiet);
-            else
-                MicroscopeData.Writer(im{i},fullfile(outDir,imD{i}.DatasetName),imD{i},[],[],[],~quiet);
+            im = MicroscopeData.Original.ReadImages(imDir,imName,i);
+            
+            MicroscopeData.WriterH5(im,outDir,'imageData',imD{i},'verbose',~quiet);
+            if ( generateJPG )
+                im = ImUtils.ConvertType(im,'uint8',true);
+                MicroscopeData.WriterJPG(im,fullfile(outDir,imD{i}.DatasetName),'imageData',imD{i},'verbose',~quiet);
             end
         end
+        
         prgs.PrintProgress(i);
     end
     prgs.ClearProgress(quiet);

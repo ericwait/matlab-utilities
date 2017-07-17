@@ -138,8 +138,8 @@ function json = writeValue(data, spacePrefix, spaceStruct)
 end
 
 function quotedStr = escapeString(inStr)
-    escChars = {'\' '"' char(8) char(12) char(10) char(13) char(9)};
-    escStr = {'\\' '\"','\b','\f','\n','\r','\t'};
+    escChars = {char(0) '\' '"' char(8) char(12) char(10) char(13) char(9)};
+    escStr = {'' '\\' '\"','\b','\f','\n','\r','\t'};
     
     escMap = containers.Map(escChars,escStr);
     

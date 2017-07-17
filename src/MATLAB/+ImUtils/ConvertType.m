@@ -26,7 +26,7 @@ else
 end
 
 % deal with images that come in as 16 bit but are really a lesser bit depth
-if (strcmpi(w.class,'uint16'))
+if (strcmpi(w.class,'uint16') && ~normalize)
     imMax = max(imageIn(:));
     maxTypes = [2^8-1,2^10-1,2^12-1];
     isBigger = maxTypes < double(imMax);
@@ -46,7 +46,8 @@ if (strcmpi(w.class,'uint16'))
 end
 
 if (normalize)
-    for t=1:size(imageIn,5)
+    %for t=1:size(imageIn,5)
+    t=1:size(imageIn,5);
         for c=1:size(imageIn,4)
             inType = class(imageIn);
             if (strcmpi(inType,'double') || strcmpi(inType,'uint64') || strcmpi(inType,'int64'))
@@ -78,7 +79,7 @@ if (normalize)
                     error('Unkown type of image to convert to!');
             end
         end
-    end
+    %end
 else
     switch w.class
         case 'single'
