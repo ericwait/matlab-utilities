@@ -61,6 +61,12 @@ function recursiveConvertDir(rootDir,outDir, subDir,outSub, overwrite,includeTif
         fprintf('took %s\n\n',Utils.PrintTime(toc));
     end
     
+    for i=1:length(dirList)
+        folderName = dirList(i).name;
+        newSubDir = fullfile(subDir, folderName);
+        
+        if ( cleanName )
+            folderName = MicroscopeData.Helper.SanitizeString(folderName);
         end
         newOutSub = fullfile(outSub, folderName);
         
