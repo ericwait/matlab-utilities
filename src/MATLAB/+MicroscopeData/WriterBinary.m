@@ -111,14 +111,15 @@ end
 tic
 txPack=4;
 NumPack=ceil(size(im,4)/txPack);
-for t=args.timeRange(1):args.timeRange(2)
+tList = args.timeRange(1):args.timeRange(2);
+for tIdx=1:length(tList)
     for pack=1:NumPack
-        imFilename = [args.imageData.DatasetName,sprintf('_p%02d_t%04d.lbin',pack,t)];
+        imFilename = [args.imageData.DatasetName,sprintf('_p%02d_t%04d.lbin',pack,tList(tIdx))];
         
         chanEnd = min((pack-1)*NumPack + txPack,size(im,4));
         chans = (pack-1)*NumPack + (1:chanEnd);
-        
-        im8 = ImUtils.ConvertType(im(:,:,:,:,t),'uint8',true);
+
+        im8 = ImUtils.ConvertType(im(:,:,:,:,tIdx),'uint8',false);
         imPacked = permute(im8(:,:,:,chans),[4,2,1,3]);
         
         fid = fopen(fullfile(outDir,imFilename),'wb');
