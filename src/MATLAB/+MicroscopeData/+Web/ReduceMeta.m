@@ -1,41 +1,22 @@
-function [TileDataOut] = ReduceMeta(imDataIn,LevelIn,x,y,z)
+function [TileDataOut] = ReduceMeta(imDataIn,LevelIn,Location,ROI)
 
-%% Calculate Reductions
-nPartitions = LevelIn.nPartitions(1,:);
-Reductions = LevelIn.Reductions(1,:);
-
-%% Downsample Metadata
 TileDataOut = imDataIn;
-
-    TileSizeX = floor((imDataIn.Dimensions(1) / nPartitions(1)) / Reductions(1));
-    TileSizeY = floor((imDataIn.Dimensions(2) / nPartitions(2)) / Reductions(2));
-    
-    numPanelsZ = floor((imDataIn.Dimensions(3) / nPartitions(3) / Reductions(3)));
-    numPanelsX = ceil(sqrt(numPanelsZ));
-    numPanelsX = min(numPanelsX,numPanelsZ);
-    numPanelsY = ceil(numPanelsZ / numPanelsX);
-
+%% Calculate Reductions
+Partitions = LevelIn.Partitions(1,:);
+Reductions = LevelIn.Reductions(1,:);
+TileDataOut.Partitions = Partitions;
 TileDataOut.Reduction = Reductions;
 
 %% Update the Tile Dimensions
-TileDataOut.Dimensions = [TileSizeX,TileSizeY,numPanelsZ];
-%% Update Number of Tiles in Atlas
-TileDataOut.numImIn = [numPanelsX,numPanelsY,numPanelsZ];
-%% Update the Atlas Dimensions
-
-%% Update Channels 
-TileDataOut.NumberOfChannels = imDataIn.NumberOfChannels;
-TileDataOut.ChannelNames = imDataIn.ChannelNames;
-TileDataOut.ChannelColors = imDataIn.ChannelColors;
-%% Update Resolution
-TileDataOut.PixelPhysicalSize(1) = TileDataOut.PixelPhysicalSize(1) * Reductions(1);
-TileDataOut.PixelPhysicalSize(2) = TileDataOut.PixelPhysicalSize(2) * Reductions(2);
-TileDataOut.PixelPhysicalSize(3) = TileDataOut.PixelPhysicalSize(3) * Reductions(3);
+ChunkSizeX = floor((imDataIn.Dimensions(1) / Partitions(1)) / Reductions(1));
+ChunkSizeY = floor((imDataIn.Dimensions(2) / Partitions(2)) / Reductions(2));
+ChunkSizeZ = floor((imDataIn.Dimensions(3) / Partitions(3) / Reductions(3)));
+TileDataOut.Dimensions = [ChunkSizeX,ChunkSizeY,ChunkSizeZ];
 
 %% Pixel Location
-TileDataOut.XLocation = x;
-TileDataOut.YLocation = y;
-TileDataOut.ZLocation = z;
+TileDataOut.Location = Location;
+TileDataOut.ROI = ROI;
+TileDataOut.TLF = ROI(1,:);
+TileDataOut.BRR = ROI(2,:);
 
-TileDataOut.PaddingSize = 1;
 end
