@@ -90,7 +90,10 @@ elseif (~strcmp(args.imageData.PixelFormat,class(im)))
     args.imageData.PixelFormat = class(im);
 end
 
-MicroscopeData.CreateMetadata(outDir,args.imageData,~args.verbose);
+%MicroscopeData.CreateMetadata(outDir,args.imageData,~args.verbose);
+if ~exist(outDir,'dir')
+    mkdir(outDir)
+end     
 
 if ( isempty(args.timeRange) )
     args.timeRange = [1 args.imageData.NumberOfFrames];
@@ -117,7 +120,7 @@ for tIdx=1:length(tList)
         imFilename = [args.imageData.DatasetName,sprintf('_p%02d_t%04d.lbin',pack,tList(tIdx))];
         
         chanEnd = min((pack-1)*NumPack + txPack,size(im,4));
-        chans = (pack-1)*NumPack + (1:chanEnd);
+        chans = ((pack-1)*txPack + 1):chanEnd;
 
         im8 = ImUtils.ConvertType(im(:,:,:,:,tIdx),'uint8',false);
         imPacked = permute(im8(:,:,:,chans),[4,2,1,3]);
@@ -139,6 +142,7 @@ for tIdx=1:length(tList)
         end
     end
 end
+
 
 if (args.verbose)
     cp.ClearProgress();
