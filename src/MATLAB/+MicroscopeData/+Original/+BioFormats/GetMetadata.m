@@ -94,7 +94,7 @@ for series=0:bfReader.getSeriesCount()-1
                     delta = [];
                 end
                 if (~isempty(delta))
-                    imageData.TimeStampDelta(z,c,t) = delta.floatValue;
+                    imageData.TimeStampDelta(z,c,t) = safeGetValue(delta);
                 end
                 if (onlyOneSeries)
                     prgs.PrintProgress(i);
@@ -213,5 +213,13 @@ if (isempty(varIn))
     val = 0;
     return
 end
-val = varIn.getValue();
+try
+    val = varIn.getValue;
+catch
+    try
+        val = varIn.value;
+    catch
+        error('I don''t know how to get this value!');
+    end
+end
 end
