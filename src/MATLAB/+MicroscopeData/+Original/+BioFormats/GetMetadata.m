@@ -24,12 +24,10 @@ for series=0:bfReader.getSeriesCount()-1
     
     imageData.DatasetName = parseImageName(char(omeMetadata.getImageName(series)), datasetExt, bfReader.getSeriesCount());
 
-    imageData.Dimensions = [safeGetValue(omeMetadata.getPixelsSizeX(series)),...
-                            safeGetValue(omeMetadata.getPixelsSizeY(series)),...
-                            safeGetValue(omeMetadata.getPixelsSizeZ(series))];
+    imageData.Dimensions = [bfReader.getSizeX(),bfReader.getSizeY(),bfReader.getSizeZ()];
 
-    imageData.NumberOfChannels = omeMetadata.getChannelCount(series);
-    imageData.NumberOfFrames = safeGetValue(omeMetadata.getPixelsSizeT(series));
+    imageData.NumberOfChannels = double(omeMetadata.getChannelCount(series));
+    imageData.NumberOfFrames = bfReader.getSizeT();
 
     xPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeX(series));
     if xPixelPhysicalSize==0
@@ -46,7 +44,7 @@ for series=0:bfReader.getSeriesCount()-1
         zPixelPhysicalSize = 1;
     end
 
-    imageData.PixelPhysicalSize = [xPixelPhysicalSize, yPixelPhysicalSize, zPixelPhysicalSize];
+    imageData.PixelPhysicalSize = double([xPixelPhysicalSize, yPixelPhysicalSize, zPixelPhysicalSize]);
 
     if (strcmp(datasetExt,'.czi'))
         imageData.Position = [orgMetadata.get('Global Information|Image|S|Scene|Position|X #1'),...
@@ -69,7 +67,7 @@ for series=0:bfReader.getSeriesCount()-1
         imageData.ChannelNames{c} = colr;
     end
 
-    imageData.StartCaptureDate = safeGetValue(omeMetadata.getImageAcquisitionDate(series));
+    imageData.StartCaptureDate = char(omeMetadata.getImageAcquisitionDate(series));
     ind = strfind(imageData.StartCaptureDate,'T');
     if (~isempty(ind))
         imageData.StartCaptureDate(ind) = ' ';
@@ -83,7 +81,7 @@ for series=0:bfReader.getSeriesCount()-1
         prgs = Utils.CmdlnProgress(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.Dimensions(3),true);
         i = 1;
     end
-
+    
     for t=1:imageData.NumberOfFrames
         for z=1:imageData.Dimensions(3)
             for c=1:imageData.NumberOfChannels
@@ -94,7 +92,7 @@ for series=0:bfReader.getSeriesCount()-1
                     delta = [];
                 end
                 if (~isempty(delta))
-                    imageData.TimeStampDelta(z,c,t) = delta.floatValue;
+                    imageData.TimeStampDelta(z,c,t) = double(delta.value);
                 end
                 if (onlyOneSeries)
                     prgs.PrintProgress(i);
@@ -213,5 +211,6 @@ if (isempty(varIn))
     val = 0;
     return
 end
-val = varIn.getValue();
+
+val = double(varIn.value);
 end
