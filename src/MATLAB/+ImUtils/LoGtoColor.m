@@ -27,5 +27,5 @@ function [ imC ] = LoGtoColor( imLoG, localEpsilon)
 
     colDim = ndims(imLoG) +1;
 
-    imC = cat(colDim,imNeg,imZero,imPos);
+    imC = cat(colDim,imNeg,imPos,imZero);
 end
