@@ -60,7 +60,11 @@ if ((isempty(stainOrder) || length(stainOrder)~=imageData.NumberOfChannels) && p
 end
 
 if (length(stainOrder)~=imageData.NumberOfChannels)
-    colors = [];
+    if (imageData.NumberOfChannels==1)
+        colors = [1,1,1];
+    else
+        colors = [];
+    end
     stainNames = '';
     return
 end
