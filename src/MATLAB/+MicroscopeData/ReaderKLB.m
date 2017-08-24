@@ -135,7 +135,7 @@ function [im, imD] = ReaderKLB(varargin)
             for t=1:imSize(5)
                 tempIm = MicroscopeData.KLB.readKLBroi(fullfile(imPath,[imD.DatasetName '.klb']),...
                     [[Utils.SwapXY_RC(args.roi_xyz(1,:)),           args.chanList(c), t+args.timeRange(1)-1];...
-                    [Utils.SwapXY_RC(args.roi_xyz(1,:))+imSize-1,  args.chanList(c), t+args.timeRange(1)-1]]);
+                    [Utils.SwapXY_RC(args.roi_xyz(1,:))+imSize(1:3)-1,  args.chanList(c), t+args.timeRange(1)-1]]);
                 
                 if (convert)
                     tempIm = ImUtils.ConvertType(tempIm,args.outType,args.normalize);
