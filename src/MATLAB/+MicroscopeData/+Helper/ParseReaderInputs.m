@@ -36,7 +36,7 @@ function argStruct = ParseReaderInputs(varargin)
     addParameter(p,'promptTitle','', @ischar);
 
     parse(p,varargin{:});
-    argStruct = p.Results;
+    argStruct = p.Results; 
 end
 
 % Inputs are valid if they are empty or if they satisfy their validity function

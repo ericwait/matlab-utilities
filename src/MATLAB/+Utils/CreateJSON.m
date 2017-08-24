@@ -8,7 +8,7 @@ function json = CreateJSON(data,bWhitespace)
         spaceStruct = struct('line',{'\n'}, 'space',{' '}, 'indent',{'  '});
     end
     
-    if ( isstruct(data) )
+    if ( numel(data) == 1 && isstruct(data) )
         json = writeObject(data,'', spaceStruct);
     else
         json = writeArray(data,'', spaceStruct);

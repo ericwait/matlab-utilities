@@ -65,7 +65,7 @@ for series=0:bfReader.getSeriesCount()-1
         imageData.ChannelNames{c} = colr;
     end
 
-    imageData.StartCaptureDate = safeGetValue(omeMetadata.getImageAcquisitionDate(series));
+    imageData.StartCaptureDate = char(omeMetadata.getImageAcquisitionDate(series));
     ind = strfind(imageData.StartCaptureDate,'T');
     if (~isempty(ind))
         imageData.StartCaptureDate(ind) = ' ';
@@ -79,7 +79,7 @@ for series=0:bfReader.getSeriesCount()-1
         prgs = Utils.CmdlnProgress(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.Dimensions(3),true);
         i = 1;
     end
-
+    
     for t=1:imageData.NumberOfFrames
         for z=1:imageData.Dimensions(3)
             for c=1:imageData.NumberOfChannels

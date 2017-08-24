@@ -1,4 +1,4 @@
-function CreateMetadata(root,imageData,quiet)
+function CreateMetadata(root,imageData,ExpName, quiet)
 
 if (isempty(root))
     if (isfield(imageData,'imageDir'))
@@ -19,17 +19,22 @@ end
 if (~exist('quiet','var') || isempty(quiet))
     quiet = 0;
 end
+%% Write Experiment Name 
+if (exist('ExpName','var') && ~isempty(ExpName))
+    imageData.ExperimentName = ExpName;
+end
 
 fileName = fullfile(root,[imageData.DatasetName '.json']);
 
 if (~quiet)
-    fprintf('Creating Metadata %s...',fileName);
+    fprintf('Creating Metadata %s...',imageData.DatasetName);
 end
 
 if (isfield(imageData,'imageDir'))
     imageData = rmfield(imageData,'imageDir');
 end
 
+%% Write To Json 
 jsonMetadata = Utils.CreateJSON(imageData);
 fileHandle = fopen(fileName,'wt');
 

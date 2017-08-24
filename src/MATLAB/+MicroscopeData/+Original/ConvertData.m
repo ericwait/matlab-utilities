@@ -60,8 +60,12 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
         if (cleanName)
             imD{i}.DatasetName = MicroscopeData.Helper.SanitizeString(imD{i}.DatasetName);
         end
+
+        imD{i}.imageDir = outDir;
         
-        if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite)
+        if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite) && ...
+            (~exist(fullfile(outDir,[imD{i}.DatasetName,'.json']),'file') || overwrite)
+
             im = MicroscopeData.Original.ReadImages(imDir,imName,i);
             
             if (strcmpi(outType,'klb'))

@@ -1,4 +1,4 @@
-function ConvertDir(readPath,outDir,outType,overwrite,includeTiff,cleanName)
+function ConvertDir(readPath,outDir,overwrite,includeTiff,cleanName)
 %convertDir Recursivly converts microscope data to tiff files plus metadata
 %           text
 %   Walks through the dirPath and converts all microscope data found in the
@@ -37,7 +37,7 @@ recursiveConvertDir(readPath,outDir,'','', outType,overwrite,includeTiff,cleanNa
 system(sprintf('dir "%s" /B /O:N /A:D > "%s\\list.txt"',outDir,outDir));
 end
 
-function recursiveConvertDir(rootDir,outDir, subDir,outSub, outType,overwrite,includeTiff,cleanName)
+function recursiveConvertDir(rootDir,outDir, subDir,outSub, overwrite,includeTiff,cleanName)
     folderList = dir(fullfile(rootDir,subDir));
     
     bInvalidName = arrayfun(@(x)(strncmpi(x.name,'.',1) || strncmpi(x.name,'..',2)), folderList);
