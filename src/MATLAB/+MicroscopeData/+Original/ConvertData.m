@@ -25,7 +25,7 @@ if (~exist('imName','var') || isempty(imName))
 end
 
 if (~exist('outDir','var') || isempty(outDir))
-    outDir = uigetdir('.','Choose a folder to output to');
+    outDir = uigetdir(imDir,'Choose a folder to output to');
     if (outDir==0)
         warning('Nowhere to write!');
         return
