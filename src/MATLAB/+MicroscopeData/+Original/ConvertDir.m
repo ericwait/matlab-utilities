@@ -1,4 +1,4 @@
-function ConvertDir(readPath,outDir,overwrite,includeTiff,cleanName)
+function ConvertDir(readPath,outDir,outType,overwrite,includeTiff,cleanName)
 %convertDir Recursivly converts microscope data to tiff files plus metadata
 %           text
 %   Walks through the dirPath and converts all microscope data found in the
@@ -17,6 +17,10 @@ if (~exist('outDir','var') || isempty(outDir))
     if (outDir==0), return, end
 end
 
+if (~exist('outType','var') || isempty(outType))
+    outType = 'klb';
+end
+
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = 0;
 end
@@ -28,12 +32,12 @@ if (~exist('cleanName','var'))
     cleanName = true;
 end
 
-recursiveConvertDir(readPath,outDir,'','', overwrite,includeTiff,cleanName);
+recursiveConvertDir(readPath,outDir,'','', outType,overwrite,includeTiff,cleanName);
 
 system(sprintf('dir "%s" /B /O:N /A:D > "%s\\list.txt"',outDir,outDir));
 end
 
-function recursiveConvertDir(rootDir,outDir, subDir,outSub, overwrite,includeTiff,cleanName)
+function recursiveConvertDir(rootDir,outDir, subDir,outSub, outType,overwrite,includeTiff,cleanName)
     folderList = dir(fullfile(rootDir,subDir));
     
     bInvalidName = arrayfun(@(x)(strncmpi(x.name,'.',1) || strncmpi(x.name,'..',2)), folderList);
@@ -57,7 +61,7 @@ function recursiveConvertDir(rootDir,outDir, subDir,outSub, overwrite,includeTif
 
         fprintf('Export %s (%s) ...\n',fullfile(rootDir,subDir,fileNames{i}),guessType{i});
         tic
-        MicroscopeData.Original.ConvertData(fullfile(rootDir,subDir),fileNames{i},fullfile(outDir,outSub),false,overwrite,false,cleanName);
+        MicroscopeData.Original.ConvertData(fullfile(rootDir,subDir),fileNames{i},fullfile(outDir,outSub),outType,overwrite,false,cleanName);
         fprintf('took %s\n\n',Utils.PrintTime(toc));
     end
     
@@ -70,6 +74,6 @@ function recursiveConvertDir(rootDir,outDir, subDir,outSub, overwrite,includeTif
         end
         newOutSub = fullfile(outSub, folderName);
         
-        recursiveConvertDir(rootDir,outDir, newSubDir,newOutSub, overwrite,includeTiff,cleanName)
+        recursiveConvertDir(rootDir,outDir, newSubDir,newOutSub, outType,overwrite,includeTiff,cleanName)
     end
 end
