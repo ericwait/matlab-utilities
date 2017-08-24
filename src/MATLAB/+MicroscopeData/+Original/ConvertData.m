@@ -1,9 +1,9 @@
-function imD = ConvertData( imDir, imName, outDir, generateJPG, overwrite, quiet, cleanName)
+function imD = ConvertData( imDir, imName, outDir, outType, overwrite, quiet, cleanName)
 %[ im, imD ] = MicroscopeData.Original.ConvertData( imDir, imName, outDir, generateJPG, overwrite, quiet, cleanName)
 imD = [];
 
-if (~exist('generateJPG','var') || isempty(generateJPG))
-    generateJPG = false;
+if (~exist('outType','var') || isempty(outType))
+    outType = 'klb';
 end
 if (~exist('overwrite','var') || isempty(overwrite))
     overwrite = false;
@@ -64,10 +64,17 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
         if (~exist(fullfile(outDir,imD{i}.DatasetName),'dir') || overwrite)
             im = MicroscopeData.Original.ReadImages(imDir,imName,i);
             
-            MicroscopeData.WriterH5(im,outDir,'imageData',imD{i},'verbose',~quiet);
-            if ( generateJPG )
+            if (strcmpi(outType,'klb'))
+                MicroscopeData.WriterKLB(im,outDir,'imageData',imD{i},'verbose',~quiet);
+            elseif (strcmpi(outType,'h5'))
+                MicroscopeData.WriterH5(im,outDir,'imageData',imD{i},'verbose',~quiet);
+            elseif (strcmpi(outType,'tif') || strcmpi(outType,'tiff'))
+                MicroscopeData.Writer(im,outDir,imD{i},[],[],[],quiet);
+            elseif (strcmpi(outType,'jpg'))
                 im = ImUtils.ConvertType(im,'uint8',true);
                 MicroscopeData.WriterJPG(im,fullfile(outDir,imD{i}.DatasetName),'imageData',imD{i},'verbose',~quiet);
+            else
+                error('%s is not a supported output type',outType);
             end
         end
         
