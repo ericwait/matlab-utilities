@@ -13,7 +13,7 @@ if (~exist('readPath','var') || isempty(readPath))
 end
 [~,name,~]=fileparts(readPath);
 if (~exist('outDir','var') || isempty(outDir))
-    outDir = uigetdir('.',['Choose destination folder for source: ' name]);
+    outDir = uigetdir(readPath,['Choose destination folder for source: ' name]);
     if (outDir==0), return, end
 end
 
