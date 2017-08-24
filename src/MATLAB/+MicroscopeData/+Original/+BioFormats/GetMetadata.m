@@ -17,9 +17,8 @@ if (bfReader.getSeriesCount()>1)
     onlyOneSeries = false;
 end
 
+refPosition = zeros(1,3);
 for series=0:bfReader.getSeriesCount()-1
-    bfReader.setSeries(series);
-
     imageData = [];
     
     imageData.DatasetName = parseImageName(char(omeMetadata.getImageName(series)), datasetExt, bfReader.getSeriesCount());
@@ -37,9 +36,23 @@ for series=0:bfReader.getSeriesCount()-1
 
     imageData.PixelPhysicalSize = [xPixelPhysicalSize, yPixelPhysicalSize, zPixelPhysicalSize];
 
-    imageData.Position = [double(omeMetadata.getPlanePositionX(series,0).value(ome.units.UNITS.MICROMETER)),...
-        double(omeMetadata.getPlanePositionY(series,0).value(ome.units.UNITS.MICROMETER)),...
-        double(omeMetadata.getPlanePositionZ(series,0).value(ome.units.UNITS.MICROMETER))];
+    positionType = omeMetadata.getPlanePositionX(series,0).unit.getSymbol();
+    if (strcmp(positionType,'reference frame'))
+        imageData.Position = [safeGetValue(omeMetadata.getPlanePositionX(series,0)),...
+            safeGetValue(omeMetadata.getPlanePositionY(series,0)),...
+            safeGetValue(omeMetadata.getPlanePositionZ(series,0))];
+        if (series>0)
+            imageData.Position = refPosition + imageData.Position.*imageData.PixelPhysicalSize;
+        end
+    else
+        imageData.Position = [double(omeMetadata.getPlanePositionX(series,0).value(ome.units.UNITS.MICROMETER)),...
+            double(omeMetadata.getPlanePositionY(series,0).value(ome.units.UNITS.MICROMETER)),...
+            double(omeMetadata.getPlanePositionZ(series,0).value(ome.units.UNITS.MICROMETER))];
+        
+        if (series==0)
+            refPosition = imageData.Position;
+        end
+    end
                           
     imageData.ChannelNames = cell(imageData.NumberOfChannels,1);
     for c=1:imageData.NumberOfChannels
