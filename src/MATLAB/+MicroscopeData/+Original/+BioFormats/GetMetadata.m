@@ -31,33 +31,16 @@ for series=0:bfReader.getSeriesCount()-1
     imageData.NumberOfChannels = omeMetadata.getChannelCount(series);
     imageData.NumberOfFrames = safeGetValue(omeMetadata.getPixelsSizeT(series));
 
-    xPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeX(series));
-    if xPixelPhysicalSize==0
-        xPixelPhysicalSize = 1;
-    end
-
-    yPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeY(series));
-    if yPixelPhysicalSize==0
-        yPixelPhysicalSize = 1;
-    end
-
-    zPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeZ(series));
-    if zPixelPhysicalSize==0
-        zPixelPhysicalSize = 1;
-    end
+    xPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeX(0).value(ome.units.UNITS.MICROMETER).doubleValue();
+    yPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeY(0).value(ome.units.UNITS.MICROMETER).doubleValue();
+    zPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeZ(0).value(ome.units.UNITS.MICROMETER).doubleValue();
 
     imageData.PixelPhysicalSize = [xPixelPhysicalSize, yPixelPhysicalSize, zPixelPhysicalSize];
 
-    if (strcmp(datasetExt,'.czi'))
-        imageData.Position = [orgMetadata.get('Global Information|Image|S|Scene|Position|X #1'),...
-                              orgMetadata.get('Global Information|Image|S|Scene|Position|Y #1'),...
-                              orgMetadata.get('Global Information|Image|S|Scene|Position|Z #1')];
-    elseif (omeMetadata.getPlaneCount(series)>0)
-        imageData.Position = [double(omeMetadata.getPlanePositionX(series,0)),...
-                              double(omeMetadata.getPlanePositionY(series,0)),...
-                              double(omeMetadata.getPlanePositionZ(series,0))];
-    end
-
+    imageData.Position = [double(omeMetadata.getPlanePositionX(series,0).value(ome.units.UNITS.MICROMETER)),...
+        double(omeMetadata.getPlanePositionY(series,0).value(ome.units.UNITS.MICROMETER)),...
+        double(omeMetadata.getPlanePositionZ(series,0).value(ome.units.UNITS.MICROMETER))];
+                          
     imageData.ChannelNames = cell(imageData.NumberOfChannels,1);
     for c=1:imageData.NumberOfChannels
         colr = deblank(char(omeMetadata.getChannelName(series,c-1)));
@@ -209,17 +192,18 @@ ind = ind +1;
 end
 
 function val = safeGetValue(varIn)
-if (isempty(varIn))
-    val = 0;
-    return
-end
-try
-    val = varIn.getValue;
-catch
+    if (isempty(varIn))
+        val = 0;
+        return
+    end
     try
         val = varIn.value;
-    catch
-        error('I don''t know how to get this value!');
+    catch err
+        try
+            val = varIn.getValue();
+        catch err
+            error(err.message);
+        end
     end
-end
+    val = double(val);
 end
