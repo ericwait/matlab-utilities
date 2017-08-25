@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% User Settings
 imD = MicroscopeData.ReadMetadata();
-movieTime = 12;
+movieTime = max(min(imD.NumberOfFrames*0.25,12),3);
 fps = 30;
 spinTimes = 1;
 pauseTime = 0.5;
@@ -176,6 +176,14 @@ for j=1:2
     
     if (j==1)
         im = MicroscopeData.Reader('imageData',imD,'imVersion','Processed');
+        if (isempty(im))
+            im = MicroscopeData.Reader('imageData',imD);
+            for t=1:imD.NumberOfFrames
+                for c=1:imD.NumberOfChannels
+                    im(:,:,:,c,t) = ImProc.MeanFilter(im(:,:,:,c,t),[3,3,3]);
+                end
+            end
+        end
     end
 end
 prgs.ClearProgress(true);
