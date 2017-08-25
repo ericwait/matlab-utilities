@@ -2,6 +2,20 @@ function [ colors, stainNames ] = GetChannelColors( imageData, prompt )
 %[ colors, stainNames ] = MicroscopeData.Colors.GetChannelColors( imageData, prompt )
 %   Detailed explanation goes here
 
+colors = [];
+stainNames = '';
+
+if (isfield(imageData,'ChannelNames'))
+    stainNames = imageData.ChannelNames;
+end
+if (isfield(imageData,'ChannelColors'))
+    colors = imageData.ChannelColors;
+end
+
+if (~isempty(colors) && ~isempty(stainNames))
+    return
+end
+
 if (~exist('prompt','var') || isempty(prompt))
     prompt = true;
 end
