@@ -52,31 +52,20 @@ function [im, imD] = ReaderH5(varargin)
 
     if (isempty(args.timeRange))
         args.timeRange = [1 imD.NumberOfFrames];
+    else
+        args.timeRange(2) = min(args.timeRange(2), imD.NumberOfFrames);
     end
 
     if (isempty(args.roi_xyz))
         args.roi_xyz = [1 1 1; imD.Dimensions];
+    else
+        args.roi_xyz(2,:) = min(args.roi_xyz(2,:),imD.Dimensions);
     end
 
     if (~exist(fullfile(imPath,[imD.DatasetName '.h5']),'file'))
         warning('No image to read!');
         return
     end
-
-%     info = h5info(fullfile(imPath,[imD.DatasetName '.h5']));
-%     imGrpInfo = info.Groups;
-%     if (isempty(imGrpInfo) || ~strcmp(imGrpInfo.Name,'/Images'))
-%         error('File structure malformed!');
-%     end
-% 
-%     hasMIP = false;
-%     if (any(strcmpi([args.imVersion,'_MIP'],{imGrpInfo.Datasets.Name})))
-%         hasMIP = true;
-%     end
-%     if (~any(strcmp(args.imVersion,{imGrpInfo.Datasets.Name})))
-%         warning('No images with at this data field!');
-%         return
-%     end
 
     try
         inType = class(h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion],[1 1 1 1 1],[1 1 1 1 1]));

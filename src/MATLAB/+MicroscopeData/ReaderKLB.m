@@ -52,10 +52,14 @@ function [im, imD] = ReaderKLB(varargin)
 
     if (isempty(args.timeRange))
         args.timeRange = [1 imD.NumberOfFrames];
+    else
+        args.timeRange(2) = min(args.timeRange(2), imD.NumberOfFrames);
     end
 
     if (isempty(args.roi_xyz))
         args.roi_xyz = [1 1 1; imD.Dimensions];
+    else
+        args.roi_xyz(2,:) = min(args.roi_xyz(2,:),imD.Dimensions);
     end
 
     if (~exist(fullfile(imPath,[imD.DatasetName '.klb']),'file'))
