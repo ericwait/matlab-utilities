@@ -68,9 +68,9 @@ function [im, imD] = ReaderH5(varargin)
     end
 
     try
-        inType = class(h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion],[1 1 1 1 1],[1 1 1 1 1]));
-    catch
-        warning('No images with at this data field!');
+        inType = class(h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion],[1 1 1 args.chanList(1) args.timeRange(1)],[1 1 1 1 1]));
+    catch err
+        warning('%s\nNo images with this data field!',err.message);
         return
     end
     
@@ -154,12 +154,12 @@ function [im, imD] = ReaderH5(varargin)
     else
         for c=1:length(args.chanList)
             if (args.getMIP)
-                if (hasMIP)
+%                 if (hasMIP)
                     im(:,:,:,c,:) = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion,'_MIP'], [Utils.SwapXY_RC(args.roi_xyz(1,1:2)) 1 args.chanList(c) args.timeRange(1)], [imSize(1:2) 1 1 imSize(5)]);
-                else
-                    tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion], [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
-                    im(:,:,:,c,:) = max(tempIm,[],3);
-                end
+%                 else
+%                     tempIm = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion], [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
+%                     im(:,:,:,c,:) = max(tempIm,[],3);
+%                 end
             else
                 im(:,:,:,c,:) = h5read(fullfile(imPath,[imD.DatasetName '.h5']),['/Images/',args.imVersion], [Utils.SwapXY_RC(args.roi_xyz(1,:)) args.chanList(c) args.timeRange(1)], [imSize(1:3) 1 imSize(5)]);
             end
