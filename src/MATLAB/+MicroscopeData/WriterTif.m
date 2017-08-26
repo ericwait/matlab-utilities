@@ -20,7 +20,7 @@
 % ZLIST = the z slices that the input image represents
 % QUITE = suppress printing out progress
 
-function Writer(im, outDir, imageData, timeList, chanList, zList, quiet)
+function WriterTif(im, outDir, imageData, timeList, chanList, zList, quiet)
 if (exist('tifflib') ~= 3)
     tifflibLocation = which('/private/tifflib');
     if (isempty(tifflibLocation))
@@ -48,7 +48,7 @@ else
     imageData.NumberOfChannels = size(im,4);
     imageData.NumberOfFrames = size(im,5);
 
-    imageData.PixelPhysicalSize = [1.0, 1.0, 1.0]; 
+    imageData.PixelPhysicalSize = [1.0, 1.0, 1.0];
 end
 
 w = whos('im');
@@ -172,7 +172,7 @@ for t=1:length(timeList)
 
 %             fname = fullfile(outDir,[imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))]);
 %             imwrite(im(:,:,z,c,t),fname,'Compression','lzw');
-            
+
             if (~quiet)
                 cp.PrintProgress(i);
                 i = i+1;
