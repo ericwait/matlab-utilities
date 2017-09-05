@@ -36,6 +36,8 @@ function WriterKLB(im, varargin)
     addParameter(p,'chanList',[],@isvector);
     addParameter(p,'timeRange',[],@(x)(numel(x)==2));
     addParameter(p,'multiFile',false,@islogical);
+    addParameter(p,'filePerT',false,@islogical);
+    addParameter(p,'filePerC',false,@islogical);
 
     addParameter(p,'verbose',false,@islogical);
 
@@ -127,15 +129,40 @@ function WriterKLB(im, varargin)
         im = ImUtils.ConvertType(im,outType,false);
     end
 
-    fileName = fullfile(outDir,[args.imageData.DatasetName '.klb']);
-    tic
-    MicroscopeData.KLB.writeKLBstack(im, fileName, -1, [args.imageData.PixelPhysicalSize,1,1]);
+    fileName = fullfile(outDir,args.imageData.DatasetName);
+    prgs = Utils.CmdlnProgress(args.imageData.NumberOfChannels*args.imageData.NumberOfFrames,true);
+    if (args.filePerT)
+        if (args.filePerC)
+            for t=1:args.imageData.NumberOfFrames
+                for c=1:args.imageData.NumberOfChannels
+                    fileNameCT = sprintf('%s_c%d_t%04d',fileName,c,t);
+                    MicroscopeData.KLB.writeKLBstack(im(:,:,:,c,t), [fileNameCT,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1]);
+                    prgs.PrintProgress(c+(t-1)*args.imageData.NumberOfChannels);
+                end
+            end
+        else
+            for t=1:args.imageData.NumberOfFrames
+                fileNameT = sprintf('%s_t%04d',fileName,t);
+                MicroscopeData.KLB.writeKLBstack(im(:,:,:,:,t), [fileNameT,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1]);
+                prgs.PrintProgress(t*args.imageData.NumberOfChannels);
+            end
+        end
+    elseif (args.filePerC)
+        for c=1:args.imageData.NumberOfChannels
+            fileNameC = sprintf('%s_c%d',fileName,c);
+            MicroscopeData.KLB.writeKLBstack(squeeze(im(:,:,:,c,:)), [fileNameC,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1]);
+            prgs.PrintProgress(c*args.imageData.NumberOfFrames);
+        end
+    else
+        MicroscopeData.KLB.writeKLBstack(im, [fileNameC,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1]);
+    end
 
     if (args.verbose)
-        f = dir(fileName);
-        fprintf('Wrote %s %.0fMB-->%.0fMB in %s\n',...
+        prgs.ClearProgress(true);
+        f = dir([fileName,'*.klb']);
+        fBytes = sum([f.bytes]);
+        fprintf('Wrote %s %.0fMB-->%.0fMB\n',...
             args.imageData.DatasetName,...
-            (bytes*prod(args.imageData.Dimensions)*args.imageData.NumberOfChannels*args.imageData.NumberOfFrames)/(1024*1024),...
-            f.bytes/(1024*1024),Utils.PrintTime(toc));
+            (bytes*prod(args.imageData.Dimensions)*args.imageData.NumberOfChannels*args.imageData.NumberOfFrames)/(1024*1024),fBytes/1024/1024);
     end
 end

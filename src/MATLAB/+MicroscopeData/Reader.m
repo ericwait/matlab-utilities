@@ -43,8 +43,8 @@ function [im, imD] = Reader(varargin)
     end
 
     imPath = imD.imageDir;
-    klbFile = fullfile(imPath,[imD.DatasetName '.klb']);
-    if ( exist(klbFile,'file'))
+    klbFiles = dir(fullfile(imPath,[imD.DatasetName '*.klb']));
+    if ( ~isempty(klbFiles))
         [im,imD] = MicroscopeData.ReaderKLB('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz, 'getMIP',args.getMIP,...
             'outType',args.outType, 'normalize',args.normalize, 'imVersion',args.imVersion, 'verbose',args.verbose, 'prompt',false);
     else
