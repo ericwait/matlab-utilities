@@ -128,6 +128,10 @@ function WriterKLB(im, varargin)
     if (~strcmp(args.imageData.PixelFormat,outType))
         im = ImUtils.ConvertType(im,outType,false);
     end
+    
+    blockSize_xyzct = [64,64,args.imageData.Dimensions(3),1,1];
+    blockMem = prod(blockSize_xyzct)*bytes;
+    blockSize_xyzct(5) = max(1,floor((1024^2)/blockMem)); % try to get close to 1MB block size
 
     fileName = fullfile(outDir,args.imageData.DatasetName);
     prgs = Utils.CmdlnProgress(args.imageData.NumberOfChannels*args.imageData.NumberOfFrames,true);
@@ -136,25 +140,25 @@ function WriterKLB(im, varargin)
             for t=1:args.imageData.NumberOfFrames
                 for c=1:args.imageData.NumberOfChannels
                     fileNameCT = sprintf('%s_c%d_t%04d',fileName,c,t);
-                    MicroscopeData.KLB.writeKLBstack(im(:,:,:,c,t), [fileNameCT,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1]);
+                    MicroscopeData.KLB.writeKLBstack(im(:,:,:,c,t), [fileNameCT,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1], blockSize_xyzct);
                     prgs.PrintProgress(c+(t-1)*args.imageData.NumberOfChannels);
                 end
             end
         else
             for t=1:args.imageData.NumberOfFrames
                 fileNameT = sprintf('%s_t%04d',fileName,t);
-                MicroscopeData.KLB.writeKLBstack(im(:,:,:,:,t), [fileNameT,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1]);
+                MicroscopeData.KLB.writeKLBstack(im(:,:,:,:,t), [fileNameT,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1], blockSize_xyzct);
                 prgs.PrintProgress(t*args.imageData.NumberOfChannels);
             end
         end
     elseif (args.filePerC)
         for c=1:args.imageData.NumberOfChannels
             fileNameC = sprintf('%s_c%d',fileName,c);
-            MicroscopeData.KLB.writeKLBstack(squeeze(im(:,:,:,c,:)), [fileNameC,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1]);
+            MicroscopeData.KLB.writeKLBstack(squeeze(im(:,:,:,c,:)), [fileNameC,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1], blockSize_xyzct);
             prgs.PrintProgress(c*args.imageData.NumberOfFrames);
         end
     else
-        MicroscopeData.KLB.writeKLBstack(im, [fileNameC,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1]);
+        MicroscopeData.KLB.writeKLBstack(im, [fileName,'.klb'], -1, [args.imageData.PixelPhysicalSize,1,1], blockSize_xyzct);
     end
 
     if (args.verbose)
