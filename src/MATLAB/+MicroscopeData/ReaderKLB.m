@@ -134,7 +134,7 @@ function [im, imD] = ReaderKLB(varargin)
     end
     
     roi_xyz = args.roi_xyz;
-    roi_xyz(:,4) = [args.chanList(1);args.chanList(2)];
+    roi_xyz(:,4) = [args.chanList(1);args.chanList(end)];
     roi_xyz(:,5) = args.timeRange';
     im = readKLBChunk(imD,args.outType,roi_xyz,filePerC,filePerT,prgsIn);
 
