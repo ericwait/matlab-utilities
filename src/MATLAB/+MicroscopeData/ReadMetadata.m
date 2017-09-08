@@ -16,13 +16,14 @@ if (~exist('root','var') || isempty(root))
     root = '';
 end
 
-if (~isempty(root) && ~any(strcmp(root(end),{'\','/'})) && exist(root,'dir'))
+[~,~,ext] = fileparts(root);
+if (~isempty(root) && ~any(strcmp(root(end),{'\','/'})) && exist(root,'dir') && isempty(ext))
     root = fullfile(root, filesep);
 end
 
 % This is to help when the filename might have '.' whithin them
 % TODO rework this logic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if (exist([root,'.json'],'file'))
+if (isempty(ext) && exist([root,'.json'],'file'))
     root = [root,'.json'];
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
