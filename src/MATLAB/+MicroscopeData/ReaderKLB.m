@@ -70,8 +70,8 @@ function [im, imD] = ReaderKLB(varargin)
 
     try
         inType = class(MicroscopeData.KLB.readKLBroi(fullfile(imPath,klbList(1).name),ones(2,5)));
-    catch
-        warning('No images with at this data field!');
+    catch err
+        warning(err.identifier,'%s\nNo images with at this data field!',err.message);
         return
     end
     
@@ -173,6 +173,9 @@ end
 function im = readKLBChunk(imD,outType,roi_xyz,filePerC,filePerT,prgs)
     im = zeros(Utils.SwapXY_RC(roi_xyz(2,:)-roi_xyz(1,:))+1,outType);
     
+    myCluster = parcluster('local');
+    threads = myCluster.NumWorkers;
+    
     if (filePerC)
         if (filePerT)
             % individual image per c and t
@@ -180,7 +183,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,filePerC,filePerT,prgs)
             for t=roi_xyz(1,5):roi_xyz(2,5)
                 for c=roi_xyz(1,4):roi_xyz(2,4)
                     fileName = sprintf('%s_c%d_t%04d.klb',imD.DatasetName,c,t);
-                    im(:,:,:,c,t) = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,1]; [roi_xyz(2,1:3),1,1]]));     
+                    im(:,:,:,c,t) = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,1]; [roi_xyz(2,1:3),1,1]]),threads);     
                     i = i +1;
                     if (~isempty(prgs))
                         prgs.PrintProgress(i);
@@ -192,7 +195,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,filePerC,filePerT,prgs)
             i=0;
             for c=roi_xyz(1,4):roi_xyz(2,4)
                 fileName = sprintf('%s_c%d.klb',imD.DatasetName,c);
-                im(:,:,:,c,:) = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,roi_xyz(1,5)]; [roi_xyz(2,1:3),1,roi_xyz(2,5)]]));
+                im(:,:,:,c,:) = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,roi_xyz(1,5)]; [roi_xyz(2,1:3),1,roi_xyz(2,5)]]),threads);
                 i = i +1;
                 if (~isempty(prgs))
                     prgs.PrintProgress(i*imD.NumberOfFrames);
@@ -204,7 +207,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,filePerC,filePerT,prgs)
         i = 0;
         for t=roi_xyz(1,5):roi_xyz(2,5)
             fileName = sprintf('%s_t%04d.klb',imD.DatasetName,t);
-            im(:,:,:,:,t) = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:4),1]; [roi_xyz(2,1:4),1]]));
+            im(:,:,:,:,t) = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:4),1]; [roi_xyz(2,1:4),1]]),threads);
             i = i +1;
             if (~isempty(prgs))
                 prgs.PrintProgress(i*imD.NumberOfChannels);
@@ -212,6 +215,6 @@ function im = readKLBChunk(imD,outType,roi_xyz,filePerC,filePerT,prgs)
         end
     else
         % only one file
-        im = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),Utils.SwapXY_RC(roi_xyz));
+        im = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),Utils.SwapXY_RC(roi_xyz),threads);
     end
 end
