@@ -71,7 +71,7 @@ function [im, imD] = ReaderKLB(varargin)
     try
         inType = class(MicroscopeData.KLB.readKLBroi(fullfile(imPath,klbList(1).name),ones(2,5)));
     catch err
-        warning(err.identifier,'%s\nNo images with at this data field!',err.message);
+        warning(sprintf('%s\nNo images with at this data field!',err.message));
         return
     end
     
