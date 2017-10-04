@@ -40,22 +40,26 @@ for series=0:bfReader.getSeriesCount()-1
 
     imageData.PixelPhysicalSize = [xPixelPhysicalSize, yPixelPhysicalSize, zPixelPhysicalSize];
 
-    positionType = omeMetadata.getPlanePositionX(series,0).unit.getSymbol();
-    if (strcmp(positionType,'reference frame'))
-        imageData.Position = [safeGetValue(omeMetadata.getPlanePositionX(series,0)),...
-            safeGetValue(omeMetadata.getPlanePositionY(series,0)),...
-            safeGetValue(omeMetadata.getPlanePositionZ(series,0))];
-        if (series>0)
-            imageData.Position = refPosition + imageData.Position.*imageData.PixelPhysicalSize;
+    if (~isempty(omeMetadata.getPlanePositionX(series,0)))
+        positionType = omeMetadata.getPlanePositionX(series,0).unit.getSymbol();
+        if (strcmp(positionType,'reference frame'))
+            imageData.Position = [safeGetValue(omeMetadata.getPlanePositionX(series,0)),...
+                safeGetValue(omeMetadata.getPlanePositionY(series,0)),...
+                safeGetValue(omeMetadata.getPlanePositionZ(series,0))];
+            if (series>0)
+                imageData.Position = refPosition + imageData.Position.*imageData.PixelPhysicalSize;
+            end
+        else
+            imageData.Position = [double(omeMetadata.getPlanePositionX(series,0).value(ome.units.UNITS.MICROMETER)),...
+                double(omeMetadata.getPlanePositionY(series,0).value(ome.units.UNITS.MICROMETER)),...
+                double(omeMetadata.getPlanePositionZ(series,0).value(ome.units.UNITS.MICROMETER))];
+            
+            if (series==0)
+                refPosition = imageData.Position;
+            end
         end
     else
-        imageData.Position = [double(omeMetadata.getPlanePositionX(series,0).value(ome.units.UNITS.MICROMETER)),...
-            double(omeMetadata.getPlanePositionY(series,0).value(ome.units.UNITS.MICROMETER)),...
-            double(omeMetadata.getPlanePositionZ(series,0).value(ome.units.UNITS.MICROMETER))];
-        
-        if (series==0)
-            refPosition = imageData.Position;
-        end
+        imageData.Position = [0,0,0];
     end
                           
     imageData.ChannelNames = cell(imageData.NumberOfChannels,1);
