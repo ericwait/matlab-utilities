@@ -14,8 +14,8 @@ for signalChan=1:length(imSinglePos)
     curSignal = imSinglePos{signalChan};
     curCon = zeros(size(curSignal),'like',curSignal);
     for responceChan=1:size(curSignal,4)
-        responceIm = curSignal(:,:,:,responceChan);
-        curCon(:,:,:,responceChan) = Cuda.ContrastEnhancement(responceIm,[75,75,20],[3,3,3],1);
+        responceIm = curSignal(:,:,:,responceChan,1);
+        curCon(:,:,:,responceChan) = ImProc.ContrastEnhancement(responceIm,[75,75,20],[3,3,3]);
     end
     contrastImage{signalChan} = curCon;
     mask = curCon>0.02;

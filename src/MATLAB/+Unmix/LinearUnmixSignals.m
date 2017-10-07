@@ -38,7 +38,8 @@ if (showPlots)
     prgs = Utils.CmdlnProgress(length(imSinglePos),true,'Unmixing Single Pos');
     for i=1:length(imSinglePos)
         curIm = imSinglePos{i};
-        imSPsigUn{i} = Cuda.Mex('LinearUnmixing',curIm,unmixingMatrix);
+        curIm = curIm(:,:,:,:,1);
+        imSPsigUn{i} = ImProc.LinearUnmixing(curIm,unmixingMatrix);
         prgs.PrintProgress(i);
     end
     prgs.ClearProgress(true);
