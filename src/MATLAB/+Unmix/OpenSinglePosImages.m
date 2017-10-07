@@ -40,13 +40,13 @@ if (strcmp(choice,'No'))
     return;
 end
 
-im = MicroscopeData.ReaderH5(singlePosFiles(1).path);
+im = MicroscopeData.Reader(singlePosFiles(1).path);
 imSinglePos = cell(length(singlePosFiles),1);
 imSinglePos{1} = im;
 
 prgs = Utils.CmdlnProgress(length(singlePosFiles)-1,true,'Opening Single Pos');
 for i=2:length(singlePosFiles)
-    curIm = MicroscopeData.ReaderH5(singlePosFiles(i).path);
+    curIm = MicroscopeData.Reader(singlePosFiles(i).path);
     imSinglePos{i} = curIm;
     prgs.PrintProgress(i);
 end
