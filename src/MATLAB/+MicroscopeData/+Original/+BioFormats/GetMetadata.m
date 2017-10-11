@@ -40,6 +40,7 @@ for series=0:bfReader.getSeriesCount()-1
 
     imageData.PixelPhysicalSize = [xPixelPhysicalSize, yPixelPhysicalSize, zPixelPhysicalSize];
 
+    try
     if (~isempty(omeMetadata.getPlanePositionX(series,0)))
         positionType = omeMetadata.getPlanePositionX(series,0).unit.getSymbol();
         if (strcmp(positionType,'reference frame'))
@@ -59,6 +60,9 @@ for series=0:bfReader.getSeriesCount()-1
             end
         end
     else
+        imageData.Position = [0,0,0];
+    end
+    catch err
         imageData.Position = [0,0,0];
     end
                           
