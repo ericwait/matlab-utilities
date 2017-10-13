@@ -73,7 +73,7 @@ if (~exist(fullfile(outDir,name),'dir') || overwrite)
             elseif (strcmpi(outType,'h5'))
                 MicroscopeData.WriterH5(im,outDir,'imageData',imD{i},'verbose',~quiet);
             elseif (strcmpi(outType,'tif') || strcmpi(outType,'tiff'))
-                MicroscopeData.Writer(im,outDir,imD{i},[],[],[],quiet);
+                MicroscopeData.WriterTif(im,outDir,'imageData',imD{i},'verbose',~quiet);
             elseif (strcmpi(outType,'jpg'))
                 im = ImUtils.ConvertType(im,'uint8',true);
                 MicroscopeData.WriterJPG(im,fullfile(outDir,imD{i}.DatasetName),'imageData',imD{i},'verbose',~quiet);
