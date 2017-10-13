@@ -1,192 +1,171 @@
-% TIFFWRITER(IM, PREFIX, IMAGEDATA, TIMELIST, CHANLIST, ZLIST, QUIET)
-% TIMELIST, CHANLIST, and ZLIST are optional; pass in empty [] for the
-% arguments that come prior to the one you would like to populate.
+% WriterTif(im, path, varargin)
+% 
+% Optional Parameters (Key,Value pairs):
 %
-% IM = the image data to write. Assumes a 5-D image in the format
-% (X,Y,Z,channel,time). If the image already exists and TIMELIST, CHANLIST,
-% and ZLIST are populated with less then the whole image, the existing
-% image is updated.  If the file does not exist and the image data doesn't
-% fill the whole image, the rest will be filled in with black (zeros)
-% frames.
-%
-% PREFIX = filepath in the format ('c:\path\FilePrefix') unless there is no
-% imagedata in which case it should be ('c:\path)
-% IMAGEDATA = metadata that will be written to accompany the image.  If you
-% want this generated from the image data only, this paramater should be
-% just a string representing the dataset name.  See PREFIX above in such
-% case.
-% TIMELIST = a list of frames that the fifth dimention represents
-% CHANLIST = the channels that the input image represents
-% ZLIST = the z slices that the input image represents
-% QUITE = suppress printing out progress
+% imageData - Input metadata, if specified, the optional path argument is ignored
+% chanList - List of channels to write
+% timeRange - Range min and max times to write
+% verbose - Display verbose output and timing information
 
-function WriterTif(im, outDir, imageData, timeList, chanList, zList, quiet)
-if (exist('tifflib') ~= 3)
-    tifflibLocation = which('/private/tifflib');
-    if (isempty(tifflibLocation))
-        error('tifflib does not exits on this machine!');
+function WriterTif(im, varargin)
+
+    dataTypeLookup = {'uint8';'uint16';'uint32';'uint64';
+                      'int8';'int16';'int32';'int64';
+                      'single';'double';
+                      'logical'};
+
+    dataTypeSize = [1;2;4;8;
+                    1;2;4;8;
+                    4;8;
+                    1];
+
+    p = inputParser();
+    p.StructExpand = false;
+
+    % This is ridiculous, but we assume that the optional path is specified if
+    % length(varargin) is odd
+    if ( mod(length(varargin),2) == 1 )
+        addOptional(p,'path','',@ischar);
+    else
+        addParameter(p,'path','',@ischar);
     end
-    copyfile(tifflibLocation,'.');
-end
 
-if (~exist('quiet','var') || isempty(quiet))
-    quiet = 0;
-end
+    addParameter(p,'datasetName',[],@ischar);
+    addParameter(p,'imageData',[],@isstruct);
 
-if (exist('imageData','var') && ~isempty(imageData) && isfield(imageData,'DatasetName'))
-    idx = strfind(imageData.DatasetName,'"');
-    imageData.DatasetName(idx) = [];
-else
-    if isstruct(imageData)
-        error('ImageData struct is malformed!');
+    addParameter(p,'chanList',[],@isvector);
+    addParameter(p,'timeRange',[],@(x)(numel(x)==2));
+    addParameter(p,'multiFile',false,@islogical);
+    addParameter(p,'filePerZ',false,@islogical);
+
+    addParameter(p,'verbose',false,@islogical);
+
+    parse(p,varargin{:});
+    args = p.Results;
+
+    % If a path is specified we will use that instead of imageDir in matadata
+    [outDir,datasetName] = MicroscopeData.Helper.ParsePathArg(args.path,'.klb');
+
+    if ( ~isempty(args.datasetName) )
+        datasetName = args.datasetName;
     end
-    dName = imageData;
-    imageData = [];
-    imageData.DatasetName = dName;
 
-    imageData.Dimensions = Utils.SwapXY_RC(size(im));
-    imageData.NumberOfChannels = size(im,4);
-    imageData.NumberOfFrames = size(im,5);
-
-    imageData.PixelPhysicalSize = [1.0, 1.0, 1.0];
-end
-
-w = whos('im');
-switch w.class
-    case 'uint8'
-        tags.SampleFormat = Tiff.SampleFormat.UInt;
-        tags.BitsPerSample = 8;
-    case 'uint16'
-        tags.SampleFormat = Tiff.SampleFormat.UInt;
-        tags.BitsPerSample = 16;
-    case 'uint32'
-        tags.SampleFormat = Tiff.SampleFormat.UInt;
-        tags.BitsPerSample = 32;
-    case 'int8'
-        tags.SampleFormat = Tiff.SampleFormat.Int;
-        tags.BitsPerSample = 8;
-    case 'int16'
-        tags.SampleFormat = Tiff.SampleFormat.Int;
-        tags.BitsPerSample = 16;
-    case 'int32'
-        tags.SampleFormat = Tiff.SampleFormat.Int;
-        tags.BitsPerSample = 32;
-    case 'single'
-        tags.SampleFormat = Tiff.SampleFormat.IEEEFP;
-        tags.BitsPerSample = 32;
-    case 'double'
-        tags.SampleFormat = Tiff.SampleFormat.IEEEFP;
-        tags.BitsPerSample = 64;
-    case 'logical'
-        imtemp = zeros(size(im),'uint8');
-        imtemp(im) = 255;
-        im = imtemp;
-        clear imtemp
-        tags.SampleFormat = Tiff.SampleFormat.UInt;
-        tags.BitsPerSample = 8;
-    otherwise
-        error('Image type unsupported!');
-end
-
-if (~isfield(imageData,'PixelFormat'))
-    imageData.PixelFormat = w.class;
-end
-
-if (exist('outDir','var') && ~isempty(outDir))
-    idx = strfind(outDir,'"');
-    outDir(idx) = [];
-elseif (isfield(imageData,'imageDir') && ~isempty(imageData.imageDir))
-    outDir = imageData.imageDir;
-else
-    outDir = fullfile('.',imageData.DatasetName);
-end
-
-MicroscopeData.CreateMetadata(outDir,imageData,quiet);
-
-if (~exist('timeList','var') || isempty(timeList))
-    timeList = 1:imageData.NumberOfFrames;
-else
-    if (max(timeList(:))>imageData.NumberOfFrames)
-        error('A value in timeList is greater than the number of frames in the image data!');
+    if ( isempty(args.imageData) && isempty(datasetName) )
+        error('Either imageData, a datasetName, or a full file path must be provided!');
     end
-end
-if (size(im,5)~=length(timeList))
-    error('There are %d frames and %d frames to be written!',size(im,5),length(timeList));
-end
 
-if (~exist('chanList','var') || isempty(chanList))
-    chanList = 1:imageData.NumberOfChannels;
-else
-    if (max(chanList(:))>imageData.NumberOfChannels)
+    if ( isempty(args.imageData) )
+        args.imageData.DatasetName = datasetName;
+
+        chkSize = size(im);
+        args.imageData.Dimensions = Utils.SwapXY_RC(chkSize(1:3));
+        args.imageData.NumberOfChannels = chkSize(4);
+        args.imageData.NumberOfFrames = chkSize(5);
+
+        args.imageData.PixelPhysicalSizes = [1.0, 1.0, 1.0];
+    elseif ( ~isempty(datasetName) )
+        args.imageData.DatasetName = datasetName;
+    end
+
+    % Remove any quotes from the dataset name
+    args.imageData.DatasetName = strrep(args.imageData.DatasetName,'"','');
+
+    w = whos('im');
+    typeIdx = find(strcmp(w.class,dataTypeLookup));
+    if ( ~isempty(typeIdx) )
+        bytes = dataTypeSize(typeIdx);
+    else
+        error('Unsuported pixel type!');
+    end
+
+    if (~isfield(args.imageData,'PixelFormat'))
+        args.imageData.PixelFormat = w.class;
+    end
+
+    if ( isempty(outDir) )
+        outDir = '.';
+    end
+
+    outDir = strrep(outDir, '"','');
+    % fix if image type if the image is different
+    if (~isfield(args.imageData,'PixelFormat'))
+        args.imageData.PixelFormat = class(im);
+    elseif (~strcmp(args.imageData.PixelFormat,class(im)))
+        args.imageData.PixelFormat = class(im);
+    end
+
+    MicroscopeData.CreateMetadata(outDir,args.imageData,~args.verbose);
+
+    if ( isempty(args.chanList) )
+        args.chanList = 1:args.imageData.NumberOfChannels;
+    end
+
+    if ( isempty(args.timeRange) )
+        args.timeRange = [1 args.imageData.NumberOfFrames];
+    end
+
+    if ( max(args.chanList) > args.imageData.NumberOfChannels)
         error('A value in chanList is greater than the number of channels in the image data!');
     end
-end
-if (size(im,4)~=length(chanList))
-    error('There are %d channels and %d channels to be written!',size(im,4),length(chanList));
-end
 
-if (~exist('zList','var') || isempty(zList))
-    zList = 1:imageData.Dimensions(3);
-else
-    if (max(zList(:))>imageData.Dimensions(3))
-        error('A value in zList is greater than the z dimension in the image data!');
+    if ( args.timeRange(2) > args.imageData.NumberOfFrames )
+        error('Specified time range is larger than the total number of frames.');
     end
-end
-if (size(im,3)~=length(zList))
-    error('There are %d z images and %d z images to be written!',size(im,3),length(zList));
-end
 
-tags.ImageLength = size(im,1);
-tags.ImageWidth = size(im,2);
-tags.RowsPerStrip = size(im,2);
-tags.Photometric = Tiff.Photometric.MinIsBlack;
-tags.ExtraSamples = Tiff.ExtraSamples.Unspecified;
-tags.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
-tags.SamplesPerPixel = 1;
-tags.Compression = Tiff.Compression.LZW;
-tags.Software = 'MATLAB';
+    if ( size(im,4)~=length(args.chanList) )
+        error('There are %d channels and %d channels to be written!',size(im,4),length(args.chanList));
+    end
 
-if (~quiet)
-    iter = length(timeList)*length(chanList)*length(zList);
-    cp = Utils.CmdlnProgress(iter,true,sprintf('Writing %s...',imageData.DatasetName));
-    i=1;
-end
+    %save metadata for the type we want not the type we have to store
+    if (strcmp(args.imageData.PixelFormat,'logical'))
+        outType = 'uint8';
+        im = ImUtils.ConvertType(im,'uint8',false);
+    else
+        outType = args.imageData.PixelFormat;
+    end
 
-isBig = false;
-if (tags.BitsPerSample/8 * prod(imageData.Dimensions) > 0.95*2^32)
-    isBig = true;
-end
+    if (~strcmp(args.imageData.PixelFormat,outType))
+        im = ImUtils.ConvertType(im,outType,false);
+    end
 
-tic
-for t=1:length(timeList)
-    for c=1:length(chanList)
-        for z=1:length(zList)
-            if (isBig)
-                tiffObj = Tiff(fullfile(outDir,[imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))]),'w8');
+    tags.ImageLength = size(im,1);
+    tags.ImageWidth = size(im,2);
+    tags.RowsPerStrip = size(im,2);
+    tags.Photometric = Tiff.Photometric.MinIsBlack;
+    tags.ExtraSamples = Tiff.ExtraSamples.Unspecified;
+    tags.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
+    tags.SamplesPerPixel = 1;
+    tags.Compression = Tiff.Compression.LZW;
+    tags.Software = 'MATLAB';
+    tags.BitsPerSample = bytes * 8;
+    
+    prgs = Utils.CmdlnProgress(size(im,4)*size(im,5),true,['Writing ', args.imageData.DatasetName]);
+    for t=1:size(im,5)
+        for c=1:size(im,4)
+            if (args.filePerZ)
+                for z=1:size(im,3)
+                    tiffObj = Tiff(fullfile(outDir,[args.imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',args.chanList(c),args.timeRange(1)+t-1,z)]),'w');
+                    tiffObj.setTag(tags);
+                    tiffObj.write(im(:,:,z,c,t),tags);
+                    tiffObj.close();
+                end
             else
-                tiffObj = Tiff(fullfile(outDir,[imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))]),'w');
+                tiffObj = Tiff(fullfile(outDir,[args.imageData.DatasetName,sprintf('_c%02d_t%04d.tif',args.chanList(c),args.timeRange(1)+t-1)]),'w');
+                for z=1:size(im,3)
+                    tiffObj.setTag(tags);
+                    tiffObj.write(im(:,:,z,c,t),tags);
+                    tiffObj.writeDirectory();
+                end
+                tiffObj.close();
             end
-            tiffObj.setTag(tags);
-            tiffObj.write(im(:,:,z,c,t),tags);
-            tiffObj.close();
-
-%             fname = fullfile(outDir,[imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',chanList(c),timeList(t),zList(z))]);
-%             imwrite(im(:,:,z,c,t),fname,'Compression','lzw');
-
-            if (~quiet)
-                cp.PrintProgress(i);
-                i = i+1;
+            if (args.verbose)
+                prgs.PrintProgress(c+(t-1)*size(im,4));
             end
-
         end
     end
+    if (args.verbose)
+        prgs.ClearProgress(true);
+        w = whos('im');
+        fprintf('Wrote %.0fMB\n',w.bytes/(1024*1024));
+    end
 end
-
-if (~quiet)
-    cp.ClearProgress();
-    fprintf('Wrote %.0fMB in %s\n',...
-        ((tags.BitsPerSample/8)*prod(imageData.Dimensions)*imageData.NumberOfChannels*imageData.NumberOfFrames)/(1024*1024),...
-        Utils.PrintTime(toc));
-end
-end
-
