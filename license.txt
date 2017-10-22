@@ -1,0 +1,16 @@
+
+All software in this project is copyright (c) 2015-2017 Drexel University.
+
+This release of leverUtilities is not yet public. It is intended for reviewer evaluation,
+and for select external collaborators working with Dr. Cohen's group. For now, the 
+software should be considered "unlicensed". Please do not redistribute or share.
+
+The software will be released free and open source concurrent with the publication
+of a manuscript describing the work. 
+
+We are still deciding which license to release under. This project does utilize the bioformats code 
+(http://www.openmicroscopy.org/bio-formats/) to convert from microscope file formats to an internal 
+lever format. Bioformats is distributed under the GPL, so any derivatives using bioformats must also
+be distributed under the GPL. This conversion is not central to lever.js or the leverUtilities project,
+so it may be possible to redistribute under a more permissive license. Please contact acohen 'at' coe.drexel.edu
+if you have an opinion on this.
