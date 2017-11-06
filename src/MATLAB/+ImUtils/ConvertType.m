@@ -28,11 +28,14 @@ end
 % deal with images that come in as 16 bit but are really a lesser bit depth
 if (strcmpi(w.class,'uint16') && ~normalize)
     imMax = max(imageIn(:));
-    maxTypes = [2^8-1,2^10-1,2^12-1];
+    maxTypes = [2^8-1,2^10-1,2^12-1,2^14-1];
     isBigger = maxTypes < double(imMax);
-    if (isBigger(3))
+    if (isBigger(4))
         % truly a 16 bit image
         % do nothing
+    elseif (isBigger(3))
+        % is really a 14 bit image
+        imageIn = single(imageIn)./single(maxTypes(3));
     elseif (isBigger(2))
         % is really a 12 bit image
         imageIn = single(imageIn)./single(maxTypes(3));
@@ -117,19 +120,21 @@ end
 function im = convertToMaxOfOne(im,outTyp)
 switch outTyp
     case 'uint8'
-        im = im./2^8;
+        im = im./2^8-1;
     case 'uint16'
-        if (max(im(:))<2^12+1)
-            im = im./2^12;
+        if (max(im(:))<2^12)
+            im = im./(2^12-1);
+        elseif (max(im(:))<2^14)
+            im = im./(2^14-1);
         else
-            im = im./2^16;
+            im = im./(2^16-1);
         end
     case 'int16'
-        im = im./2^15-1;
+        im = im./(2^16/2);
     case 'uint32'
-        im = im./2^32;
+        im = im./(2^32/2);
     case 'int32'
-        im = im./2^32-1;
+        im = im./(2^32/2);
     case 'single'
         im = im./max(im(:));
     case 'double'
