@@ -9,10 +9,8 @@
 
 function WriterTif(im, varargin)
 
-    dataTypeLookup = {'uint8';'uint16';'uint32';'uint64';
-                      'int8';'int16';'int32';'int64';
-                      'single';'double';
-                      'logical'};
+    dataTypeLookup = {'uint8';'uint16';'uint32'
+                      'int8';'int16';'int32'};
 
     dataTypeSize = [1;2;4;8;
                     1;2;4;8;
@@ -75,7 +73,20 @@ function WriterTif(im, varargin)
     if ( ~isempty(typeIdx) )
         bytes = dataTypeSize(typeIdx);
     else
-        error('Unsuported pixel type!');
+        switch w.class
+            case 'logical'
+                im = ImUtils.ConvertType(im,'uint8');
+                warning('This image was converted to uint8 prior to writing!');
+            case 'single'
+                im = ImUtils.ConvertType(im,'uint16',true);
+                warning('This image was converted to uint16 prior to writing! Each channel was normalized independently. If this is undesirable, convert the image prior to calling WriterTif.');
+            case 'double'
+                im = ImUtils.ConvertType(im,'uint32',true);
+                warning('This image was converted to uint32 prior to writing! Each channel was normalized independently. If this is undesirable, convert the image prior to calling WriterTif.');
+        end
+        w = whos('im');
+        typeIdx = find(strcmp(w.class,dataTypeLookup));
+        bytes = dataTypeSize(typeIdx);
     end
 
     if (~isfield(args.imageData,'PixelFormat'))
@@ -139,18 +150,30 @@ function WriterTif(im, varargin)
     tags.Software = 'MATLAB';
     tags.BitsPerSample = bytes * 8;
     
+    writeType = 'w';
+    if (args.filePerZ)
+        if (0.9*(2^32-1)<bytes*size(im,1)*size(im,2))
+            writeType = 'w8';
+        end
+    else
+        if (0.9*(2^32-1)<bytes*size(im,1)*size(im,2)*size(im,3))
+            writeType = 'w8';
+        end
+    end
+    
     prgs = Utils.CmdlnProgress(size(im,4)*size(im,5),true,['Writing ', args.imageData.DatasetName]);
     for t=1:size(im,5)
         for c=1:size(im,4)
             if (args.filePerZ)
                 for z=1:size(im,3)
-                    tiffObj = Tiff(fullfile(outDir,[args.imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',args.chanList(c),args.timeRange(1)+t-1,z)]),'w');
+                    tiffObj = Tiff(fullfile(outDir,[args.imageData.DatasetName,sprintf('_c%02d_t%04d_z%04d.tif',args.chanList(c),args.timeRange(1)+t-1,z)]),writeType);
                     tiffObj.setTag(tags);
                     tiffObj.write(im(:,:,z,c,t),tags);
                     tiffObj.close();
                 end
             else
-                tiffObj = Tiff(fullfile(outDir,[args.imageData.DatasetName,sprintf('_c%02d_t%04d.tif',args.chanList(c),args.timeRange(1)+t-1)]),'w');
+
+                tiffObj = Tiff(fullfile(outDir,[args.imageData.DatasetName,sprintf('_c%02d_t%04d.tif',args.chanList(c),args.timeRange(1)+t-1)]),writeType);
                 for z=1:size(im,3)
                     tiffObj.setTag(tags);
                     tiffObj.write(im(:,:,z,c,t),tags);
