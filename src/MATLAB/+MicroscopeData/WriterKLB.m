@@ -8,17 +8,6 @@
 % verbose - Display verbose output and timing information
 
 function WriterKLB(im, varargin)
-
-    dataTypeLookup = {'uint8';'uint16';'uint32';'uint64';
-                      'int8';'int16';'int32';'int64';
-                      'single';'double';
-                      'logical'};
-
-    dataTypeSize = [1;2;4;8;
-                    1;2;4;8;
-                    4;8;
-                    1];
-
     p = inputParser();
     p.StructExpand = false;
 
@@ -71,13 +60,7 @@ function WriterKLB(im, varargin)
     % Remove any quotes from the dataset name
     args.imageData.DatasetName = strrep(args.imageData.DatasetName,'"','');
 
-    w = whos('im');
-    typeIdx = find(strcmp(w.class,dataTypeLookup));
-    if ( ~isempty(typeIdx) )
-        bytes = dataTypeSize(typeIdx);
-    else
-        error('Unsuported pixel type!');
-    end
+    bytes = MicroscopeData.Helper.GetBytesPerVoxel(im);
 
     if (~isfield(args.imageData,'PixelFormat'))
         args.imageData.PixelFormat = w.class;
@@ -129,47 +112,5 @@ function WriterKLB(im, varargin)
         im = ImUtils.ConvertType(im,outType,false);
     end
     
-    blockSize_xyzct = [64,64,args.imageData.Dimensions(3),1,1];
-    blockMem = prod(blockSize_xyzct)*bytes;
-    blockSize_xyzct(5) = max(1,floor((1024^2)/blockMem)); % try to get close to 1MB block size
-    
-    myCluster = parcluster('local');
-    threads = myCluster.NumWorkers;
-
-    fileName = fullfile(outDir,args.imageData.DatasetName);
-    prgs = Utils.CmdlnProgress(args.imageData.NumberOfChannels*args.imageData.NumberOfFrames,true);
-    if (args.filePerT)
-        if (args.filePerC)
-            for t=1:args.imageData.NumberOfFrames
-                for c=1:args.chanList
-                    fileNameCT = sprintf('%s_c%d_t%04d',fileName,args.chanList(c),t);
-                    MicroscopeData.KLB.writeKLBstack(im(:,:,:,c,t), [fileNameCT,'.klb'], threads, [args.imageData.PixelPhysicalSize,1,1], blockSize_xyzct);
-                    prgs.PrintProgress(c+(t-1)*args.imageData.NumberOfChannels);
-                end
-            end
-        else
-            for t=1:args.imageData.NumberOfFrames
-                fileNameT = sprintf('%s_t%04d',fileName,t);
-                MicroscopeData.KLB.writeKLBstack(im(:,:,:,:,t), [fileNameT,'.klb'], threads, [args.imageData.PixelPhysicalSize,1,1], blockSize_xyzct);
-                prgs.PrintProgress(t*args.imageData.NumberOfChannels);
-            end
-        end
-    elseif (args.filePerC)
-        for c=1:length(args.chanList)
-            fileNameC = sprintf('%s_c%d',fileName,args.chanList(c));
-            MicroscopeData.KLB.writeKLBstack(squeeze(im(:,:,:,c,:)), [fileNameC,'.klb'], threads, [args.imageData.PixelPhysicalSize,1,1], blockSize_xyzct);
-            prgs.PrintProgress(c*args.imageData.NumberOfFrames);
-        end
-    else
-        MicroscopeData.KLB.writeKLBstack(im, [fileName,'.klb'], threads, [args.imageData.PixelPhysicalSize,1,1], blockSize_xyzct);
-    end
-
-    if (args.verbose)
-        prgs.ClearProgress(true);
-        f = dir([fileName,'*.klb']);
-        fBytes = sum([f.bytes]);
-        fprintf('Wrote %s %.0fMB-->%.0fMB\n',...
-            args.imageData.DatasetName,...
-            (bytes*prod(args.imageData.Dimensions)*args.imageData.NumberOfChannels*args.imageData.NumberOfFrames)/(1024*1024),fBytes/1024/1024);
-    end
+    MicroscopeData.KLB_(im,args.imageData.DatasetName,outDir,args.imageData.PixelPhysicalSize,args.chanList,args.timeRange,args.filePerT,args.filePerC,args.verbose);
 end
