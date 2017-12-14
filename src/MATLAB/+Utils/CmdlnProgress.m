@@ -75,6 +75,7 @@ classdef CmdlnProgress<handle
             else
                 fprintf('\n');
             end
+            drawnow
         end
         
         function ReprintProgress(obj,val)
