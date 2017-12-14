@@ -19,7 +19,7 @@ else
         onlyOneSeries = true;
     end
 
-    for series=0:numSeries-1;
+    for series=0:numSeries-1
         im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs);
 
         seriesImages{series+1} = im;
