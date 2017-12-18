@@ -1,4 +1,38 @@
-function [imROI,imROID] = GetRoi(im,imD)
+function [imR,imRD] = GetRoi(pathToJson)
+
+    imROI = [];
+    imROID = '';
+    if (~exist('pathToJson','var') || isempty(pathToJson))
+        [fileName,pathName,filterIndex] = uigetfile('*.json');
+        if (filterIndex==0)
+            return
+        end
+        
+        pathToJson = fullfile(pathName,fileName);
+    end
+    
+    imD = MicroscopeData.ReadMetadata(pathToJson);
+    
+    m = memory;
+    [~,tMem] = MicroscopeData.GetImageSetSizeInBytes(imD,imD.PixelFormat);
+    numFrames = m.MemAvailableAllArrays /2 /tMem;
+    numFrames = min(20,numFrames);
+    numFrames = max(1,numFrames);
+    timeStride = floor(imD.NumberOfFrames/numFrames);
+    getFrames = 1:timeStride:imD.NumberOfFrames;
+    
+    imDT = imD;
+    imDT.NumberOfFrames = length(getFrames);
+    im = zeros([Utils.SwapXY_RC(imD.Dimensions),imD.NumberOfChannels,imDT.NumberOfFrames],imD.PixelFormat);
+    
+    t = 1;
+    prgs = Utils.CmdlnProgress(numel(getFrames),true,'Reading images');
+    for gt=getFrames
+        im(:,:,:,:,t) = MicroscopeData.Reader(imD.imageDir,'timeRange',[gt,gt]);
+        t = t +1;
+        prgs.PrintProgress(t);
+    end
+    prgs.ClearProgress(true);
 
     imZproject = ImUtils.ThreeD.GetTemproalMaxProjection(im);
 
@@ -14,8 +48,10 @@ function [imROI,imROID] = GetRoi(im,imD)
     imZproject = imNorm;
     clear imNorm
 
+    imC = ImUtils.ThreeD.ColorMIP(permute(imZproject,[1,2,4,3]),imD.ChannelColors);
+    
     f = figure;
-    bw = roipoly(imZproject);
+    bw = roipoly(imC);
     close(f);
     clear imZproject
     
@@ -43,8 +79,9 @@ function [imROI,imROID] = GetRoi(im,imD)
     imXproject = imNorm;
     clear imNorm
 
+    imC = ImUtils.ThreeD.ColorMIP(permute(imXproject,[1,2,4,3]),imD.ChannelColors);
     f = figure;
-    bw = roipoly(imXproject);
+    bw = roipoly(imC);
     close(f);
     clear imXproject
     
@@ -53,24 +90,21 @@ function [imROI,imROID] = GetRoi(im,imD)
     zMax = max(c(:));
     zExt = [zMin,zMax];
     
-    imROI = im(yExt(1):yExt(2),xExt(1):xExt(2),zExt(1):zExt(2),:,:);
+    xyz_roi = [xExt(1),yExt(1),zExt(1);xExt(2),yExt(2),zExt(2)];
+    [imMax,imDMax] = MicroscopeData.Reader(pathToJson,'getMIP',true,'roi_xyz',xyz_roi,'verbose',true);
 
-    imROID = imD;
-    sz = size(imROI);
-    imROID.Dimensions = sz([2,1,3]);
-
-    imROID.DatasetName = [imROID.DatasetName,'_roi01'];
-
-    D3d.Open(imROI,imROID);
+    D3d.Open(imMax,imDMax);
     
     prompt = {'Enter Min Frame:','Enter Max Frame:'};
     dlg_title = 'Pick Time Range';
     num_lines = 1;
-    defaultans = {'1',num2str(size(imROI,5))};
+    defaultans = {'1',num2str(imDMax.NumberOfFrames)};
     answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
     
     D3d.Close();
     timeRange = [str2double(answer{1}),str2double(answer{2})];
-    imROI = im(yExt(1):yExt(2),xExt(1):xExt(2),zExt(1):zExt(2),:,timeRange(1):timeRange(2));
-    imROID.NumberOfFrames = size(imROI,5);
+   
+    
+    [imR,imRD] = MicroscopeData.Reader(pathToJson,'roi_xyz',xyz_roi,'timeRange',[timeRange(1),timeRange(2)],'verbose',true);
+    imRD.DatasetName = [imRD.DatasetName,'_roi'];
 end
