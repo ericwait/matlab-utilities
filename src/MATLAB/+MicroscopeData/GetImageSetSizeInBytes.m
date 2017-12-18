@@ -1,4 +1,4 @@
-function memSize = GetImageSetSizeInBytes(metaData,typeStr)
+function [fullMemSize,frameMemSize,chanMemSize] = GetImageSetSizeInBytes(metaData,typeStr)
     dataTypeLookup = {'uint8';'uint16';'uint32';'uint64';
                   'int8';'int16';'int32';'int64';
                   'single';'double';
@@ -17,7 +17,11 @@ function memSize = GetImageSetSizeInBytes(metaData,typeStr)
 
 	voxelBytes = dataTypeSize(byteIdx);
 
-    imSize = prod([metaData.Dimensions(1),metaData.Dimensions(2),metaData.Dimensions(3),metaData.NumberOfChannels,metaData.NumberOfFrames]);
+    chanSize = prod([metaData.Dimensions(1),metaData.Dimensions(2),metaData.Dimensions(3)]);
+    frameSize = prod([chanSize,metaData.NumberOfChannels]);
+    fullSize = prod([frameSize,metaData.NumberOfFrames]);
 
-    memSize = imSize * voxelBytes;
+    chanMemSize = chanSize * voxelBytes;
+    frameMemSize = frameSize * voxelBytes;
+    fullMemSize = fullSize * voxelBytes;
 end
