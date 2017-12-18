@@ -2,17 +2,23 @@ function [imROI,imROID] = GetRoi(im,imD)
 
     imZproject = ImUtils.ThreeD.GetTemproalMaxProjection(im);
 
-    imNorm = mat2gray(imZproject(:,:,1));
-    imNorm(:,:,2) = mat2gray(imZproject(:,:,2));
-    imNorm = imNorm.*2;
-    imNorm(imNorm>1) = 1;
-    imNorm(:,:,3) = zeros(size(imNorm,1),size(imNorm,2));
+    imNorm = ones(size(imZproject),'uint8');
+    for chan=1:size(imZproject,4)
+        curChan = mat2gray(imZproject(:,:,:,chan,:));
+        curChan = curChan.*2;
+        curChan(curChan>1) = 1;
+        imNorm = im2uint8(curChan);
+    end
+    clear curChan
 
     imZproject = imNorm;
+    clear imNorm
 
     f = figure;
     bw = roipoly(imZproject);
     close(f);
+    clear imZproject
+    
     [r,c] = find(bw);
     rMin = min(r(:));
     rMax = max(r(:));
@@ -20,48 +26,33 @@ function [imROI,imROID] = GetRoi(im,imD)
     cMax = max(c(:));
     xExt = [cMin,cMax];
     yExt = [rMin,rMax];
-%    
-% 
-%     prompt = {'Enter Min X Coordinate:','Enter Min Y Coordinate:','Enter Max X Coordinate:','Enter Max Y Coordinate:'};
-%     dlg_title = 'Z Projection Results';
-%     num_lines = 1;
-%     defaultans = {'1','1',num2str(size(im,2)),num2str(size(im,1))};
-%     answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
-%     close(f);
-%     
-%     xExt = [str2double(answer{1}),str2double(answer{3})];
-%     yExt = [str2double(answer{2}),str2double(answer{4})];
 
     imROI = im(yExt(1):yExt(2),xExt(1):xExt(2),:,:,:);
 
     imXproject = ImUtils.ThreeD.GetTemproalMaxProjection(imROI,2);
 
-    imNorm = mat2gray(imXproject(:,:,1));
-    imNorm(:,:,2) = mat2gray(imXproject(:,:,2));
-    imNorm = imNorm.*2;
-    imNorm(imNorm>1) = 1;
-    imNorm(:,:,3) = zeros(size(imNorm,1),size(imNorm,2));
+    imNorm = ones(size(imXproject),'uint8');
+    for chan=1:size(imXproject,4)
+        curChan = mat2gray(imXproject(:,:,:,chan,:));
+        curChan = curChan.*2;
+        curChan(curChan>1) = 1;
+        imNorm = im2uint8(curChan);
+    end
+    clear curChan
 
     imXproject = imNorm;
+    clear imNorm
 
     f = figure;
     bw = roipoly(imXproject);
     close(f);
+    clear imXproject
+    
     [~,c] = find(bw);
     zMin = min(c(:));
     zMax = max(c(:));
     zExt = [zMin,zMax];
     
-%     imshow(imXproject);
-%     
-%     prompt = {'Enter Min X Coordinate:','Enter Max X Coordinate:'};
-%     dlg_title = 'X Projection Results';
-%     num_lines = 1;
-%     defaultans = {'1',num2str(size(im,3))};
-%     answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
-%     close(f);
-
-%     zExt = [str2double(answer{1}),str2double(answer{2})];
     imROI = im(yExt(1):yExt(2),xExt(1):xExt(2),zExt(1):zExt(2),:,:);
 
     imROID = imD;
