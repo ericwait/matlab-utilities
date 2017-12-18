@@ -136,7 +136,7 @@ function [im, imD] = ReaderKLB(varargin)
     roi_xyz = args.roi_xyz;
     roi_xyz(:,4) = [args.chanList(1);args.chanList(end)];
     roi_xyz(:,5) = args.timeRange';
-    im = readKLBChunk(imD,args.outType,roi_xyz,args.chanList,filePerC,filePerT,args.outType,args.normalize,prgsIn);
+    im = readKLBChunk(imD,args.outType,roi_xyz,args.chanList,filePerC,filePerT,args.outType,args.normalize,prgsIn,args.getMIP);
 
     if (args.verbose)
         prgs.ClearProgress(true);
@@ -170,8 +170,14 @@ function [im, imD] = ReaderKLB(varargin)
     end
 end
 
-function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtType,normalize,prgs)
-    im = zeros(Utils.SwapXY_RC(roi_xyz(2,:)-roi_xyz(1,:))+1,outType);
+function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtType,normalize,prgs,getMIP)
+    if (getMIP)
+        mipROI = roi_xyz(2,:)-roi_xyz(1,:)+1;
+        mipROI(3) = 1;
+        im = zeros(Utils.SwapXY_RC(mipROI),outType);
+    else
+        im = zeros(Utils.SwapXY_RC(roi_xyz(2,:)-roi_xyz(1,:))+1,outType);
+    end
     
     myCluster = parcluster('local');
     threads = myCluster.NumWorkers;
@@ -184,6 +190,9 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
                 for c=1:length(chanList)
                     fileName = sprintf('%s_c%d_t%04d.klb',imD.DatasetName,chanList(c),t+roi_xyz(1,5)-1);
                     imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,1]; [roi_xyz(2,1:3),1,1]]),threads);
+                    if (getMIP)
+                        imTemp = max(imTemp,[],3);
+                    end
                     im(:,:,:,c,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
                     i = i +1;
                     if (~isempty(prgs))
@@ -196,7 +205,18 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             i=0;
             for c=1:length(chanList)
                 fileName = sprintf('%s_c%d.klb',imD.DatasetName,chanList(c));
-                imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,roi_xyz(1,5)]; [roi_xyz(2,1:3),1,roi_xyz(2,5)]]),threads);
+%                 if (getMIP)
+%                     imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,roi_xyz(1,5)]; [roi_xyz(2,1:3),1,1]]),threads);
+%                     for t=1:roi_xyz(2,5)
+%                         imTemp(:,:,:,:,t) = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,roi_xyz(1,5)+t]; [roi_xyz(2,1:3),1,roi_xyz(1,5)+t]]),threads);
+%                     end
+%                     imTemp = max(imTemp,[],3);
+%                 else
+                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,roi_xyz(1,5)]; [roi_xyz(2,1:3),1,roi_xyz(2,5)]]),threads);
+%                 end
+                if (getMIP)
+                    imTemp = max(imTemp,[],3);
+                end
                 im(:,:,:,c,:) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
                 i = i +1;
                 if (~isempty(prgs))
@@ -209,7 +229,18 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
         i = 0;
         for t=1:length(roi_xyz(1,5):roi_xyz(2,5))
             fileName = sprintf('%s_t%04d.klb',imD.DatasetName,t+roi_xyz(1,5)-1);
-            imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:4),1]; [roi_xyz(2,1:4),1]]),threads);
+%             if (getMIP)
+%                 imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),roi_xyz(1,4),1]; [roi_xyz(2,1:3),1,1]]),threads);
+%                 for c=1:roi_xyz(2,4)
+%                     imTemp(:,:,:,c) = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),roi_xyz(1,4)+t,1]; [roi_xyz(2,1:3),roi_xyz(1,4)+t,1]]),threads);
+%                 end
+%                 imTemp = max(imTemp,[],3);
+%             else
+                imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:4),1]; [roi_xyz(2,1:4),1]]),threads);
+%             end
+            if (getMIP)
+                imTemp = max(imTemp,[],3);
+            end
             im(:,:,:,:,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
             i = i +1;
             if (~isempty(prgs))
@@ -218,6 +249,22 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
         end
     else
         % only one file
-        im = ImUtils.ConvertType(MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),Utils.SwapXY_RC(roi_xyz),threads),cnvrtType,normalize);
+        m = memory;
+        iMem = MicroscopeData.GetImageSetSizeInBytes(imD,imD.PixelFormat);
+        if (getMIP && iMem>m.MemAvailableAllArrays)
+            for t=roi_xyz(1,5):roi_xyz(2,5)
+                for c=roi_xyz(1,4):roi_xyz(2,4)
+                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']), Utils.SwapXY_RC([[roi_xyz(1,1:3),c,t]; [roi_xyz(2,1:3),c,t]]),threads);
+                    imTemp = max(imTemp,[],3);
+                    im(:,:,:,c,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
+                end
+            end
+        else
+            imTemp = ImUtils.ConvertType(MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),Utils.SwapXY_RC(roi_xyz),threads),cnvrtType,normalize);
+            if (getMIP)
+                imTemp = max(imTemp,[],3);
+            end
+            im = imTemp;
+        end
     end
 end
