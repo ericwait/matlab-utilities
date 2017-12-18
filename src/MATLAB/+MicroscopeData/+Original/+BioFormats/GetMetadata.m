@@ -48,7 +48,9 @@ for series=0:bfReader.getSeriesCount()-1
                 safeGetValue(omeMetadata.getPlanePositionY(series,0)),...
                 safeGetValue(omeMetadata.getPlanePositionZ(series,0))];
             if (series>0)
-                imageData.Position = refPosition + imageData.Position.*imageData.PixelPhysicalSize;
+                imageData.Position = refPosition + imageData.Position;
+            else
+                refPosition = imageData.Position;
             end
         else
             imageData.Position = [double(omeMetadata.getPlanePositionX(series,0).value(ome.units.UNITS.MICROMETER)),...
