@@ -30,8 +30,16 @@ for series=0:bfReader.getSeriesCount()-1
     imageData.NumberOfChannels = omeMetadata.getChannelCount(series);
     imageData.NumberOfFrames = safeGetValue(omeMetadata.getPixelsSizeT(series));
 
-    xPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeX(0).value(ome.units.UNITS.MICROMETER).doubleValue();
-    yPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeY(0).value(ome.units.UNITS.MICROMETER).doubleValue();
+    if (isempty(omeMetadata.getPixelsPhysicalSizeX(0)))
+        xPixelPhysicalSize = 1;
+    else
+        xPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeX(0).value(ome.units.UNITS.MICROMETER).doubleValue();
+    end
+    if (isempty(omeMetadata.getPixelsPhysicalSizeY(0)))
+        yPixelPhysicalSize = 1;
+    else
+        yPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeY(0).value(ome.units.UNITS.MICROMETER).doubleValue();
+    end
     if (isempty(omeMetadata.getPixelsPhysicalSizeZ(0)))
         zPixelPhysicalSize = 1;
     else
