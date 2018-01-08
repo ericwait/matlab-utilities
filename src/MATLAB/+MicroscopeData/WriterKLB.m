@@ -63,6 +63,7 @@ function WriterKLB(im, varargin)
     bytes = MicroscopeData.Helper.GetBytesPerVoxel(im);
 
     if (~isfield(args.imageData,'PixelFormat'))
+        w = whos('im');
         args.imageData.PixelFormat = w.class;
     end
 
