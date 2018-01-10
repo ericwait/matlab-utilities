@@ -6,6 +6,11 @@ function [imFinal] = ColorMIP(im,colors)
 % The output is a uint8 colored image
 
 numChannels = size(im,4);
+
+if (~exist('colors','var') || isempty(colors))
+    colors = hsv(numChannels);
+end
+
 numColors = size(colors,1);
 
 if (numChannels ~= numColors)
