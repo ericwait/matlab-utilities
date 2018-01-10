@@ -31,7 +31,7 @@ function [im, imD] = ReaderKLB(varargin)
 
     loadPath = '';
     if ( ~isempty(args.imageData) )
-        loadPath = args.imageData.imageDir;
+        loadPath = fullfile(args.imageData.imageDir,[args.imageData.DatasetName,'.json']);
     elseif ( ~isempty(args.path) )
         loadPath = args.path;
     end
