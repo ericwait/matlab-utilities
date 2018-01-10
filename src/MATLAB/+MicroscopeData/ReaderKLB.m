@@ -52,8 +52,8 @@ function [im, imD] = ReaderKLB(varargin)
 
     if (isempty(args.timeRange))
         args.timeRange = [1 imD.NumberOfFrames];
-    else
-        args.timeRange(2) = min(args.timeRange(2), imD.NumberOfFrames);
+    elseif (args.timeRange(2)>imD.NumberOfFrames)
+        error('Requesting frame beyond the size of the dataset!');
     end
 
     if (isempty(args.roi_xyz))
@@ -189,10 +189,11 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             for t=1:length(roi_xyz(1,5):roi_xyz(2,5))
                 for c=1:length(chanList)
                     fileName = sprintf('%s_c%d_t%04d.klb',imD.DatasetName,chanList(c),t+roi_xyz(1,5)-1);
-                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,1:3),1,1]; [roi_xyz(2,1:3),1,1]]),threads);
+                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName), Utils.SwapXY_RC([[roi_xyz(1,[2,1,3]),1,1]; [roi_xyz(2,[2,1,3]),1,1]]),threads);
                     if (getMIP)
                         imTemp = max(imTemp,[],3);
                     end
+                    imTemp = permute(imTemp,[2,1,3,4,5]);
                     im(:,:,:,c,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
                     i = i +1;
                     if (~isempty(prgs))
@@ -217,6 +218,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
                 if (getMIP)
                     imTemp = max(imTemp,[],3);
                 end
+                imTemp = permute(imTemp,[2,1,3,4,5]);
                 im(:,:,:,c,:) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
                 i = i +1;
                 if (~isempty(prgs))
@@ -241,6 +243,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             if (getMIP)
                 imTemp = max(imTemp,[],3);
             end
+            imTemp = permute(imTemp,[2,1,3,4,5]);
             im(:,:,:,:,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
             i = i +1;
             if (~isempty(prgs))
@@ -256,6 +259,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
                 for c=roi_xyz(1,4):roi_xyz(2,4)
                     imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']), Utils.SwapXY_RC([[roi_xyz(1,1:3),c,t]; [roi_xyz(2,1:3),c,t]]),threads);
                     imTemp = max(imTemp,[],3);
+                    imTemp = permute(imTemp,[2,1,3,4,5]);
                     im(:,:,:,c,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
                 end
             end
@@ -264,6 +268,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             if (getMIP)
                 imTemp = max(imTemp,[],3);
             end
+            imTemp = permute(imTemp,[2,1,3,4,5]);
             im = imTemp;
         end
     end
