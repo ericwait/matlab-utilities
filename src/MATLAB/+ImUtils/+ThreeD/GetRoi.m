@@ -28,7 +28,7 @@ function [imR,imRD] = GetRoi(pathToJson)
     t = 1;
     prgs = Utils.CmdlnProgress(numel(getFrames),true,'Reading images');
     for gt=getFrames
-        im(:,:,:,:,t) = MicroscopeData.Reader(imD.imageDir,'timeRange',[gt,gt]);
+        im(:,:,:,:,t) = MicroscopeData.Reader('imageData',imD,'timeRange',[gt,gt]);
         t = t +1;
         prgs.PrintProgress(t);
     end
@@ -48,7 +48,12 @@ function [imR,imRD] = GetRoi(pathToJson)
     imZproject = imNorm;
     clear imNorm
 
-    imC = ImUtils.ThreeD.ColorMIP(permute(imZproject,[1,2,4,3]),imD.ChannelColors);
+    chanColors = [];
+    if (isfield(imD,'ChannelColors'))
+        chanColors = imD.ChannelColors;
+    end
+    
+    imC = ImUtils.ThreeD.ColorMIP(permute(imZproject,[1,2,4,3]),chanColors);
     
     f = figure;
     bw = roipoly(imC);
@@ -60,8 +65,8 @@ function [imR,imRD] = GetRoi(pathToJson)
     rMax = max(r(:));
     cMin = min(c(:));
     cMax = max(c(:));
-    xExt = [cMin,cMax];
-    yExt = [rMin,rMax];
+    xExt = [max(cMin,1),min(cMax,imD.Dimensions(1))];
+    yExt = [max(rMin,1),min(rMax,imD.Dimensions(2))];
 
     imROI = im(yExt(1):yExt(2),xExt(1):xExt(2),:,:,:);
 
@@ -79,7 +84,7 @@ function [imR,imRD] = GetRoi(pathToJson)
     imXproject = imNorm;
     clear imNorm
 
-    imC = ImUtils.ThreeD.ColorMIP(permute(imXproject,[1,2,4,3]),imD.ChannelColors);
+    imC = ImUtils.ThreeD.ColorMIP(permute(imXproject,[1,2,4,3]),chanColors);
     f = figure;
     bw = roipoly(imC);
     close(f);
@@ -88,7 +93,10 @@ function [imR,imRD] = GetRoi(pathToJson)
     [~,c] = find(bw);
     zMin = min(c(:));
     zMax = max(c(:));
-    zExt = [zMin,zMax];
+    zExt = [max(zMin,1),min(zMax,imD.Dimensions(3))];
+    if (isempty(zExt))
+        zExt = [1,imD.Dimensions(3)];
+    end
     
     xyz_roi = [xExt(1),yExt(1),zExt(1);xExt(2),yExt(2),zExt(2)];
     [imMax,imDMax] = MicroscopeData.Reader(pathToJson,'getMIP',true,'roi_xyz',xyz_roi,'verbose',true);
