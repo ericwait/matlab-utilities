@@ -72,6 +72,8 @@ frameCount = 1;
     end
     
 %% pause
+    D3d.Viewer.SetFrame(showFrames(end));
+    D3d.Update();
     for t=1:pauseFrames
         imwrite(frame,fullfile(movieDir,'frames',sprintf('%04d.tif',frameCount)));
         frameCount = frameCount +1;
