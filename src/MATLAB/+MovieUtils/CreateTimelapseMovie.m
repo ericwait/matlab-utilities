@@ -1,4 +1,5 @@
 function CreateTimelapseMovie(movieDurration,startFrame,endFrame,moviePath,movieName)
+% CreateTimelapseMovie(movieDurration,startFrame,endFrame,moviePath,movieName)
 % Ensure you run the following line to ensure that the resize of the window
 % preserves your view!
 % D3d.Viewer.SetWindowSize(1920,1080); D3d.Update();
