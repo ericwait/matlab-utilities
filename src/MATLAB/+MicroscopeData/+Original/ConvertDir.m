@@ -33,8 +33,8 @@ if (~exist('cleanName','var'))
 end
 
 recursiveConvertDir(outType,readPath,outDir,'','',overwrite,includeTiff,cleanName);
-
-system(sprintf('dir "%s" /B /O:N /A:D > "%s\\list.txt"',outDir,outDir));
+% AC removed march 2018 'cause it makes clutter in folders
+% system(sprintf('dir "%s" /B /O:N /A:D > "%s\\list.txt"',outDir,outDir));
 end
 
 function recursiveConvertDir(outType,rootDir,outDir, subDir,outSub, overwrite,includeTiff,cleanName)
@@ -58,7 +58,10 @@ function recursiveConvertDir(outType,rootDir,outDir, subDir,outSub, overwrite,in
             continue;
         end
         
-
+       if any(strcmpi(fext,{'.jpg','.jp2'})) 
+            continue;
+        end
+ 
         fprintf('Export %s (%s) ...\n',fullfile(rootDir,subDir,fileNames{i}),guessType{i});
         tic
         MicroscopeData.Original.ConvertData(fullfile(rootDir,subDir),fileNames{i},fullfile(outDir,outSub),outType,overwrite,false,cleanName);
