@@ -222,7 +222,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
                 im(:,:,:,c,:) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
                 i = i +1;
                 if (~isempty(prgs))
-                    prgs.PrintProgress(i*imD.NumberOfFrames);
+                    prgs.PrintProgress(i*length(roi_xyz(1,5):roi_xyz(2,5)));
                 end
             end
         end
@@ -247,7 +247,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             im(:,:,:,:,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
             i = i +1;
             if (~isempty(prgs))
-                prgs.PrintProgress(i*imD.NumberOfChannels);
+                prgs.PrintProgress(i*length(roi_xyz(1,4):roi_xyz(2,4)));
             end
         end
     else
@@ -270,6 +270,9 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             end
             imTemp = permute(imTemp,[2,1,3,4,5]);
             im = imTemp;
+        end
+        if (~isempty(prgs))
+            prgs.PrintProgress(lenght(roi_xyz(1,5):roi_xyz(2,5))*length(roi_xyz(1,4):roi_xyz(2,4)));
         end
     end
 end
