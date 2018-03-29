@@ -48,6 +48,7 @@ classdef CmdlnProgress<handle
         end
         
         function PrintProgress(obj,val)
+            val = max(val,1);
             cur = now;
             
             prcntDone = val / obj.total;
@@ -116,8 +117,9 @@ classdef CmdlnProgress<handle
             if (exist('printTotal','var') && ~isempty(printTotal) && printTotal)
                 cur = now;
                 elpsTime = (cur - obj.firstTime) * 86400;
+                elpsAvg = elpsTime/obj.total;
                 if (~isempty(obj.titleText))
-                    fprintf('%s took: %s\n',obj.titleText,Utils.PrintTime(elpsTime))
+                    fprintf('%s took: %s, average: %s\n',obj.titleText,Utils.PrintTime(elpsTime),Utils.PrintTime(elpsAvg))
                 else
                     fprintf('Took: %s\n',Utils.PrintTime(elpsTime))
                 end
