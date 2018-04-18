@@ -1,4 +1,4 @@
-function CreateMetadata(root,imageData,ExpName, quiet)
+function CreateMetadata(root,imageData,ExpName, verbose)
 
 if (isempty(root))
     if (isfield(imageData,'imageDir'))
@@ -16,8 +16,8 @@ if (~exist(root,'dir'))
     mkdir(root);
 end
 
-if (~exist('quiet','var') || isempty(quiet))
-    quiet = 0;
+if (~exist('verbose','var') || isempty(verbose))
+    verbose = 0;
 end
 %% Write Experiment Name 
 if (exist('ExpName','var') && ~isempty(ExpName))
@@ -26,7 +26,7 @@ end
 
 fileName = fullfile(root,[imageData.DatasetName '.json']);
 
-if (~quiet)
+if (verbose)
     fprintf('Creating Metadata %s...',imageData.DatasetName);
 end
 
@@ -42,7 +42,7 @@ fwrite(fileHandle, jsonMetadata, 'char');
 
 fclose(fileHandle);
 
-if (~quiet)
+if (verbose)
     fprintf('Done\n');
 end
 end
