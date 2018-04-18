@@ -129,5 +129,9 @@ classdef CmdlnProgress<handle
             obj.total = 0;
             obj.useBs = false;
         end
+        
+        function StopUsingBackspaces(obj)
+            obj.useBs = false;
+        end
     end
 end
