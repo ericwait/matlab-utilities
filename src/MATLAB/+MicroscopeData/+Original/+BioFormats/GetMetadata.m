@@ -33,17 +33,17 @@ for series=0:bfReader.getSeriesCount()-1
     if (isempty(omeMetadata.getPixelsPhysicalSizeX(0)))
         xPixelPhysicalSize = 1;
     else
-        xPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeX(0).value(ome.units.UNITS.MICROMETER).doubleValue();
+        xPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeX(0));
     end
     if (isempty(omeMetadata.getPixelsPhysicalSizeY(0)))
         yPixelPhysicalSize = 1;
     else
-        yPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeY(0).value(ome.units.UNITS.MICROMETER).doubleValue();
+        yPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeY(0));
     end
     if (isempty(omeMetadata.getPixelsPhysicalSizeZ(0)))
         zPixelPhysicalSize = 1;
     else
-        zPixelPhysicalSize = omeMetadata.getPixelsPhysicalSizeZ(0).value(ome.units.UNITS.MICROMETER).doubleValue();
+        zPixelPhysicalSize = safeGetValue(omeMetadata.getPixelsPhysicalSizeZ(0));
     end
 
     imageData.PixelPhysicalSize = [xPixelPhysicalSize, yPixelPhysicalSize, zPixelPhysicalSize];
@@ -237,7 +237,12 @@ function val = safeGetValue(varIn)
         try
             val = varIn.getValue();
         catch err
-            error(err.message);
+            try
+                val = varIn.value(ome.units.UNITS.MICROMETER).doubleValue();
+            catch err2
+                error(err2.message);
+            end
+            warning(err.message);
         end
     end
     val = double(val);
