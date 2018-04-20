@@ -262,11 +262,13 @@ end
 function [im,prgs] = placeIm(imTemp,c,t,cnvrtType,normalize,im,prgs)
     imTemp = permute(imTemp,[2,1,3,4,5]);
     try
-        im(:,:,:,:,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
+        im(:,:,:,c,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
     catch err
-        warning(sprintf('Image is saved with row major access. Consider resaving as column major.\n%s',err.message));
         imTemp = permute(imTemp,[2,1,3,4,5]);
         im(:,:,:,c,t) = ImUtils.ConvertType(imTemp,cnvrtType,normalize);
-        prgs.StopUsingBackspaces();
+        warning(sprintf('Image is saved with row major access. Consider resaving as column major.\n%s',err.message));
+        if (~isempty(prgs))
+            prgs.StopUsingBackspaces();
+        end
     end
 end
