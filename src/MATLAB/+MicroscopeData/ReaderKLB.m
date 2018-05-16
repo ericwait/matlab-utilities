@@ -190,7 +190,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             for t=1:length(roi_xyz(1,5):roi_xyz(2,5))
                 for c=1:length(chanList)
                     fileName = sprintf('%s_c%d_t%04d.klb',imD.DatasetName,chanList(c),t+roi_xyz(1,5)-1);
-                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,[2,1,3]),1,1]; [roi_xyz(2,[2,1,3]),1,1]],threads);
+                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,1:3),1,1]; [roi_xyz(2,1:3),1,1]],threads);
                     if (getMIP)
                         imTemp = max(imTemp,[],3);
                     end
