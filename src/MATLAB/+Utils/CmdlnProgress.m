@@ -131,6 +131,7 @@ classdef CmdlnProgress<handle
         end
         
         function StopUsingBackspaces(obj)
+            fprintf('\n');
             obj.useBs = false;
         end
     end
