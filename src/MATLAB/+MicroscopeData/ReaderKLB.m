@@ -143,6 +143,9 @@ function [im, imD] = ReaderKLB(varargin)
     end
 
     imSize = size(im);
+    if (numel(imSize)==2)
+        imSize = [imSize,1];
+    end
     imD.Dimensions = Utils.SwapXY_RC(imSize(1:3));
     if (ndims(im)>3)
         imD.NumberOfChannels = size(im,4);
