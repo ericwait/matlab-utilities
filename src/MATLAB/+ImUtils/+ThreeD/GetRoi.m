@@ -1,7 +1,7 @@
-function [imR,imRD] = GetRoi(pathToJson)
+function [imR,imRD,xyz_roi,timeRange] = GetRoi(pathToJson)
 
-    imROI = [];
-    imROID = '';
+    imR = [];
+    imRD = '';
     if (~exist('pathToJson','var') || isempty(pathToJson))
         [fileName,pathName,filterIndex] = uigetfile('*.json');
         if (filterIndex==0)
