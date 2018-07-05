@@ -31,6 +31,10 @@ classdef CmdlnProgress<handle
                 obj.useBs = useBackspace;
             end
             
+            if (~usejava('desktop'))
+                obj.useBs = false;
+            end
+            
             if (~exist('optionalTitle','var') || isempty(optionalTitle))
                 obj.titleText = '';
             else
@@ -48,6 +52,10 @@ classdef CmdlnProgress<handle
         end
         
         function PrintProgress(obj,val)
+            if (~usejava('desktop'))
+                return
+            end
+            
             val = max(val,1);
             cur = now;
             
@@ -69,11 +77,12 @@ classdef CmdlnProgress<handle
                     Utils.PrintTime(timeLeft),...
                     datestr(finDate,'HH:MM:SS dd-mmm-yy'));
             end
-            fprintf([obj.backspaces,doneStr]);
             
             if(obj.useBs)
+                fprintf([obj.backspaces,doneStr]);
                 obj.backspaces = repmat(sprintf('\b'),1,length(doneStr)-1);
             else
+                fprintf(doneStr);
                 fprintf('\n');
             end
             drawnow
@@ -111,7 +120,7 @@ classdef CmdlnProgress<handle
         end
         
         function ClearProgress(obj,printTotal)
-            if (~isempty(obj.backspaces))
+            if (obj.useBs)
                 fprintf(obj.backspaces);
             end
             if (exist('printTotal','var') && ~isempty(printTotal) && printTotal)
