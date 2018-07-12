@@ -1,4 +1,4 @@
-function [ imC ] = LoGtoColor( imLoG, localEpsilon)
+function [ imC, imNeg, imPos ] = LoGtoColor( imLoG, localEpsilon)
 %LOGTOCOLOR Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,26 +6,32 @@ function [ imC ] = LoGtoColor( imLoG, localEpsilon)
         localEpsilon = 1e-5;
     end
 
-    maskNeg = imLoG<-localEpsilon;
-    maskZero = -localEpsilon<imLoG & imLoG<localEpsilon;
-    maskPos = imLoG>localEpsilon;
+    imC = zeros([ImUtils.Size(imLoG),3],'uint8');
+    for t=1:size(imLoG,5)
+        for c=1:size(imLoG,4)
+            curIm = imLoG(:,:,:,c,t);
+            maskNeg = curIm<0;
+            maskPos = curIm>0;
 
-    imNeg = imLoG;
-    imNeg(~maskNeg) = 0;
-    imNeg = abs(imNeg);
-    imNeg = ImUtils.ConvertType(imNeg,'uint8',true);
+            imNeg = curIm;
+            imNeg(~maskNeg) = 0;
+            imNeg = ImUtils.BrightenImages(-imNeg,'uint8');
 
-    imZero = imLoG;
-    imZero(~maskZero) = 0;
-    % imZero = abs(imZero);
-    % imZero = ImUtils.ConvertType(imZero,'uint8',true);
+            %     imZero = imLoG;
+            %     imZero(~maskZero) = 0;
+            % imZero = abs(imZero);
+            % imZero = ImUtils.ConvertType(imZero,'uint8',true);
 
-    imPos = imLoG;
-    imPos(~maskPos) = 0;
-    imPos = abs(imPos);
-    imPos = ImUtils.ConvertType(imPos,'uint8',true);
+            imPos = curIm;
+            imPos(~maskPos) = 0;
+            imPos = ImUtils.BrightenImages(imPos,'uint8');
 
-    colDim = ndims(imLoG) +1;
+            %negative in magenta
+            imC(:,:,:,c,t,1) = imNeg;
+            imC(:,:,:,c,t,3) = imNeg;
 
-    imC = cat(colDim,imNeg,imPos,imZero);
+            %positive in green
+            imC(:,:,:,c,t,2) = imPos;
+        end
+    end
 end
