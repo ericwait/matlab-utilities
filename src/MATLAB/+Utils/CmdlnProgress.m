@@ -120,7 +120,7 @@ classdef CmdlnProgress<handle
         end
         
         function ClearProgress(obj,printTotal)
-            if (obj.useBs)
+            if (obj.useBs && ~isempty(obj.backspaces))
                 fprintf(obj.backspaces);
             end
             if (exist('printTotal','var') && ~isempty(printTotal) && printTotal)
