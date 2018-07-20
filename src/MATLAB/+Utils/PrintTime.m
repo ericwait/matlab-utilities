@@ -1,4 +1,4 @@
-function [ strOut ] = printTime( timeIn )
+function [ strOut ] = PrintTime( timeIn )
 %PRINTTIME takes time in sec and outputs a string in the form HH:MM:SS.ss
 
 hr = floor(timeIn/3600);
