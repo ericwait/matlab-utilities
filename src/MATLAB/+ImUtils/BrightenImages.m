@@ -3,7 +3,7 @@ function imBright = BrightenImages(im,outType,prctInclude,verbose)
         outType = 'uint8';
     end
     if (~exist('prctInclude','var') || isempty(prctInclude))
-        prctInclude = 0.98;
+        prctInclude = 0.985;
     end
     if (~exist('verbose','var') || isempty(verbose))
         verbose = false;
@@ -13,6 +13,11 @@ function imBright = BrightenImages(im,outType,prctInclude,verbose)
     [bits,~,~,clss] = Utils.GetClassBits(im,false);
     bits = min(bits,16);
     numBins = 2^bits;
+    
+    if (strcmp(clss,'logical') || prctInclude>=0.999)
+        imBright = ImUtils.ConvertType(im,outType);
+        return
+    end
 
     prgs = Utils.CmdlnProgress(size(im,5)*size(im,4),true,'Brightening images for display'); 
     for t=1:size(im,5)
