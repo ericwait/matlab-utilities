@@ -3,7 +3,7 @@ function imBright = BrightenImages(im,outType,prctInclude,verbose)
         outType = 'uint8';
     end
     if (~exist('prctInclude','var') || isempty(prctInclude))
-        prctInclude = 0.985;
+        prctInclude = 0.995;
     end
     if (~exist('verbose','var') || isempty(verbose))
         verbose = false;
