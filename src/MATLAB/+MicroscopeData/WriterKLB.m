@@ -98,7 +98,7 @@ function WriterKLB(im, varargin)
     end
 
     if ( size(im,4)~=length(args.chanList) )
-        error('There are %d channels and %d channels to be written!',size(im,4),length(args.chanList));
+        error('There are %d channels in the image but only %d channels are to be written!',size(im,4),length(args.chanList));
     end
 
     %save metadata for the type we want not the type we have to store
