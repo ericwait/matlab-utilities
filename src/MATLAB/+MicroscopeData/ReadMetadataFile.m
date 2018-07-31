@@ -48,7 +48,10 @@ function jsonPath = findValidJSON(chkPath)
         if (isempty(jsonList))
             return;
         end
-        chkPath = fullfile(rootDir,jsonList(1).name);
+        
+        fNames = {jsonList.name};
+        inds = find(cellfun(@(x)(~any(strfind(x,'transfer'))),fNames));
+        chkPath = fullfile(rootDir,jsonList(inds(1)).name);
     end
     
     [~,~,ext] = fileparts(chkPath);
