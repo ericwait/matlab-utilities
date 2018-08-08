@@ -1,6 +1,6 @@
-function imageHandle = ShowMaxImage(im,newFigure,maxAcross,axesHandle,fullscreen)
+function imageHandle = ShowMaxImage(im,axisTitle,newFigure,maxAcross,axesHandle,fullscreen)
 %imageHandle = ShowMaxImage(im,newFigure,maxAcross,axesHandle,fullscreen)
-if (exist('newFigure','var') && ~isempty(newFigure) && newFigure==true)
+if (~exist('newFigure','var') || ~isempty(newFigure) || newFigure==true)
     figHandle = figure;
     axesHandle = axes('Parent',figHandle);
 end
@@ -9,7 +9,7 @@ if (~exist('maxAcross','var') || isempty(maxAcross))
     maxAcross = 3;
 end
 
-if (~exist('axesHandle','var') || isempty(axesHandle))
+if ((~exist('axesHandle','var') || isempty(axesHandle)) && newFigure==false)
     axesHandle = gca;
 end
 
@@ -55,13 +55,16 @@ zoom(axesHandle, 'reset');
 xlim(axesHandle, xl);
 ylim(axesHandle, yl);
 
-set(get(axesHandle,'Parent'),'SizeChangedFcn',@KeepPlotEqual);
-set(zoom(axesHandle),'ActionPostCallback',@KeepPlotEqual);
-set(get(axesHandle,'Parent'),'CloseRequestFcn',@CleanUp);
-
-KeepPlotEqual([],[],axesHandle);
+% set(get(axesHandle,'Parent'),'SizeChangedFcn',@KeepPlotEqual);
+% set(zoom(axesHandle),'ActionPostCallback',@KeepPlotEqual);
+% set(get(axesHandle,'Parent'),'CloseRequestFcn',@CleanUp);
+% 
+% KeepPlotEqual([],[],axesHandle);
 
 colormap(axesHandle,gray(256));
+if (exist('axisTitle','var'))
+    title(axisTitle);
+end
 end
 
 function KeepPlotEqual(hObject, eventdata,axesHandle)
