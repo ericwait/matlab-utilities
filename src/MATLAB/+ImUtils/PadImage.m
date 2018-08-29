@@ -10,6 +10,9 @@ function imPadded = PadImage(imIn,newSize,padding)
     end
     
     padding = round((newSize - size(imIn))/2);
+    if (any(padding<0))
+        error('New image needs to be bigger than the input');
+    end
     starts = padding +1;
     ends = newSize-padding;
     
