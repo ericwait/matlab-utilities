@@ -21,10 +21,11 @@ classdef CmdlnProgress<handle
         total
         useBs
         titleText
+        guiHandle
     end
     
     methods
-        function obj = CmdlnProgress(iterations,useBackspace,optionalTitle)
+        function obj = CmdlnProgress(iterations,useBackspace,optionalTitle,useGUI)
             if(~exist('useBackspace', 'var') || isempty(useBackspace))
                 obj.useBs = true;
             else
@@ -39,6 +40,17 @@ classdef CmdlnProgress<handle
                 obj.titleText = '';
             else
                 obj.titleText = optionalTitle;
+            end
+            
+            if (~exist('useGUI','var') || isempty(useGUI))
+                obj.guiHandle = [];
+            else
+                obj.guiHandle = waitbar(0,'');
+                set(obj.guiHandle,'Name',obj.titleText);
+%                 pos = get(obj.guiHandle,'Position');
+%                 halfWidth = pos(3)/2;
+%                 pos = [pos(1)-halfWidth, pos(2), pos(3)+2*halfWidth, pos(4)];
+%                 set(obj.guiHandle,'Position',pos);
             end
             
             obj.total = iterations;
@@ -56,26 +68,31 @@ classdef CmdlnProgress<handle
                 return
             end
             
-            val = max(val,1);
-            cur = now;
-            
-            prcntDone = val / obj.total;
-            elpsTime = (cur - obj.firstTime) * 86400;
-            totalSec = elpsTime / prcntDone;
-            finDate = obj.firstTime + (totalSec / 86400);
-            timeLeft = (finDate - cur)*86400;
-            
-            if (~isempty(obj.titleText))
-                doneStr = sprintf('%s: %5.2f%%%% est. %s @ %s\n',...
-                    obj.titleText,...
-                    prcntDone*100,...
-                    Utils.PrintTime(timeLeft),...
-                    datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+            if (val==0)
+                doneStr = [obj.titleText, ': 0%% est. Unknown...'];
             else
+                val = max(val,1);
+                cur = now;
+
+                prcntDone = val / obj.total;
+                elpsTime = (cur - obj.firstTime) * 86400;
+                totalSec = elpsTime / prcntDone;
+                finDate = obj.firstTime + (totalSec / 86400);
+                timeLeft = (finDate - cur)*86400;
+                
                 doneStr = sprintf('%5.2f%%%% est. %s @ %s\n',...
-                    prcntDone*100,...
-                    Utils.PrintTime(timeLeft),...
-                    datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+                        prcntDone*100,...
+                        Utils.PrintTime(timeLeft),...
+                        datestr(finDate,'HH:MM:SS dd-mmm-yy'));
+
+                if (~isempty(obj.guiHandle))
+                    rmPrct = strrep(doneStr,'%%','%');
+                    waitbar(prcntDone,obj.guiHandle,rmPrct);
+                end
+                
+                if (~isempty(obj.titleText))
+                    doneStr = [obj.titleText, ': ', doneStr];
+                end
             end
             
             if(obj.useBs)
@@ -133,6 +150,11 @@ classdef CmdlnProgress<handle
                     fprintf('Took: %s\n',Utils.PrintTime(elpsTime))
                 end
             end
+            
+            if (~isempty(obj.guiHandle) && isvalid(obj.guiHandle))
+                close(obj.guiHandle);
+            end
+            
             obj.backspaces = [];
             obj.firstTime = 0;
             obj.total = 0;
