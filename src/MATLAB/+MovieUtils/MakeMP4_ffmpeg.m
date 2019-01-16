@@ -4,9 +4,13 @@ function MakeMP4_ffmpeg(frameStart, frameEnd, frameDir, movieFPS, suffix)
         suffix = [];
     end
     
-    [~,name] = fileparts(frameDir);
-    if (isempty(name))
-        name = 'movie';
+    if (~isempty(suffix))
+        name = suffix;
+    else
+        [~,name] = fileparts(frameDir);
+        if (isempty(name))
+            name = 'movie';
+        end
     end
     
     ffmpegimages2video(fullfile(frameDir,[suffix,'%04d.tif']),...
