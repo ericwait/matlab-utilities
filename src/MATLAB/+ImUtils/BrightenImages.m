@@ -26,6 +26,9 @@ function imBright = BrightenImages(im,outType,prctInclude,verbose)
             [n,edge] = histcounts(curIm(:),numBins);
             dis = cumsum(n)./numel(curIm);
             maxBin = find(dis>prctInclude,1,'first');
+            if (isempty(maxBin))
+                maxBin = length(edge);
+            end
             minVal = edge(1);
             maxVal = edge(maxBin)-minVal;
             curIm = curIm - minVal;
