@@ -172,6 +172,11 @@ function [im, imD] = ReaderKLB(varargin)
     else
         imD.ChannelColors = [];
     end
+    if (isfield(imD,'TimeStampDelta') && ~isempty(imD.TimeStampDelta))
+        if (size(imD.TimeStampDelta,2)>size(im,5))
+            imD.TimeStampDelta = imD.TimeStampDelta(1,args.timeRange(1):args.timeRange(2));
+        end
+    end
 end
 
 function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtType,normalize,prgs,getMIP)
