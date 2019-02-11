@@ -84,9 +84,15 @@ function WriterKLB(im, varargin)
     if ( isempty(args.chanList) )
         args.chanList = 1:args.imageData.NumberOfChannels;
     end
+    if (args.imageData.NumberOfChannels>length(args.chanList))
+        args.filePerC = true;
+    end
 
     if ( isempty(args.timeRange) )
         args.timeRange = [1 args.imageData.NumberOfFrames];
+    end
+    if (args.imageData.NumberOfFrames>length(args.timeRange(1):args.timeRange(2)))
+        args.filePerT = true;
     end
 
     if ( max(args.chanList) > args.imageData.NumberOfChannels)
