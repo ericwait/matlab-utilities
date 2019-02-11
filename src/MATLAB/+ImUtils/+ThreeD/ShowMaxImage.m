@@ -1,6 +1,6 @@
 function imageHandle = ShowMaxImage(im,axisTitle,newFigure,maxAcross,axesHandle,fullscreen)
 %imageHandle = ShowMaxImage(im,newFigure,maxAcross,axesHandle,fullscreen)
-if (~exist('newFigure','var') || ~isempty(newFigure) || newFigure==true)
+if (~exist('newFigure','var') || (~isempty(newFigure) && newFigure==true))
     figHandle = figure;
     axesHandle = axes('Parent',figHandle);
 end
