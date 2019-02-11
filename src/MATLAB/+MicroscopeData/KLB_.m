@@ -1,7 +1,7 @@
 function KLB_(im,datasetName,outDir,pixelPhysicalSize,chanList,timeRange,filePerT,filePerC,verbose)
     bytes = MicroscopeData.Helper.GetBytesPerVoxel(im);
     
-    im = permute(im,[2,1,3,4,5]);
+%     im = permute(im,[2,1,3,4,5]);
 
     blockSize_xyzct = [64,64,size(im,3),1,1];
     blockMem = prod(blockSize_xyzct)*bytes;
