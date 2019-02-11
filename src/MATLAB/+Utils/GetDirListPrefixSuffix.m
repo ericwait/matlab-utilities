@@ -2,6 +2,8 @@ function [prefix,suffix] = GetDirListPrefixSuffix(dList)
     if (isstruct(dList) && isfield(dList,'name'))
         names = {dList.name};
         names = char(names);
+    elseif (iscell(dList))
+        names = char(dList);
     else
         names = dList;
     end
