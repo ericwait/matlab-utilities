@@ -1,7 +1,5 @@
-function [imR,imRD,xyz_roi,timeRange] = GetRoi(pathToJson)
+function [xyz_roi,timeRange] = GetRoi(pathToJson)
 
-    imR = [];
-    imRD = '';
     if (~exist('pathToJson','var') || isempty(pathToJson))
         [fileName,pathName,filterIndex] = uigetfile('*.json');
         if (filterIndex==0)
@@ -26,7 +24,7 @@ function [imR,imRD,xyz_roi,timeRange] = GetRoi(pathToJson)
     im = zeros([Utils.SwapXY_RC(imD.Dimensions),imD.NumberOfChannels,imDT.NumberOfFrames],imD.PixelFormat);
     
     t = 1;
-    prgs = Utils.CmdlnProgress(numel(getFrames),true,'Reading images');
+    prgs = Utils.CmdlnProgress(numel(getFrames),true,'Reading images',true);
     for gt=getFrames
         im(:,:,:,:,t) = MicroscopeData.Reader('imageData',imD,'timeRange',[gt,gt]);
         t = t +1;
@@ -111,8 +109,4 @@ function [imR,imRD,xyz_roi,timeRange] = GetRoi(pathToJson)
     
     D3d.Close();
     timeRange = [str2double(answer{1}),str2double(answer{2})];
-   
-    
-    [imR,imRD] = MicroscopeData.Reader(pathToJson,'roi_xyz',xyz_roi,'timeRange',[timeRange(1),timeRange(2)],'verbose',true);
-    imRD.DatasetName = [imRD.DatasetName,'_roi'];
 end
