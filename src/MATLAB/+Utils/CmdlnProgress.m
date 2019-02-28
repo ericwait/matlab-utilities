@@ -99,7 +99,7 @@ classdef CmdlnProgress<handle
                 fprintf([obj.backspaces,doneStr]);
                 obj.backspaces = repmat(sprintf('\b'),1,length(doneStr)-1);
             else
-                fprintf(doneStr);
+                fprintf('%s',doneStr);
                 fprintf('\n');
             end
             drawnow
@@ -127,7 +127,7 @@ classdef CmdlnProgress<handle
                     datestr(finDate,'HH:MM:SS dd-mmm-yy'));
             end
             
-            fprintf(doneStr);
+            fprintf('%s',doneStr);
             
             if(obj.useBs)
                 obj.backspaces = repmat(sprintf('\b'),1,length(doneStr)-1);
