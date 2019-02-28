@@ -145,7 +145,7 @@ classdef CmdlnProgress<handle
                 elpsTime = (cur - obj.firstTime) * 86400;
                 elpsAvg = elpsTime/obj.total;
                 if (~isempty(obj.titleText))
-                    fprintf('%s took: %s, average: %s\n',obj.titleText,Utils.PrintTime(elpsTime),Utils.PrintTime(elpsAvg))
+                    fprintf('%s took: %s\n',obj.titleText,Utils.PrintTime(elpsTime,obj.total))
                 else
                     fprintf('Took: %s\n',Utils.PrintTime(elpsTime))
                 end
