@@ -28,5 +28,5 @@ function im = ReaderRawStack(dimensions_xyz,stackPath,voxelType)
             error('Unknown voxel type');
     end
 
-    im = reshape(im,dimensions_xyz([2,1,3]));
+    im = permute(reshape(im,dimensions_xyz),[2,1,3]);
 end
