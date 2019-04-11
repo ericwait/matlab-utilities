@@ -1,4 +1,4 @@
-function im = ReaderRawStack(dimensions_xyz,stackPath,voxelType)
+function imOut = ReaderRawStack(dimensions_xyz,stackPath,voxelType)
     if (~exist('voxelType','var') || isempty(voxelType))
         voxelType = 'uint16';
     end
@@ -28,5 +28,10 @@ function im = ReaderRawStack(dimensions_xyz,stackPath,voxelType)
             error('Unknown voxel type');
     end
 
-    im = permute(reshape(im,dimensions_xyz),[2,1,3]);
+    try
+        imOut = permute(reshape(im,dimensions_xyz),[2,1,3]);
+    catch err
+        zdim = numel(im)/(dimensions_xyz(1)*dimensions_xyz(2));
+        imOut = permute(reshape(im,[dimensions_xyz([1,2]),zdim]),[2,1,3]);
+    end
 end
