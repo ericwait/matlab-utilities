@@ -30,6 +30,8 @@ function WriterKLB(im, varargin)
 
     addParameter(p,'verbose',false,@islogical);
 
+    addParameter(p,'writeJson',true,@islogical);
+
     parse(p,varargin{:});
     args = p.Results;
 
@@ -79,7 +81,9 @@ function WriterKLB(im, varargin)
         args.imageData.PixelFormat = class(im);
     end
 
-    MicroscopeData.CreateMetadata(outDir,args.imageData,args.verbose);
+    if (args.writeJson)
+        MicroscopeData.CreateMetadata(outDir,args.imageData,args.verbose);
+    end
 
     if ( isempty(args.chanList) )
         args.chanList = 1:args.imageData.NumberOfChannels;
