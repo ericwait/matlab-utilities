@@ -30,3 +30,4 @@ _ReSharper*/
 *.ipch
 *.sdf
 *.tif
+*.DS_Store
