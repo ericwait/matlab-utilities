@@ -16,38 +16,38 @@ function colorValues = GetColorByWavelength(wavelengths)
         case 1
             colorValues(1,:) = white;
         case 2
-            colorValues(I(1),:) = magenta;
-            colorValues(I(2),:) = green;
+            colorValues(I(2),:) = magenta;
+            colorValues(I(1),:) = green;
         case 3
-            colorValues(I(1),:) = magenta;
+            colorValues(I(3),:) = magenta;
             colorValues(I(2),:) = green;
-            colorValues(I(3),:) = cyan;
+            colorValues(I(1),:) = cyan;
         case 4
-            colorValues(I(1),:) = red;
-            colorValues(I(2),:) = yellow;
-            colorValues(I(3),:) = green;
-            colorValues(I(4),:) = cyan;
+            colorValues(I(4),:) = red;
+            colorValues(I(3),:) = yellow;
+            colorValues(I(2),:) = green;
+            colorValues(I(1),:) = cyan;
         case 5
-            colorValues(I(1),:) = red;
-            colorValues(I(2),:) = orange;
+            colorValues(I(5),:) = red;
+            colorValues(I(4),:) = orange;
             colorValues(I(3),:) = yellow;
-            colorValues(I(4),:) = green;
-            colorValues(I(5),:) = cyan;
+            colorValues(I(2),:) = green;
+            colorValues(I(1),:) = cyan;
         case 6
-            colorValues(I(1),:) = red;
-            colorValues(I(2),:) = orange;
-            colorValues(I(3),:) = yellow;
-            colorValues(I(4),:) = green;
-            colorValues(I(5),:) = cyan;
-            colorValues(I(6),:) = blue;
+            colorValues(I(6),:) = red;
+            colorValues(I(5),:) = orange;
+            colorValues(I(4),:) = yellow;
+            colorValues(I(3),:) = green;
+            colorValues(I(2),:) = cyan;
+            colorValues(I(1),:) = blue;
         case 7
-            colorValues(I(1),:) = red;
-            colorValues(I(2),:) = orange;
-            colorValues(I(3),:) = yellow;
+            colorValues(I(7),:) = red;
+            colorValues(I(6),:) = orange;
+            colorValues(I(5),:) = yellow;
             colorValues(I(4),:) = green;
-            colorValues(I(5),:) = cyan;
-            colorValues(I(6),:) = blue;
-            colorValues(I(7),:) = violet;
+            colorValues(I(3),:) = cyan;
+            colorValues(I(2),:) = blue;
+            colorValues(I(1),:) = violet;
         otherwise
             error('Cannot handle more than seven colors!');
     end
