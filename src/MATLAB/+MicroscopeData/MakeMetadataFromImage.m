@@ -9,7 +9,7 @@ function imageData = MakeMetadataFromImage(im)
     imageData = MicroscopeData.GetEmptyMetadata();
 
     imageData.DatasetName = 'im';
-    imageData.Dimensions = Utils.SwapXY_RC(size(im(:,:,:,1)));
+    imageData.Dimensions = [size(im,2),size(im,1),size(im,3)];
     imageData.NumberOfChannels = size(im,4);
     imageData.NumberOfFrames = size(im,5);
     imageData.PixelPhysicalSize = [1,1,1];
