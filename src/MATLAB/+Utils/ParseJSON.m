@@ -126,7 +126,8 @@ function [stringData parsePos] = parseStringJSON(json, startPos, quoteMap)
 end
 
 function [numberData parsePos] = parseNumberJSON(json, startPos)
-    numPad = 20;
+    % Recommended float string representation suggests a max of 24 chars (padded to 30)
+    numPad = 30;
     chkEnd = min(startPos+numPad,length(json));
     
     matchStr = regexp(json(startPos:chkEnd),'^-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?', 'once','match');
