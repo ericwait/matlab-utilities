@@ -11,7 +11,7 @@ function [im,minVal,maxVal,clorMap] = ColorMapZeroCentered(imIn,negColors,posCol
         rng = negDist + posDist;
         negPrct = double(negDist)/double(rng);
         posPrct = double(posDist)/double(rng);
-        bottomClor = imresize(negColors,[round(256*negPrct),3]);
+        bottomClor = imresize(negColors,[max(1,round(256*negPrct)),3]);
         topClor = imresize(posColors,[round(256*posPrct),3]);
         clorMap = vertcat(bottomClor,topClor);
     end
