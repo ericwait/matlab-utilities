@@ -9,15 +9,15 @@ function data = ParseJSON(json)
     assertChar('parse', {'{','['}, json,parsePos);
     
     if ( json(parsePos) == '{' )
-        [data parsePos] = parseObjectJSON(json,parsePos+1, quoteMap);
+        [data,parsePos] = parseObjectJSON(json,parsePos+1, quoteMap);
     elseif ( json(parsePos) == '[' )
-        [data parsePos] = parseArrayJSON(json,parsePos+1, quoteMap);
+        [data,parsePos] = parseArrayJSON(json,parsePos+1, quoteMap);
     end
     
     data = postprocessObjects(data);
 end
 
-function [objData parsePos] = parseObjectJSON(json, startPos, quoteMap)
+function [objData,parsePos] = parseObjectJSON(json, startPos, quoteMap)
     parsePos = ignoreSpace(json,startPos);
     
     objData = [];
@@ -29,10 +29,10 @@ function [objData parsePos] = parseObjectJSON(json, startPos, quoteMap)
     
     while ( parsePos <= length(json) )
         assertChar('parseObject', '"', json,parsePos);
-        [keyStr parsePos] = parseStringJSON(json,parsePos, quoteMap);
+        [keyStr,parsePos] = parseStringJSON(json,parsePos, quoteMap);
         
         assertChar('parseObject', ':', json,parsePos);
-        [value parsePos] = parseValueJSON(json,parsePos+1, quoteMap);
+        [value,parsePos] = parseValueJSON(json,parsePos+1, quoteMap);
 %         if ( isempty(value) )
 %             throwError('parseObject','Expecting ''STRING'', ''NUMBER'', ''NULL'', ''TRUE'', ''FALSE'', ''{'', ''[''', json, parsePos);
 %         end
@@ -52,7 +52,7 @@ function [objData parsePos] = parseObjectJSON(json, startPos, quoteMap)
     throwError('parseObject','Expecting closing ''}''', json, parsePos);
 end
 
-function [arrayData parsePos] = parseArrayJSON(json, startPos, quoteMap)
+function [arrayData,parsePos] = parseArrayJSON(json, startPos, quoteMap)
     parsePos = ignoreSpace(json,startPos);
     
     arrayData = cell(0,1);
@@ -62,7 +62,7 @@ function [arrayData parsePos] = parseArrayJSON(json, startPos, quoteMap)
     end
     
     while ( parsePos <= length(json) )
-        [value parsePos] = parseValueJSON(json,parsePos, quoteMap);
+        [value,parsePos] = parseValueJSON(json,parsePos, quoteMap);
 %         if ( isempty(value) )
 %             throwError('parseArray','Expecting ''STRING'', ''NUMBER'', ''NULL'', ''TRUE'', ''FALSE'', ''{'', ''[''', json, parsePos);
 %         end
@@ -83,7 +83,7 @@ function [arrayData parsePos] = parseArrayJSON(json, startPos, quoteMap)
     throwError('parseArray','Expecting closing '']''', json, parsePos);
 end
 
-function [valueData parsePos] = parseValueJSON(json, startPos, quoteMap)
+function [valueData,parsePos] = parseValueJSON(json, startPos, quoteMap)
     parsePos = ignoreSpace(json,startPos);
     
     assertInStr('parseValue', '''STRING'', ''NUMBER'', ''NULL'', ''TRUE'', ''FALSE'', ''{'', ''[''', json, parsePos);
@@ -93,16 +93,16 @@ function [valueData parsePos] = parseValueJSON(json, startPos, quoteMap)
     
     switch(chkChar)
         case '['
-            [valueData parsePos] = parseArrayJSON(json,parsePos+1, quoteMap);
+            [valueData,parsePos] = parseArrayJSON(json,parsePos+1, quoteMap);
         case '{'
-            [valueData parsePos] = parseObjectJSON(json,parsePos+1, quoteMap);
+            [valueData,parsePos] = parseObjectJSON(json,parsePos+1, quoteMap);
         case '"'
-            [valueData parsePos] = parseStringJSON(json,parsePos, quoteMap);
+            [valueData,parsePos] = parseStringJSON(json,parsePos, quoteMap);
         case {'-','0','1','2','3','4','5','6','7','8','9'}
-            [valueData parsePos] = parseNumberJSON(json,parsePos);
+            [valueData,parsePos] = parseNumberJSON(json,parsePos);
         otherwise
             for i=1:size(keywordMap,1)
-                [bMatched parsePos] = matchKeyword(json,parsePos,keywordMap{i,1});
+                [bMatched,parsePos] = matchKeyword(json,parsePos,keywordMap{i,1});
                 if ( bMatched )
                     valueData = keywordMap{i,2};
                     return;
@@ -112,9 +112,9 @@ function [valueData parsePos] = parseValueJSON(json, startPos, quoteMap)
     end
 end
 
-function [stringData parsePos] = parseStringJSON(json, startPos, quoteMap)
+function [stringData,parsePos] = parseStringJSON(json, startPos, quoteMap)
     if ( ~isKey(quoteMap,startPos) )
-        throwError('parseString','Expecting ''STRING''', json, parsePos);
+        throwError('parseString','Expecting ''STRING''', json, startPos);
     end
     
     startQuote = startPos;
@@ -125,7 +125,7 @@ function [stringData parsePos] = parseStringJSON(json, startPos, quoteMap)
     parsePos = ignoreSpace(json,endQuote + 1);
 end
 
-function [numberData parsePos] = parseNumberJSON(json, startPos)
+function [numberData,parsePos] = parseNumberJSON(json, startPos)
     % Recommended float string representation suggests a max of 24 chars (padded to 30)
     numPad = 30;
     chkEnd = min(startPos+numPad,length(json));
@@ -139,7 +139,7 @@ function [numberData parsePos] = parseNumberJSON(json, startPos)
     parsePos = ignoreSpace(json,startPos+length(matchStr));
 end
 
-function [bMatched parsePos] = matchKeyword(json,parsePos, keywordStr)
+function [bMatched,parsePos] = matchKeyword(json,parsePos, keywordStr)
     bMatched = false;
     if ( length(json) < parsePos+length(keywordStr) )
         return;
@@ -219,17 +219,19 @@ end
 function dataEntry = postprocessArrays(dataEntry)
     finalDims = length(dataEntry);
     
-    [bCanExpand expandDims expandTypes] = canExpandArray(dataEntry);
+    [bCanExpand,expandDims,expandTypes] = checkExpandArray(dataEntry);
+    %% Force column array if it's not further expandable
     if ( ~bCanExpand )
         finalDims = [finalDims 1];
     end
     
+    %% Recursively flatten array keeping track of dimensions
     while ( bCanExpand )
         dataEntry = reshape(dataEntry, numel(dataEntry),1);
         dataEntry = vertcat(dataEntry{:});
         
         finalDims = [finalDims expandDims];
-        [bCanExpand expandDims expandTypes] = canExpandArray(dataEntry);
+        [bCanExpand,expandDims,expandTypes] = checkExpandArray(dataEntry);
     end
     
     dataEntry = reshape(dataEntry, finalDims);
@@ -242,7 +244,7 @@ function dataEntry = postprocessArrays(dataEntry)
     end
 end
 
-function [bCanExpand expandDims expandTypes] = canExpandArray(cellArray)
+function [bCanExpand,expandDims,expandTypes] = checkExpandArray(cellArray)
     chkType = unique(cellfun(@(x)(class(x)), cellArray(:), 'UniformOutput',0));
     chkDims = unique(cellfun(@(x)(length(x)), cellArray(:)));
     
@@ -307,7 +309,7 @@ function throwError(type,message, json, pos)
     arrowSpace = repmat(' ',1,arrowPos);
     
     contextStr = json(contextStart:contextEnd);
-    contextStr = strtok(contextStr,sprintf('\n'));
+    contextStr = strtok(contextStr, newline());
     
     ME = MException(['json:' type],'Parse error: %s\n\n%s\n%s^', message,contextStr,arrowSpace);
     ME.throw;
