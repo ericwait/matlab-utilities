@@ -234,12 +234,14 @@ function dataEntry = postprocessArrays(dataEntry)
         [bCanExpand,expandDims,expandTypes] = checkExpandArray(dataEntry);
     end
     
+    %% Always recursively post-process sub-objects after array expansion
+    for i=1:numel(dataEntry)
+        dataEntry{i} = postprocessObjects(dataEntry{i});
+    end
+    
+    %% Convert array to final dimensions
     dataEntry = reshape(dataEntry, finalDims);
-    if ( length(expandDims) > 1 )
-        for i=1:numel(dataEntry)
-            dataEntry{i} = postprocessObjects(dataEntry{i});
-        end
-    elseif ( length(expandTypes) == 1 && strcmpi(expandTypes{1},'double') )
+    if ( length(expandTypes) == 1 && strcmpi(expandTypes{1},'double') )
         dataEntry = cell2mat(dataEntry);
     end
 end
