@@ -1,4 +1,22 @@
-function data = ParseJSON(json)
+% Utils.ParseJson - Parse JSON formatted text into matlab arrays/structures
+%   data = Utils.ParseJson(json, varargin)
+%
+% Inputs:
+%   json - Text to be parsed
+%
+% Optional Parameters:
+%   'StructArrays' - Automatically convert cell arrays of structures (with same field layout)
+%                    into array of structure elements (default: true)
+
+function data = ParseJSON(json, varargin)
+    %% Parse optional parameters
+    p = inputParser();
+    addParameter(p, 'StructArrays',true, @islogical);
+    
+    parse(p,varargin{:});
+    args = p.Results;
+
+    %% Begin parsing json
     quoteIdx = regexp(json,'\"', 'start');
     escStart = regexp(json,'\\([/\"\\bfnrt]|u[a-fA-F\d]{4})', 'start');
     
@@ -14,7 +32,9 @@ function data = ParseJSON(json)
         [data,parsePos] = parseArrayJSON(json,parsePos+1, quoteMap);
     end
     
-    data = postprocessObjects(data);
+    % TODO: Error handling for parsepos ~= EOF
+    
+    data = postprocessObjects(data, args);
 end
 
 function [objData,parsePos] = parseObjectJSON(json, startPos, quoteMap)
@@ -203,23 +223,23 @@ function expandStr = validExpandString(escapedStr, json,strPos)
     end
 end
 
-function dataOut = postprocessObjects(dataEntry)
+function dataOut = postprocessObjects(dataEntry, args)
     if ( isstruct(dataEntry) )
         fields = fieldnames(dataEntry);
         for i=1:length(fields)
-            dataEntry.(fields{i}) = postprocessObjects(dataEntry.(fields{i}));
+            dataEntry.(fields{i}) = postprocessObjects(dataEntry.(fields{i}), args);
         end
     elseif ( iscell(dataEntry) )
-        dataEntry = postprocessArrays(dataEntry);
+        dataEntry = postprocessArrays(dataEntry, args);
     end
     
     dataOut = dataEntry;
 end
 
-function dataEntry = postprocessArrays(dataEntry)
+function dataEntry = postprocessArrays(dataEntry, args)
     finalDims = length(dataEntry);
     
-    [bCanExpand,expandDims,expandTypes] = checkExpandArray(dataEntry);
+    [bCanExpand,expandDims] = checkExpandArray(dataEntry);
     %% Force column array if it's not further expandable
     if ( ~bCanExpand )
         finalDims = [finalDims 1];
@@ -231,30 +251,67 @@ function dataEntry = postprocessArrays(dataEntry)
         dataEntry = vertcat(dataEntry{:});
         
         finalDims = [finalDims expandDims];
-        [bCanExpand,expandDims,expandTypes] = checkExpandArray(dataEntry);
+        [bCanExpand,expandDims] = checkExpandArray(dataEntry);
     end
     
     %% Always recursively post-process sub-objects after array expansion
     for i=1:numel(dataEntry)
-        dataEntry{i} = postprocessObjects(dataEntry{i});
+        dataEntry{i} = postprocessObjects(dataEntry{i}, args);
     end
     
     %% Convert array to final dimensions
     dataEntry = reshape(dataEntry, finalDims);
-    if ( length(expandTypes) == 1 && strcmpi(expandTypes{1},'double') )
+    
+    %% Check if types are trivially mergeable using cell2mat
+    bMerge = checkMergeCells(dataEntry, args.StructArrays);
+    if ( bMerge )
         dataEntry = cell2mat(dataEntry);
     end
 end
 
-function [bCanExpand,expandDims,expandTypes] = checkExpandArray(cellArray)
-    chkType = unique(cellfun(@(x)(class(x)), cellArray(:), 'UniformOutput',0));
+function [bCanExpand,expandDims] = checkExpandArray(cellArray)
     chkDims = unique(cellfun(@(x)(length(x)), cellArray(:)));
     
-    bCanExpand = (length(chkDims) == 1) && (length(chkType) == 1) && strcmpi(chkType{1},'cell');
+    chkTypes = cellfun(@(x)(class(x)), cellArray(:), 'UniformOutput',0);
+    sharedType = getSharedType(chkTypes);
     
-    expandTypes = chkType;
+    bCanExpand = isscalar(chkDims) && strcmpi(sharedType,'cell');
     expandDims = chkDims;
 end
+
+function bMerge = checkMergeCells(cellArray, bStructArrays)
+    bMerge = true;
+    
+    % TODO: Don't dump unit cell arrays?
+    chkTypes = cellfun(@(x)(class(x)), cellArray(:), 'UniformOutput',0);
+    sharedType = getSharedType(chkTypes);
+    
+    % Always merge numerical arrays
+    if ( strcmpi(sharedType,'double') )
+        return;
+    end
+        
+    % Can also trivially merge structure arrays with exact same field layout
+    if ( bStructArrays && strcmpi(sharedType,'struct') )
+        chkFields = cellfun(@(x)(strjoin(fieldnames(x),',')), cellArray(:), 'UniformOutput',0);
+        sharedFields = getSharedType(chkFields);
+        if ( ~isempty(sharedFields) )
+            return;
+        end
+    end
+    
+    bMerge = false;
+end
+
+function type = getSharedType(typeList)
+    type = '';
+    
+    chkTypes = unique(typeList);
+    if ( isscalar(chkTypes) )
+        type = chkTypes{1};
+    end
+end 
+
 
 function parsePos = ignoreSpace(json,startPos)
     for parsePos=startPos:length(json)
