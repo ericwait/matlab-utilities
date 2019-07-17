@@ -43,38 +43,36 @@ function [im, imD] = Reader(varargin)
     end
 
     imPath = imD.imageDir;
-    klbFiles = dir(fullfile(imPath,[imD.DatasetName '*.klb']));
-    if ( ~isempty(klbFiles))
+    
+    matchType = MicroscopeData.Helper.CheckImagePath(imPath, imD.DatasetName);
+    if ( isempty(matchType) )
+        warning('No supported image type found!');
+        return;
+    end
+    
+    if ( strcmpi(matchType,'.klb') )
         [im,imD] = MicroscopeData.ReaderKLB('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz, 'getMIP',args.getMIP,...
             'outType',args.outType, 'normalize',args.normalize, 'imVersion',args.imVersion, 'verbose',args.verbose, 'prompt',false);
-    else
-        hdf5File = fullfile(imPath,[imD.DatasetName '.h5']);
-        if ( exist(hdf5File,'file') )
-            [im,imD] = MicroscopeData.ReaderH5('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz, 'getMIP',args.getMIP,...
+    elseif ( strcmpi(matchType,'.h5') )
+        [im,imD] = MicroscopeData.ReaderH5('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz, 'getMIP',args.getMIP,...
                 'outType',args.outType, 'normalize',args.normalize, 'imVersion',args.imVersion, 'verbose',args.verbose, 'prompt',false);
-        else
-            [im,imD] = MicroscopeData.ReaderTIF('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz,...
+    elseif ( strcmpi(matchType,'.tif') )
+        [im,imD] = MicroscopeData.ReaderTIF('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz,...
                 'outType',args.outType, 'normalize',args.normalize, 'verbose',args.verbose, 'prompt',false);
 
-            if (isempty(im))
-       			warning('No supported image type found!');
-       			return
-    		end
-
-            if (args.getMIP && size(im,3)>1)
-                imMIP = zeros(size(im,1),size(im,2),1,size(im,4),size(im,5),'like',im);
-                for t=1:imD.NumberOfFrames
-                    for c=1:imD.NumberOfChannels
-                        imMIP(:,:,1,c,t) = max(im(:,:,:,c,t),[],3);
-                    end
+        if (args.getMIP && size(im,3)>1)
+            imMIP = zeros(size(im,1),size(im,2),1,size(im,4),size(im,5),'like',im);
+            for t=1:imD.NumberOfFrames
+                for c=1:imD.NumberOfChannels
+                    imMIP(:,:,1,c,t) = max(im(:,:,:,c,t),[],3);
                 end
                 im = imMIP;
             end
+            im = imMIP;
         end
     end
 
     if (isempty(im))
        warning('No supported image type found!');
     end
-    
 end
