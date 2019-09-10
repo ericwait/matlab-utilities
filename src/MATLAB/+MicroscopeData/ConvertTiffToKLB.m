@@ -7,7 +7,7 @@ function ConvertTiffToKLB(tifDir)
     
     for i=1:length(dList)
         try
-            tempIm = LLSM.loadtiff(fullfile(tifDir,dList(i).name));
+            tempIm = MicroscopeData.LoadTif(fullfile(tifDir,dList(i).name));
         catch err
             continue
         end
