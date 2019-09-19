@@ -26,6 +26,11 @@ classdef CmdlnProgress<handle
     
     methods
         function obj = CmdlnProgress(iterations,useBackspace,optionalTitle,useGUI)
+            if (~isempty(getCurrentTask())) %if in parpool, don't use these options
+                useBackspace = false;
+                useGUI = false;
+            end
+            
             if(~exist('useBackspace', 'var') || isempty(useBackspace))
                 obj.useBs = true;
             else
@@ -80,7 +85,7 @@ classdef CmdlnProgress<handle
                 finDate = obj.firstTime + (totalSec / 86400);
                 timeLeft = (finDate - cur)*86400;
                 
-                doneStr = sprintf('%5.2f%%%% est. %s @ %s\n',...
+                doneStr = sprintf('%5.2f%%%% est. %s @ %s\n\n',...
                         prcntDone*100,...
                         Utils.PrintTime(timeLeft),...
                         datestr(finDate,'HH:MM:SS dd-mmm-yy'));
@@ -115,13 +120,13 @@ classdef CmdlnProgress<handle
             timeLeft = (finDate - cur)*86400;
             
             if (~isempty(obj.titleText))
-                doneStr = sprintf('%s: %5.2f%%%% est. %s @ %s\n',...
+                doneStr = sprintf('%s: %5.2f%%%% est. %s @ %s\n\n',...
                     obj.titleText,...
                     prcntDone*100,...
                     Utils.PrintTime(timeLeft),...
                     datestr(finDate,'HH:MM:SS dd-mmm-yy'));
             else
-                doneStr = sprintf('%5.2f%%%% est. %s @ %s\n',...
+                doneStr = sprintf('%5.2f%%%% est. %s @ %s\n\n',...
                     prcntDone*100,...
                     Utils.PrintTime(timeLeft),...
                     datestr(finDate,'HH:MM:SS dd-mmm-yy'));
@@ -132,7 +137,7 @@ classdef CmdlnProgress<handle
             if(obj.useBs)
                 obj.backspaces = repmat(sprintf('\b'),1,length(doneStr)-1);
             else
-                fprintf('\n');
+                fprintf('\n\n');
             end
         end
         
@@ -145,9 +150,9 @@ classdef CmdlnProgress<handle
                 elpsTime = (cur - obj.firstTime) * 86400;
                 elpsAvg = elpsTime/obj.total;
                 if (~isempty(obj.titleText))
-                    fprintf('%s took: %s\n',obj.titleText,Utils.PrintTime(elpsTime,obj.total))
+                    fprintf('%s took: %s\n\n',obj.titleText,Utils.PrintTime(elpsTime,obj.total))
                 else
-                    fprintf('Took: %s\n',Utils.PrintTime(elpsTime))
+                    fprintf('Took: %s\n\n',Utils.PrintTime(elpsTime))
                 end
             end
             
@@ -162,7 +167,7 @@ classdef CmdlnProgress<handle
         end
         
         function StopUsingBackspaces(obj)
-            fprintf('\n');
+            fprintf('\n\n');
             obj.useBs = false;
         end
     end
