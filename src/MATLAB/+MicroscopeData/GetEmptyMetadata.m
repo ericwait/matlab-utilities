@@ -18,4 +18,5 @@ imageData.ChannelNames = '';
 imageData.StartCaptureDate = '';
 imageData.ChannelColors = [];
 imageData.PixelFormat = 'none';
+imageData.TimeStampDelta = 0;
 end
