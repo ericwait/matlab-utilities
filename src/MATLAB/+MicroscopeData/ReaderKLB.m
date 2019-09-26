@@ -198,7 +198,15 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             for t=1:length(roi_xyz(1,5):roi_xyz(2,5))
                 for c=1:length(chanList)
                     fileName = sprintf('%s_c%d_t%04d.klb',imD.DatasetName,chanList(c),t+roi_xyz(1,5)-1);
-                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,[2,1,3]),1,1]; [roi_xyz(2,[2,1,3]),1,1]],threads);
+                    
+                    try
+                        imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,[2,1,3]),1,1]; [roi_xyz(2,[2,1,3]),1,1]],threads);
+                    catch err
+                        warning('%s\n\t%s\n',err.message,fileName);
+                        prgs.StopUsingBackspaces();
+                        continue
+                    end
+                    
                     if (getMIP)
                         imTemp = max(imTemp,[],3);
                     end
@@ -215,7 +223,15 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             t = 1:length(roi_xyz(1,5):roi_xyz(2,5));
             for c=1:length(chanList)
                 fileName = sprintf('%s_c%d.klb',imD.DatasetName,chanList(c));
-                imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,1:3),1,roi_xyz(1,5)]; [roi_xyz(2,1:3),1,roi_xyz(2,5)]],threads);
+                
+                try
+                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,1:3),1,roi_xyz(1,5)]; [roi_xyz(2,1:3),1,roi_xyz(2,5)]],threads);
+                catch err
+                    warning('%s\n\t%s\n',err.message,fileName);
+                    prgs.StopUsingBackspaces();
+                    continue
+                end
+                
                 if (getMIP)
                     imTemp = max(imTemp,[],3);
                 end
@@ -232,7 +248,14 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
         c=1:length(chanList);
         for t=1:length(roi_xyz(1,5):roi_xyz(2,5))
             fileName = sprintf('%s_t%04d.klb',imD.DatasetName,t+roi_xyz(1,5)-1);
-            imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,1:4),1]; [roi_xyz(2,1:4),1]],threads);
+            try
+                imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,1:4),1]; [roi_xyz(2,1:4),1]],threads);
+            catch err
+                warning('%s\n\t%s\n',err.message,fileName);
+                prgs.StopUsingBackspaces();
+                continue
+            end
+            
             if (getMIP)
                 imTemp = max(imTemp,[],3);
             end
@@ -249,7 +272,15 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
         if (getMIP && iMem>m.MemAvailableAllArrays)
             for t=roi_xyz(1,5):roi_xyz(2,5)
                 for c=roi_xyz(1,4):roi_xyz(2,4)
-                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),[[roi_xyz(1,1:3),c,t]; [roi_xyz(2,1:3),c,t]],threads);
+                    
+                    try
+                        imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),[[roi_xyz(1,1:3),c,t]; [roi_xyz(2,1:3),c,t]],threads);
+                    catch err
+                        warning('%s\n\t%s\n',err.message,fileName);
+                        prgs.StopUsingBackspaces();
+                        continue
+                    end
+                    
                     imTemp = max(imTemp,[],3);
                     [im,prgs] = placeIm(imTemp,c,t,cnvrtType,normalize,im,prgs);
                 end
@@ -261,6 +292,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
             end
             [im,prgs] = placeIm(imTemp,1:length(chanList),1:length(roi_xyz(1,5):roi_xyz(2,5)),cnvrtType,normalize,im,prgs);
         end
+        
         if (~isempty(prgs))
             prgs.PrintProgress(length(roi_xyz(1,5):roi_xyz(2,5))*length(roi_xyz(1,4):roi_xyz(2,4)));
         end
