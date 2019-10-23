@@ -1,16 +1,21 @@
-% [ imageOut ] = ConvertType(IMAGEIN, OUTCLASS, NORMALIZE)
+% [ imageOut ] = ConvertType(IMAGEIN, OUTCLASS, NORMALIZE, NORMBYFRAME)
 % ConvertType converts image from current type into the specified type
 % OUTCLASS
-% If normalize==true then each channel/frame will be set between [0,1] prior
-% to conversion, meaning that normalization happens on a frame by frame as
-% well as a channel by channel bases.
+% If NORMALIZE is true, then each channel/frame will be set between [0,1] 
+% prior to conversion. By default, normalization is global in time. Setting 
+% NORMBYFRAME to true normalizes the image on a frame-by-frame as well as a
+% channel-by-channel basis.
 % Assumes a 5D image of (rows,col,z,channels,time). Non-existent dimensions
 % should be singleton.
 
-function [ imageOut ] = ConvertType(imageIn, typ, normalize)
+function [ imageOut ] = ConvertType(imageIn, typ, normalize, normByFrame)
 
 if (~exist('normalize','var') || isempty(normalize))
     normalize = 0;
+end
+
+if (~exist('normByFrame','var') || isempty(normByFrame))
+    normByFrame = false;
 end
 
 w = whos('imageIn');
@@ -49,40 +54,42 @@ if (strcmpi(w.class,'uint16') && ~normalize)
 end
 
 if (normalize)
-    %for t=1:size(imageIn,5)
-    t=1:size(imageIn,5);
-        for c=1:size(imageIn,4)
-            inType = class(imageIn);
-            if (strcmpi(inType,'double') || strcmpi(inType,'uint64') || strcmpi(inType,'int64'))
-                imTemp = double(imageIn(:,:,:,c,t));
-            else
-                imTemp = single(imageIn(:,:,:,c,t));
-            end
-            imTemp = imTemp-min(imTemp(:));
-            imTemp = imTemp./max(imTemp(:));
-            
-            switch typ
-                case 'uint8'
-                    imageOut(:,:,:,c,t) = im2uint8(imTemp);
-                case 'uint16'
-                    imageOut(:,:,:,c,t) = im2uint16(imTemp);
-                case 'int16'
-                    imageOut(:,:,:,c,t) = im2int16(imTemp);
-                case 'uint32'
-                    imageOut(:,:,:,c,t) = uint32(imTemp*(2^32-1));
-                case 'int32'
-                    imageOut(:,:,:,c,t) = im2int32(imTemp);
-                case 'single'
-                    imageOut(:,:,:,c,t) = im2single(imTemp);
-                case 'double'
-                    imageOut(:,:,:,c,t) = imTemp;
-                case 'logical'
-                    imageOut(:,:,:,c,t) = imTemp>min(imTemp(:));
-                otherwise
-                    error('Unkown type of image to convert to!');
-            end
-        end
-    %end
+    inType = class(imageIn);
+    if (strcmpi(inType,'double') || strcmpi(inType,'uint64') || strcmpi(inType,'int64'))
+        imTemp = double(imageIn);
+    else
+        imTemp = single(imageIn);
+    end
+    
+    if (normByFrame)
+        imTemp = imTemp-min(imTemp,[],[1,2,3]);
+        imTemp = imTemp./max(imTemp,[],[1,2,3]);
+    else
+        imTemp = imTemp-min(imTemp,[],[1,2,3,5]);
+        imTemp = imTemp./max(imTemp,[],[1,2,3,5]);  
+    end
+          
+    switch typ
+        case 'uint8'
+            imageOut = im2uint8(imTemp);
+        case 'uint16'
+            imageOut = im2uint16(imTemp);
+        case 'int16'
+            imageOut = im2int16(imTemp);
+        case 'uint32'
+            imageOut = uint32(imTemp*(2^32-1));
+        case 'int32'
+            imageOut = im2int32(imTemp);
+        case 'single'
+            imageOut = im2single(imTemp);
+        case 'double'
+            imageOut = imTemp;
+        case 'logical'
+            imageOut = imTemp>min(imTemp(:));
+        otherwise
+            error('Unkown type of image to convert to!');
+    end
+
 else
     switch w.class
         case 'single'
