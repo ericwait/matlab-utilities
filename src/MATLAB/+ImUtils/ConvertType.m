@@ -1,14 +1,15 @@
-% [ imageOut ] = ConvertType(IMAGEIN, OUTCLASS, NORMALIZE, NORMBYFRAME)
+% [ imageOut ] = ConvertType(IMAGEIN, OUTCLASS, NORMALIZE, NORMBYFRAME, OPENINTERVAL)
 % ConvertType converts image from current type into the specified type
 % OUTCLASS
 % If NORMALIZE is true, then each channel/frame will be set between [0,1] 
 % prior to conversion. By default, normalization is global in time. Setting 
 % NORMBYFRAME to true normalizes the image on a frame-by-frame as well as a
-% channel-by-channel basis.
+% channel-by-channel basis. OPENINTERVAL is a 2-element array specifying 
+% the open interval used during normalization.
 % Assumes a 5D image of (rows,col,z,channels,time). Non-existent dimensions
 % should be singleton.
 
-function [ imageOut ] = ConvertType(imageIn, typ, normalize, normByFrame)
+function [ imageOut ] = ConvertType(imageIn, typ, normalize, normByFrame, openInterval)
 
 if (~exist('normalize','var') || isempty(normalize))
     normalize = 0;
@@ -16,6 +17,10 @@ end
 
 if (~exist('normByFrame','var') || isempty(normByFrame))
     normByFrame = false;
+end
+
+if (~exist('openInterval','var') || isempty(openInterval))
+    openInterval = [-Inf,Inf];
 end
 
 w = whos('imageIn');
@@ -61,13 +66,22 @@ if (normalize)
         imTemp = single(imageIn);
     end
     
+    minMask = imageIn <= openInterval(1);
+    maxMask = imageIn >= openInterval(2);
+    imTempNaNs = imTemp;
+    imTempNaNs(minMask & maxMask) = NaN;
+    
     if (normByFrame)
-        imTemp = imTemp-min(imTemp,[],[1,2,3]);
-        imTemp = imTemp./max(imTemp,[],[1,2,3]);
+        minVals = min(imTempNaNs,[],[1,2,3],'omitnan');
+        maxVals = max(imTempNaNs,[],[1,2,3],'omitnan');
     else
-        imTemp = imTemp-min(imTemp,[],[1,2,3,5]);
-        imTemp = imTemp./max(imTemp,[],[1,2,3,5]);  
+        minVals = min(imTempNaNs,[],[1,2,3,5],'omitnan');
+        maxVals = max(imTempNaNs,[],[1,2,3,5],'omitnan');
     end
+    imTemp = imTemp - minVals;
+    imTemp = imTemp./(maxVals-minVals);
+    imTemp(minMask) = 0;
+    imTemp(maxMask) = 1;
           
     switch typ
         case 'uint8'
