@@ -146,8 +146,8 @@ switch outTyp
         im = im./max(im(:));
     case 'double'
         im = im./max(im(:));
-    case 'logical'
-        % im = im;
+   case 'logical'
+        im = im>min(im(:));
     otherwise
         error('Unkown type of image to convert to!');
 end
