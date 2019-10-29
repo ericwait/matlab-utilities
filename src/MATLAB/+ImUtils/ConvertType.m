@@ -40,7 +40,7 @@ if (strcmpi(w.class,'uint16') && ~normalize)
         % do nothing
     elseif (isBigger(3))
         % is really a 14 bit image
-        imageIn = single(imageIn)./single(maxTypes(3));
+        imageIn = single(imageIn)./single(maxTypes(4));
     elseif (isBigger(2))
         % is really a 12 bit image
         imageIn = single(imageIn)./single(maxTypes(3));
