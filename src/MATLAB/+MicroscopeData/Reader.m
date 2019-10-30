@@ -53,21 +53,22 @@ function [im, imD] = Reader(varargin)
             [im,imD] = MicroscopeData.ReaderH5('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz, 'getMIP',args.getMIP,...
                 'outType',args.outType, 'normalize',args.normalize, 'imVersion',args.imVersion, 'verbose',args.verbose, 'prompt',false);
         else
+            [im,imD] = MicroscopeData.ReaderTIF('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz,...
+                'outType',args.outType, 'normalize',args.normalize, 'verbose',args.verbose, 'prompt',false);
 
-            tifFile = fullfile(imPath,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,1,1,1));
-            if ( exist(tifFile,'file'))
-                [im,imD] = MicroscopeData.ReaderTIF('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz,...
-                    'outType',args.outType, 'normalize',args.normalize, 'verbose',args.verbose, 'prompt',false);
+            if (isempty(im))
+       			warning('No supported image type found!');
+       			return
+    		end
 
-                if (args.getMIP && size(im,3)>1)
-                    imMIP = zeros(size(im,1),size(im,2),1,size(im,4),size(im,5),'like',im);
-                    for t=1:imD.NumberOfFrames
-                        for c=1:imD.NumberOfChannels
-                            imMIP(:,:,1,c,t) = max(im(:,:,:,c,t),[],3);
-                        end
+            if (args.getMIP && size(im,3)>1)
+                imMIP = zeros(size(im,1),size(im,2),1,size(im,4),size(im,5),'like',im);
+                for t=1:imD.NumberOfFrames
+                    for c=1:imD.NumberOfChannels
+                        imMIP(:,:,1,c,t) = max(im(:,:,:,c,t),[],3);
                     end
-                    im = imMIP;
                 end
+                im = imMIP;
             end
         end
     end
