@@ -82,6 +82,10 @@ function [im, imD] = ReaderKLB(varargin)
         error('Unsupported image type!');
     end
 
+    if (~isfield(imD,'PixelFormat'))
+        imD.PixelFormat = inType;
+    end
+    
     if ( isempty(args.outType) )
         if (strcmp(imD.PixelFormat,'logical'))
             args.outType = 'logical';
@@ -90,10 +94,6 @@ function [im, imD] = ReaderKLB(varargin)
         end
     elseif ( ~any(strcmp(args.outType,dataTypeLookup)) )
         error('Unsupported output type!');
-    end
-    
-    if (~isfield(imD,'PixelFormat'))
-        imD.PixelFormat = args.outType;
     end
 
     outIdx = find(strcmp(args.outType,dataTypeLookup));
