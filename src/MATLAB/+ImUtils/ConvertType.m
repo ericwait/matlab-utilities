@@ -97,7 +97,7 @@ if (normalize)
         case 'single'
             imageOut = im2single(imTemp);
         case 'double'
-            imageOut = imTemp;
+            imageOut = im2double(imTemp);
         case 'logical'
             imageOut = imTemp>min(imTemp(:));
         otherwise
