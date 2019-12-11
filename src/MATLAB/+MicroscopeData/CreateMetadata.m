@@ -1,4 +1,4 @@
-function CreateMetadata(root,imageData,ExpName, verbose)
+function CreateMetadata(root,imageData, varargin)
 
 if (isempty(root))
     if (isfield(imageData,'imageDir'))
@@ -16,18 +16,31 @@ if (~exist(root,'dir'))
     mkdir(root);
 end
 
-if (~exist('verbose','var') || isempty(verbose))
-    verbose = 0;
-end
+p = inputParser();
+p.StructExpand = false;
+
+addParameter(p,'verbose',false, @islogical);
+addParameter(p,'expName','',@(x)(validOrEmpty(@ischar,x)));
+addParameter(p,'filename','',@(x)(validOrEmpty(@ischar,x)));
+
+parse(p, varargin{:});
+args = p.Results; 
+
+
 %% Write Experiment Name 
-if (exist('ExpName','var') && ~isempty(ExpName))
-    imageData.ExperimentName = ExpName;
+if (~isempty(args.expName))
+    imageData.ExperimentName = args.ExpName;
 end
 
-fileName = fullfile(root,[imageData.DatasetName '.json']);
+filename = [imageData.DatasetName '.json'];
+if ( ~isempty(args.filename) )
+    filename = args.filename;
+end
 
-if (verbose)
-    fprintf('Creating Metadata %s...',imageData.DatasetName);
+filePath = fullfile(root, filename);
+
+if (args.verbose)
+    fprintf('Creating Metadata %s(%s)...',filename, imageData.DatasetName);
 end
 
 if (isfield(imageData,'imageDir'))
@@ -36,13 +49,18 @@ end
 
 %% Write To Json 
 jsonMetadata = Utils.CreateJSON(imageData);
-fileHandle = fopen(fileName,'wt');
+fileHandle = fopen(filePath,'wt');
 
 fwrite(fileHandle, jsonMetadata, 'char');
 
 fclose(fileHandle);
 
-if (verbose)
+if (args.verbose)
     fprintf('Done\n');
 end
+end
+
+% Inputs are valid if they are empty or if they satisfy their validity function
+function bValid = validOrEmpty(validFunc,x)
+    bValid = (isempty(x) || validFunc(x));
 end
