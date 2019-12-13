@@ -47,7 +47,7 @@ imData = MicroscopeData.Web.ExportTransAndHist(imData,imOutPath);
 % Export Thumbnail
 MicroscopeData.Web.makeThumbnail(imData,imOutPath);
 % Export Metadata
-MicroscopeData.CreateMetadata(imOutPath,imData,0);
+MicroscopeData.CreateMetadata(imOutPath,imData, 'verbose',false);
 %% Update Json List of Experiments
 MicroscopeData.Web.createDataList(ExpPath);
 

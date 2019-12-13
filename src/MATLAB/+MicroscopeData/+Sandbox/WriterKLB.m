@@ -70,7 +70,7 @@ else
     outDir = fullfile('.',imageData.DatasetName);
 end
 
-MicroscopeData.CreateMetadata(outDir,imageData,quiet);
+MicroscopeData.CreateMetadata(outDir,imageData, 'verbose',~quiet);
 
 if (~exist('chanList','var') || isempty(chanList))
     chanList = 1:imageData.NumberOfChannels;

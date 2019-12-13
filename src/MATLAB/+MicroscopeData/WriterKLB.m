@@ -82,7 +82,7 @@ function WriterKLB(im, varargin)
     end
 
     if (args.writeJson)
-        MicroscopeData.CreateMetadata(outDir,args.imageData,args.verbose);
+        MicroscopeData.CreateMetadata(outDir,args.imageData, 'verbose',args.verbose);
     end
 
     if ( isempty(args.chanList) )

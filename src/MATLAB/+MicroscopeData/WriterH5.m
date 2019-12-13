@@ -97,7 +97,7 @@ elseif (~strcmp(args.imageData.PixelFormat,class(im)))
     args.imageData.PixelFormat = class(im);
 end
 
-MicroscopeData.CreateMetadata(outDir,args.imageData,~args.verbose);
+MicroscopeData.CreateMetadata(outDir,args.imageData, 'verbose',args.verbose);
 
 if ( isempty(args.chanList) )
     args.chanList = 1:args.imageData.NumberOfChannels;

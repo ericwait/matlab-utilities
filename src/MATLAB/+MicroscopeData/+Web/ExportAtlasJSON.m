@@ -12,6 +12,6 @@ imData = rmfield(imData,'TimeStampDelta');
 end
 imData = rmfield(imData,'imageDir');
 
-MicroscopeData.CreateMetadata(outputPath, imData,1);
+MicroscopeData.CreateMetadata(outputPath, imData, 'verbose',true);
 
 end
