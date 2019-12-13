@@ -1,3 +1,12 @@
+% CreateMetadata(root,imageData, varargin)
+% Create metadata JSON file from imageData structure
+% 
+% Optional Parameters (Key,Value pairs):
+%
+% expName - Add 'ExperimentName' field to JSON and populate with expName
+% filename - Force name of json file to filename
+% verbose - Display verbose output and timing information
+
 function CreateMetadata(root,imageData, varargin)
 
 if (isempty(root))
