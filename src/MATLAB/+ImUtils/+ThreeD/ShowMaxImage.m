@@ -60,6 +60,7 @@ ylim(axesHandle, yl);
 % set(get(axesHandle,'Parent'),'CloseRequestFcn',@CleanUp);
 % 
 % KeepPlotEqual([],[],axesHandle);
+axis(axesHandle,'image');
 
 colormap(axesHandle,gray(256));
 if (exist('axisTitle','var'))
