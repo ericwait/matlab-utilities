@@ -62,13 +62,15 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Authors
 
-* **Eric Wait** - *Initial work and maintainer* - [Eric Wait.com](https://ericwait.com)
+* **Eric Wait** - *Architect and maintainer* - [Eric Wait.com](https://ericwait.com)
 
-* **Andrew Cohen** - *Initial Funder and contributer* - [Bioimage](https://bioimage.coe.drexel.edu)
+* **Andrew Cohen** - *Initial Funder and contributor* - [Bioimage](https://bioimage.coe.drexel.edu)
 
-* **Mark Winter** - *Contributer and consultant*
+* **Mark Winter** - *Contributor and consultant*
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Blair Rossetti** - *Contributor*
+
+See also the list of [contributors](https://github.com/ericwait/matlab-utilities/graphs/contributors) who participated in this project.
 
 ## License
 
