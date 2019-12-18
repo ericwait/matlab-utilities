@@ -53,6 +53,7 @@ function [xyz_roi,timeRange] = GetRoi(pathToJson)
     
     imC = ImUtils.ThreeD.ColorMIP(permute(imZproject,[1,2,4,3]),chanColors);
     
+    msgbox({'Click to put down points for bounding area';'Right click and make mask when done'});
     f = figure;
     bw = roipoly(imC);
     close(f);
@@ -83,6 +84,8 @@ function [xyz_roi,timeRange] = GetRoi(pathToJson)
     clear imNorm
 
     imC = ImUtils.ThreeD.ColorMIP(permute(imXproject,[1,2,4,3]),chanColors);
+    
+    msgbox({'Click to put down points for bounding area';'Right click and make mask when done'});
     f = figure;
     bw = roipoly(imC);
     close(f);
