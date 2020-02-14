@@ -52,6 +52,8 @@ function [im, imD] = ReaderKLB(varargin)
 
     if (isempty(args.timeRange))
         args.timeRange = [1 imD.NumberOfFrames];
+    elseif (isinf(args.timeRange(2)))
+        args.timeRange(2) = imD.NumberOfFrames;
     elseif (args.timeRange(2)>imD.NumberOfFrames)
         error('Requesting frame beyond the size of the dataset!');
     end
@@ -225,7 +227,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
                 fileName = sprintf('%s_c%d.klb',imD.DatasetName,chanList(c));
                 
                 try
-                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,1:3),1,roi_xyz(1,5)]; [roi_xyz(2,1:3),1,roi_xyz(2,5)]],threads);
+                    imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,[2,1,3]),1,roi_xyz(1,5)]; [roi_xyz(2,[2,1,3]),1,roi_xyz(2,5)]],threads);
                 catch err
                     warning('%s\n\t%s\n',err.message,fileName);
                     prgs.StopUsingBackspaces();
@@ -249,7 +251,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
         for t=1:length(roi_xyz(1,5):roi_xyz(2,5))
             fileName = sprintf('%s_t%04d.klb',imD.DatasetName,t+roi_xyz(1,5)-1);
             try
-                imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,1:4),1]; [roi_xyz(2,1:4),1]],threads);
+                imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,[2,1,3,4]),1]; [roi_xyz(2,[2,1,3,4]),1]],threads);
             catch err
                 warning('%s\n\t%s\n',err.message,fileName);
                 prgs.StopUsingBackspaces();
@@ -274,7 +276,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
                 for c=roi_xyz(1,4):roi_xyz(2,4)
                     
                     try
-                        imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),[[roi_xyz(1,1:3),c,t]; [roi_xyz(2,1:3),c,t]],threads);
+                        imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),[[roi_xyz(1,[2,1,3]),c,t]; [roi_xyz(2,[2,1,3]),c,t]],threads);
                     catch err
                         warning('%s\n\t%s\n',err.message,fileName);
                         prgs.StopUsingBackspaces();
@@ -286,7 +288,7 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
                 end
             end
         else
-            imTemp = ImUtils.ConvertType(MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),roi_xyz,threads),cnvrtType,normalize);
+            imTemp = ImUtils.ConvertType(MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,[imD.DatasetName '.klb']),Utils.SwapXY_RC(roi_xyz),threads),cnvrtType,normalize);
             if (getMIP)
                 imTemp = max(imTemp,[],3);
             end
