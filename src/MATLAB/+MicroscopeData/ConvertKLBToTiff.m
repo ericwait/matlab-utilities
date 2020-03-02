@@ -7,19 +7,31 @@ function ConvertKLBToTiff(klbDir)
     
     prgs = Utils.CmdlnProgress(length(dList),true,'Converting KLB to tif',true);
     for i=1:length(dList)
+        [~,fName] = fileparts(dList(i).name);
+        if (exist(fullfile(outDir,[fName,'.tif']),'file'))
+            continue
+        end
+        
         try
             tempIm = MicroscopeData.KLB.readKLBstack(fullfile(dList(i).folder,dList(i).name));
         catch err
+            warning(err.message);
             continue
         end
-        [~,fName] = fileparts(dList(i).name);
+
         if (ndims(tempIm)>3)
             error('Images with more than three dimensions are currently not supported')
         end
-        MicroscopeData.Write3Dtif(tempIm,fName,outDir);
+        
+        try
+            MicroscopeData.Write3Dtif(tempIm,fName,outDir);
+        catch err
+            warning(err.message);
+        end
         
         prgs.PrintProgress(i);
     end
+    
     prgs.ClearProgress(true);
     
     dList = dir(fullfile(klbDir,'*.json'));
