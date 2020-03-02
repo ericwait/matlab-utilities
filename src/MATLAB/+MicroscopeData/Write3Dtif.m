@@ -6,7 +6,7 @@ function Write3Dtif(im,fileName,outDir)
     tags.ImageWidth = size(im,2);
     tags.RowsPerStrip = size(im,2);
     tags.Photometric = Tiff.Photometric.MinIsBlack;
-    tags.ExtraSamples = Tiff.ExtraSamples.Unspecified;
+%     tags.ExtraSamples = Tiff.ExtraSamples.Unspecified;
     tags.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
     tags.SamplesPerPixel = 1;
     tags.Compression = Tiff.Compression.LZW;
