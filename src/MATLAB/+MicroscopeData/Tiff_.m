@@ -1,9 +1,8 @@
 function Tiff_(im,datasetName,outDir,chanList,timeRange,filePerZ,verbose)
     tags.ImageLength = size(im,1);
     tags.ImageWidth = size(im,2);
-    tags.RowsPerStrip = size(im,2);
+    tags.RowsPerStrip = size(im,1);
     tags.Photometric = Tiff.Photometric.MinIsBlack;
-    tags.ExtraSamples = Tiff.ExtraSamples.Unspecified;
     tags.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
     tags.SamplesPerPixel = 1;
     tags.Compression = Tiff.Compression.LZW;
