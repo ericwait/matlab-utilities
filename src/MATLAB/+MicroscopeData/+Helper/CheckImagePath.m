@@ -24,8 +24,10 @@ function [fileType,validFiles] = CheckImagePath(imPath, datasetName)
         validFiles = {};
     elseif ( strcmpi(fileType,'.tif') )
         %% Don't match if we can't find first ctz format tif
-        matchTif = sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,1,1,1);
+        matchTif = sprintf('%s_c%02d_t%04d_z%04d.tif',datasetName,1,1,1);
         if ( ~any(strcmpi(matchTif, validFiles)) )
+            matchTif = sprintf('%s_c%02d_t%04d.tif',datasetName,1,1);
+        elseif (~any(strcmpi(matchTif, validFiles)))
             fileType = '';
             validFiles = {};
         end
