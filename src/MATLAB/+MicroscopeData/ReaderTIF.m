@@ -104,6 +104,9 @@ function [im, imD] = ReaderTIF(varargin)
 
     convert = ~strcmpi(inType,args.outType) || args.normalize;
     imSize = [diff(Utils.SwapXY_RC(args.roi_xyz),1)+1,length(args.chanList),(args.timeRange(2)-args.timeRange(1)+1)];
+    if (args.getMIP)
+        imSize(3) = 1;
+    end
     if (~strcmpi(args.outType,'logical'))
         im = zeros(imSize, args.outType);
     else
@@ -125,37 +128,35 @@ function [im, imD] = ReaderTIF(varargin)
     for t=1:imSize(5)
         timeVal = t+args.timeRange(1)-1;
         for c=1:length(args.chanList)
+            tempIm = zeros(imSize(1:3), inType);
+            
             if (filePerZ)
                 for z=1:imSize(3)
                     zVal = z+args.roi_xyz(1,3)-1;
-
-                    tifName = fullfile(imPath,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,args.chanList(c),timeVal,zVal));
-                    if (convert || useROI)
-                        tempIm(:,:,z) = imread(tifName,'TIF');
-                    else
-                        im(:,:,z,c,t) = imread(tifName,'TIF');
-                    end
+                    
+                    tifName = fullfile(imPath,sprintf('%s_c%d_t%04d_z%04d.tif',imD.DatasetName,args.chanList(c),timeVal,zVal));
+                    
+                    tempIm(:,:,z) = imread(tifName,'TIF');
                 end
             else
-                tifName = fullfile(imPath,sprintf('%s_c%02d_t%04d.tif',imD.DatasetName,args.chanList(c),timeVal));
-                im(:,:,:,c,t) = MicroscopeData.LoadTif(tifName);
-%                 for z=1:imSize(3)
-%                     zVal = z+args.roi_xyz(1,3)-1;
-%                     if (convert || useROI)
-%                         tempIm(:,:,z) = imread(tifName,'TIF','index',zVal);
-%                     else
-%                         im(:,:,z,c,t) = imread(tifName,'TIF','index',zVal);
-%                     end
-%                 end
+                tifName = fullfile(imPath,sprintf('%s_c%d_t%04d.tif',imD.DatasetName,args.chanList(c),timeVal));
+                tempIm = MicroscopeData.LoadTif(tifName);
             end
-
+            
+            if (useROI)
+                tempIm = tempIm(args.roi_xyz(1,2):args.roi_xyz(2,2),args.roi_xyz(1,1):args.roi_xyz(2,1),args.roi_xyz(1,3):args.roi_xyz(2,3));
+            end
+            
+            if (args.getMIP)
+                tempIm = max(tempIm,[],3);
+            end
+            
             if (convert)
-                im(:,:,:,c,t) = ImUtils.ConvertType(...
-                    tempIm(args.roi_xyz(1,2):args.roi_xyz(2,2),args.roi_xyz(1,1):args.roi_xyz(2,1),:),...
-                    args.outType,args.normalize);
-            elseif (useROI)
-                im(:,:,:,c,t) = tempIm(args.roi_xyz(1,2):args.roi_xyz(2,2),args.roi_xyz(1,1):args.roi_xyz(2,1),:);
+                tempIm = ImUtils.ConvertType(tempIm,args.outType,args.normalize);
             end
+            
+            im(:,:,:,c,t) = tempIm;
+
             if ( args.verbose )
                 prgs.PrintProgress(c+(t-1)*length(args.chanList));
             end
