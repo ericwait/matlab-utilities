@@ -205,7 +205,9 @@ function im = readKLBChunk(imD,outType,roi_xyz,chanList,filePerC,filePerT,cnvrtT
                         imTemp = MicroscopeData.KLB.readKLBroi(fullfile(imD.imageDir,fileName),[[roi_xyz(1,[2,1,3]),1,1]; [roi_xyz(2,[2,1,3]),1,1]],threads);
                     catch err
                         warning('%s\n\t%s\n',err.message,fileName);
-                        prgs.StopUsingBackspaces();
+                        if (~isempty(prgs))
+                            prgs.StopUsingBackspaces();
+                        end
                         continue
                     end
                     
