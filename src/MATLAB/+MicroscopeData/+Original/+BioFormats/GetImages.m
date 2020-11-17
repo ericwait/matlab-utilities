@@ -1,4 +1,4 @@
-function [ seriesImages ] = GetImages( bfReader, seriesNum )
+function [ seriesImages ] = GetImages( bfReader, seriesNum, varargin )
 %GETIMAGES Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,6 +6,15 @@ numSeries = bfReader.getSeriesCount();
 
 omeMetadata = bfReader.getMetadataStore();
 prgs = Utils.CmdlnProgress(1,true);
+
+p = inputParser();
+p.StructExpand = false;
+
+addParameter(p,'zList',[], @(x)(validOrEmpty(@isvector,x)));
+addParameter(p,'cList',[], @(x)(validOrEmpty(@isvector,x)));
+
+parse(p,varargin{:});
+argStruct = p.Results;
 
 if (exist('seriesNum','var') && ~isempty(seriesNum) && numSeries>=seriesNum)
     seriesImages = readSeriesImage(bfReader, seriesNum-1, omeMetadata, true, prgs);
@@ -20,7 +29,7 @@ else
     end
 
     for series=0:numSeries-1
-        im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs);
+        im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs, argStruct);
 
         seriesImages{series+1} = im;
 
@@ -35,7 +44,12 @@ end
 prgs.ClearProgress();
 end
 
-function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs)
+% Inputs are valid if they are empty or if they satisfy their validity function
+function bValid = validOrEmpty(validFunc,x)
+    bValid = (isempty(x) || validFunc(x));
+end
+
+function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs, argStruct)
     bfReader.setSeries(series);
 
     imageData = [];
@@ -59,10 +73,23 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
         prgs.SetMaxIterations(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.Dimensions(3));
         i = 1;
     end
+    
+    %% Support selecting channels
+    if ( isempty(argStruct.cList) )
+        argStruct.cList = 1:imageData.NumberOfChannels;
+    end
+    
+    %% Support selecting z
+    if ( isempty(argStruct.zList) )
+        argStruct.zList = 1:imageData.Dimensions(3);
+    end
 
     for t=1:imageData.NumberOfFrames
-        for z=1:imageData.Dimensions(3)
-            for c=1:imageData.NumberOfChannels
+        for zidx=1:argStruct.zList
+            for cidx=argStruct.cList
+                c = argStruct.cList(cidx);
+                z = argStruct.zList(zidx);
+                
                 ind = calcPlaneInd(order,z,c,t,imageData);
                 im(:,:,z,c,t) = MicroscopeData.Original.BioFormats.GetPlane(bfReader,ind);
 
@@ -73,6 +100,8 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
             end
         end
     end
+    
+    
 end
 
 function ind = calcPlaneInd(order,z,c,t,imageData)
