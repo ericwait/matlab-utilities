@@ -54,7 +54,7 @@ function WriterKLB(im, varargin)
         args.imageData.NumberOfChannels = chkSize(4);
         args.imageData.NumberOfFrames = chkSize(5);
 
-        args.imageData.PixelPhysicalSizes = [1.0, 1.0, 1.0];
+        args.imageData.PixelPhysicalSize = [1.0, 1.0, 1.0];
     elseif ( ~isempty(datasetName) )
         args.imageData.DatasetName = datasetName;
     end
