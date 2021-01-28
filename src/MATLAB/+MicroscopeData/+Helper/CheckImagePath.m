@@ -19,7 +19,7 @@ function [fileType,validFiles] = CheckImagePath(imPath, datasetName)
     
     %% Specific per-format checks
     if ( strcmpi(fileType,'.h5') && ~strcmpi(validFiles{1},[datasetName '.h5']) )
-        %% Dont' match if the HDF5 file is exactly the datasetname
+        %% Dont' match if the HDF5 file is not exactly the datasetname
         fileType = '';
         validFiles = {};
     elseif ( strcmpi(fileType,'.tif') )
