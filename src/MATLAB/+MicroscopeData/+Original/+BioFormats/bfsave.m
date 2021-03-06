@@ -54,10 +54,10 @@ function bfsave(varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 % verify that enough memory is allocated
-MicroscopeData.Original.BioFormats.bfCheckJavaMemory();
+bfCheckJavaMemory();
 
 % Check for required jars in the Java path
-MicroscopeData.Original.BioFormats.bfCheckJavaPath();
+bfCheckJavaPath();
 
 % Input check
 ip = inputParser;
@@ -75,7 +75,7 @@ writer = imageWriter.getWriter(ip.Results.outputPath);
 
 % Create metadata
 if isempty(ip.Results.metadata)
-    metadata = MicroscopeData.Original.BioFormats.createMinimalOMEXMLMetadata(ip.Results.I,...
+    metadata = createMinimalOMEXMLMetadata(ip.Results.I,...
         ip.Results.dimensionOrder);
 else
     metadata = ip.Results.metadata;

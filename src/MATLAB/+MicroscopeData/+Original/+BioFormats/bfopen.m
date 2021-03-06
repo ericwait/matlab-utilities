@@ -96,7 +96,7 @@ stitchFiles = 0;
 % -- Main function - no need to edit anything past this point --
 
 % load the Bio-Formats library into the MATLAB environment
-status = MicroscopeData.Original.BioFormats.bfCheckJavaPath(autoloadBioFormats);
+status = bfCheckJavaPath(autoloadBioFormats);
 assert(status, ['Missing Bio-Formats library. Either add bioformats_package.jar '...
     'to the static Java path or add it to the Matlab path.']);
 
@@ -108,10 +108,10 @@ if nargin == 0 || exist(id, 'file') == 0
 end
 
 % Initialize logging
-MicroscopeData.Original.BioFormats.bfInitLogging();
+bfInitLogging();
 
 % Get the channel filler
-r = MicroscopeData.Original.BioFormats.bfGetReader(id, stitchFiles);
+r = bfGetReader(id, stitchFiles);
 
 % Test plane size
 if nargin >=4
@@ -147,7 +147,7 @@ for s = 1:numSeries
             fprintf('\n    ');
         end
         fprintf('.');
-        arr = MicroscopeData.Original.BioFormats.bfGetPlane(r, i, varargin{:});
+        arr = bfGetPlane(r, i, varargin{:});
 
         % retrieve color map data
         if bpp == 1
