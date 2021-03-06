@@ -53,25 +53,17 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
     bfReader.setSeries(series);
 
     imageData = [];
-
+    
     imageData.Dimensions = [safeGetValue(omeMetadata.getPixelsSizeX(series));...
                             safeGetValue(omeMetadata.getPixelsSizeY(series));...
                             safeGetValue(omeMetadata.getPixelsSizeZ(series))];
 
     imageData.NumberOfChannels = omeMetadata.getChannelCount(series);
     imageData.NumberOfFrames = safeGetValue(omeMetadata.getPixelsSizeT(series));
-
-    clss = char(omeMetadata.getPixelsType(series));
-    if (strcmpi(clss,'float'))
-        clss = 'single';
-    end
-    im = zeros([Utils.SwapXY_RC(imageData.Dimensions'),imageData.NumberOfChannels,imageData.NumberOfFrames],clss);
-
-    order = char(omeMetadata.getPixelsDimensionOrder(series));
-
-    if (onlyOneSeries)
-        prgs.SetMaxIterations(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.Dimensions(3));
-        i = 1;
+    
+    pixelType = char(omeMetadata.getPixelsType(series));
+    if (strcmpi(pixelType,'float'))
+        pixelType = 'single';
     end
     
     %% Support selecting channels
@@ -83,6 +75,18 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
     if ( isempty(argStruct.zList) )
         argStruct.zList = 1:imageData.Dimensions(3);
     end
+    
+    imageData.Dimensions(3) = length(argStruct.zList);
+    imageData.NumberOfChannels = length(argStruct.cList);
+    
+    im = zeros([Utils.SwapXY_RC(imageData.Dimensions'),imageData.NumberOfChannels,imageData.NumberOfFrames],pixelType);
+
+    order = char(omeMetadata.getPixelsDimensionOrder(series));
+
+    if (onlyOneSeries)
+        prgs.SetMaxIterations(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.Dimensions(3));
+        i = 1;
+    end
 
     for t=1:imageData.NumberOfFrames
         for zidx=1:length(argStruct.zList)
@@ -91,7 +95,7 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
                 z = argStruct.zList(zidx);
                 
                 ind = calcPlaneInd(order,z,c,t,imageData);
-                im(:,:,z,c,t) = MicroscopeData.Original.BioFormats.GetPlane(bfReader,ind);
+                im(:,:,zidx,cidx,t) = MicroscopeData.Original.BioFormats.GetPlane(bfReader,ind);
 
                 if (onlyOneSeries)
                     prgs.PrintProgress(i);
