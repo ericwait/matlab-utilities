@@ -17,7 +17,7 @@ parse(p,varargin{:});
 argStruct = p.Results;
 
 if (exist('seriesNum','var') && ~isempty(seriesNum) && numSeries>=seriesNum)
-    seriesImages = readSeriesImage(bfReader, seriesNum-1, omeMetadata, true, prgs);
+    seriesImages = readSeriesImage(bfReader, seriesNum-1, omeMetadata, true, prgs, argStruct);
 else
     if (bfReader.getSeriesCount()>1)
         prgs.SetMaxIterations(bfReader.getSeriesCount());
