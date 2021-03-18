@@ -172,14 +172,14 @@ function WriterTif(im, varargin)
                     tiffObj.close();
                 end
             else
-
-                tiffObj = Tiff(fullfile(outDir,[args.imageData.DatasetName,sprintf('_c%02d_t%04d.tif',args.chanList(c),args.timeRange(1)+t-1)]),writeType);
-                for z=1:size(im,3)
-                    tiffObj.setTag(tags);
-                    tiffObj.write(im(:,:,z,c,t),tags);
-                    tiffObj.writeDirectory();
-                end
-                tiffObj.close();
+                MicroscopeData.Write3Dtif(im(:,:,:,c,t),sprintf('%s_c%02d_t%04d',args.imageData.DatasetName,args.chanList(c),args.timeRange(1)+t-1),outDir);
+%                 tiffObj = Tiff(fullfile(outDir,[args.imageData.DatasetName,sprintf('_c%02d_t%04d.tif',args.chanList(c),args.timeRange(1)+t-1)]),writeType);
+%                 for z=1:size(im,3)
+%                     tiffObj.setTag(tags);
+%                     tiffObj.write(im(:,:,z,c,t),tags);
+%                     tiffObj.writeDirectory();
+%                 end
+%                 tiffObj.close();
             end
             if (args.verbose)
                 prgs.PrintProgress(c+(t-1)*size(im,4));
