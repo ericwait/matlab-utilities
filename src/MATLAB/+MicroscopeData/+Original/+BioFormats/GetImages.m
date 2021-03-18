@@ -85,8 +85,8 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
     end
 
     for t=1:imageData.NumberOfFrames
-        for zidx=1:argStruct.zList
-            for cidx=argStruct.cList
+        for zidx=1:length(argStruct.zList)
+            for cidx=1:length(argStruct.cList)
                 c = argStruct.cList(cidx);
                 z = argStruct.zList(zidx);
                 
