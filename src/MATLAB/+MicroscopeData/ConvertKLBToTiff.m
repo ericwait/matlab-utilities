@@ -6,7 +6,7 @@ function ConvertKLBToTiff(klbDir)
     end
     
     prgs = Utils.CmdlnProgress(length(dList),true,'Converting KLB to tif',true);
-    for i=1:length(dList)
+    parfor i=1:length(dList)
         [~,fName] = fileparts(dList(i).name);
         if (exist(fullfile(outDir,[fName,'.tif']),'file'))
             continue
