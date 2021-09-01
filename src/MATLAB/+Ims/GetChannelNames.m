@@ -1,6 +1,6 @@
 function names = GetChannelNames(ims_file_path, num_channels)
     if ~exist('num_channels','var') || isempty(num_channels)
-        num_channels = Ims.GetNumberOfChannels;
+        num_channels = Ims.GetNumberOfChannels(ims_file_path);
     end
     
     names = {};
