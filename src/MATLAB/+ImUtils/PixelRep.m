@@ -1,5 +1,10 @@
 function labels = PixelRep(voxel_list_xyz, expected_number_labels, voxel_anisotropy_xyz)
 
+    if expected_number_labels==1
+        labels = ones(size(voxel_list_xyz,1),1);
+        return
+    end
+
     im_roi = ImUtils.MakeBinaryROI(voxel_list_xyz);
     
     if exist('voxel_anisotropy_xyz','var') && ~isempty(voxel_anisotropy_xyz)
@@ -22,6 +27,8 @@ function labels = PixelRep(voxel_list_xyz, expected_number_labels, voxel_anisotr
         if ~objPR.Converged
             fprintf(1,'PixelReplication -- failed second attempt to fit GMM -- aborting\n');
             fprintf(1,' check that K value is appropriate, or increase number of replicates\n');
+            labels = ones(size(voxel_list_xyz,1),1);
+            return
         end
     end
     
