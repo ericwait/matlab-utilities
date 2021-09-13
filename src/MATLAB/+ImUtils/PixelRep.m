@@ -14,16 +14,17 @@ function labels = PixelRep(voxel_list_xyz, expected_number_labels, voxel_anisotr
         im_roi_iso = im_roi;
     end
 
-    ptsReplicated_xyz = PixelReplicate(im_roi_iso);
+    ptsReplicated_xyz = ImUtils.PixelReplicate(im_roi_iso);
     
     % fit gmm to PR points
     % NOTE - more replicates is more accurate fit, but takes longer. you can
     % spmd this, or adjust as needed...
     warning('off','stats:gmdistribution:FailedToConvergeReps')
+    warning('off','stats:gmdistribution:IllCondCov');
     objPR = fitgmdist(ptsReplicated_xyz, expected_number_labels, 'replicates',5);
     if ~objPR.Converged
-        fprintf(1,'PixelReplication -- GMM fit failed to converge. Retrying\n');
-        objPR = fitgmdist(ptsReplicated_xyz, expected_number_labels, 'replicates',5);
+%         fprintf(1,'PixelReplication -- GMM fit failed to converge. Retrying with more replicates and iterations\n');
+        objPR = fitgmdist(ptsReplicated_xyz, expected_number_labels, 'replicates',50, 'Options',statset('Display','off','MaxIter',1500,'TolFun',1e-5));
         if ~objPR.Converged
             fprintf(1,'PixelReplication -- failed second attempt to fit GMM -- aborting\n');
             fprintf(1,' check that K value is appropriate, or increase number of replicates\n');
