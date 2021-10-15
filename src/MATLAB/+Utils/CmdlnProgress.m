@@ -76,7 +76,7 @@ classdef CmdlnProgress<handle
             if (val==0)
                 doneStr = [obj.titleText, ': 0%% est. Unknown...'];
             else
-                val = max(val,1);
+                val = max(double(val),1);
                 cur = now;
 
                 prcntDone = val / obj.total;
