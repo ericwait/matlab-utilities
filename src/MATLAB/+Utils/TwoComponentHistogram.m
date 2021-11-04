@@ -1,4 +1,4 @@
-function TwoComponetHistogram(independent_var, dependent_var, varargin)
+function TwoComponentHistogram(independent_var, dependent_var, varargin)
 %TwoComponentHistogram - Creates three histograms: one for each varable,
 %                           and a bivariate histogram in the center.
 %
