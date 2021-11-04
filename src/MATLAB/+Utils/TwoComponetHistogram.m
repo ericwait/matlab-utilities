@@ -18,11 +18,11 @@ function TwoComponetHistogram(independent_var, dependent_var, varargin)
 
     p = inputParser;
     valid_string = @(x)(isstring(x) || ischar(x));
-    addOptional(p, 'independent_label', '', valid_string);
-    addOptional(p, 'dependent_label', '', valid_string);
-    addOptional(p, 'count_label', '', valid_string)
-    addOptional(p, 'title_str', '', valid_string);
-    addOptional(p, 'num_bins', 256, @isscalar);
+    addParameter(p, 'independent_label', '', valid_string);
+    addParameter(p, 'dependent_label', '', valid_string);
+    addParameter(p, 'count_label', '', valid_string)
+    addParameter(p, 'title_str', '', valid_string);
+    addParameter(p, 'num_bins', 256, @isscalar);
     parse(p,varargin{:})
 
     args = p.Results;
