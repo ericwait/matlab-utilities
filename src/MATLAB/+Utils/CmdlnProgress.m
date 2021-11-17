@@ -58,14 +58,14 @@ classdef CmdlnProgress<handle
 %                 set(obj.guiHandle,'Position',pos);
             end
             
-            obj.total = iterations;
+            obj.total = double(iterations);
 
             obj.backspaces = [];
             obj.firstTime = now;
         end
         
         function SetMaxIterations(obj,iterations)
-            obj.total = iterations;
+            obj.total = double(iterations);
         end
         
         function PrintProgress(obj,val)
