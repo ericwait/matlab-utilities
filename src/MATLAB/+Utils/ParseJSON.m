@@ -166,11 +166,16 @@ end
 
 function expandStr = validExpandString(escapedStr, json,strPos)
 
-    expandSeq = {'\"','\b','\f','\n','\r','\t'};
+    expandSeq = {'\b','\f','\n','\r','\t'};
     unescStart = regexp(escapedStr,['[' [expandSeq{:}] ']'], 'start');
     
     if ( ~isempty(unescStart) )
         throwError('parseString', 'Invalid character in string', json, strPos+unescStart(1));
+    end
+    
+    unescQuoteStart = regexp(escapedStr, '[^\\]\"|^\"', 'start');
+    if ( ~isempty(unescQuoteStart) )
+        throwError('parseString', 'Invalid character in string', json, strPos+unescQuoteStart(1));
     end
 
     expandStr = '';
