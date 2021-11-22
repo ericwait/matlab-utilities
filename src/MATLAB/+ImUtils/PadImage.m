@@ -14,7 +14,13 @@ function imPadded = PadImage(imIn,newSize,padding)
         error('New image needs to be bigger than the input');
     end
     starts = padding +1;
-    ends = newSize-padding;
+    ends = starts+size(imIn)-1;
+    if ndims(starts)<3
+        starts(3) = 1;
+    end
+    if ndims(ends)<3
+        ends(3) = 1;
+    end
     
     if (islogical(imIn))
         imPadded = false(newSize);
