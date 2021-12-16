@@ -18,7 +18,8 @@ imageData.TimeStampDelta = 0;
 imageData.imageDir = '.';
 
 if exist("im","var") && ~isempty(im)
-    imageData.Dimensions = size(im,1:3);
+    im_sz = size(im,1:3);
+    imageData.Dimensions = im_sz([2,1,3]);
     imageData.NumberOfChannels = size(im,4);
     imageData.NumberOfFrames = size(im,5);
     imageData.PixelPhysicalSize = [1,1,1];
