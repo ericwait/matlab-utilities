@@ -29,10 +29,9 @@ pauseFrames = fps*pauseTime;
 
 %% setup 
 movieDir = moviePath;
-if (exist(movieDir,'dir'))
-    rmdir(movieDir,'s');
+if ~exist(movieDir,'dir')
+    mkdir(movieDir);
 end
-mkdir(movieDir);
 mkdir(fullfile(movieDir,'frames'));
 
 totalFrames = 2*(pauseFrames + timeFrames*framesPerT + pauseFrames);
