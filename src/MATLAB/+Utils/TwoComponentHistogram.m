@@ -32,17 +32,21 @@ function TwoComponentHistogram(independent_var, dependent_var, varargin)
     subplot(5, 5, [1,6,11,16])
     [counts,bins] = histcounts(dependent_var, args.num_bins);
     barh(bins(1:end-1), counts)
+    set(gca, 'xscale', 'log')
     ylabel(args.dependent_label)
     xlabel(args.count_label)
     
     subplot(5, 5, 22:25)
     [counts,bins] = histcounts(independent_var, args.num_bins);
     bar(bins(1:end-1), counts)
+    set(gca, 'yscale', 'log')
     xlabel(args.independent_label)
     ylabel(args.count_label)
     
     subplot(5, 5, [2:5,7:10,12:15,17:20])
-    histogram2(independent_var, dependent_var, args.num_bins, DisplayStyle="tile")
+    histogram2(independent_var, dependent_var, args.num_bins, DisplayStyle="tile",FaceColor='flat');
+    set(gca, 'xtick', [])
+    set(gca, 'ytick', [])
     
     title(args.title_str)
 end
