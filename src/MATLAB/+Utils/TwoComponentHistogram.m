@@ -46,7 +46,7 @@ function TwoComponentHistogram(independent_var, dependent_var, varargin)
     ylabel(args.count_label)
     
     subplot(5, 5, [2:5,7:10,12:15,17:20])
-    [counts_2, x_edge, y_edge] = histcounts2(dependent_var, independent_var, bins_dep, bins_ind);
+    [counts_2, x_edge, y_edge] = histcounts2(independent_var, dependent_var, bins_ind, bins_dep);
     histogram2(XBinEdges=x_edge, YBinEdges=y_edge, BinCounts=counts_2, DisplayStyle="tile",FaceColor='flat');
     set(gca, 'xtick', [])
     set(gca, 'ytick', [])
