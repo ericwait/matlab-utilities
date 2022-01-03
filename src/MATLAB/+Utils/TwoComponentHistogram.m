@@ -12,6 +12,7 @@ function TwoComponentHistogram(independent_var, dependent_var, varargin)
 %   count_label         : label for the hight of the histograms.
 %   title_str           : title for the entire figure.
 %   num_bins            : number of bins to use in each of the histograms.
+%   figure_handle       : handle to already created figure.
 %
 % Outputs:
 %   None
@@ -23,12 +24,19 @@ function TwoComponentHistogram(independent_var, dependent_var, varargin)
     addParameter(p, 'count_label', '', valid_string)
     addParameter(p, 'title_str', '', valid_string);
     addParameter(p, 'num_bins', 256, @isscalar);
+    addParameter(p, 'figure_handle', []);
     parse(p,varargin{:})
 
     args = p.Results;
     
-    figure
-    
+    if isempty(args.figure_handle)
+        figure;
+    else
+        is_vis = args.figure_handle.Visible;
+        figure(args.figure_handle);
+        args.figure_handle.Visible = is_vis;
+    end
+
     subplot(5, 5, [1,6,11,16])
     num_bins = min( length(unique(dependent_var(:))), args.num_bins);
     [counts_dep, bins_dep] = histcounts(dependent_var, num_bins);
