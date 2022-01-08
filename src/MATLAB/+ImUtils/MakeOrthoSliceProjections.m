@@ -1,4 +1,4 @@
-function orthoSliceIm = MakeOrthoSliceProjections(im,colors,xyPhysicalSize,zPhysicalSize)
+function orthoSliceIm = MakeOrthoSliceProjections(im, colors, xyPhysicalSize, zPhysicalSize, scaleBar)
     zRatio = zPhysicalSize/xyPhysicalSize;
     
     imColor_xy = ImUtils.ColorImages(squeeze(max(im,[],3)),colors);
@@ -17,4 +17,9 @@ function orthoSliceIm = MakeOrthoSliceProjections(im,colors,xyPhysicalSize,zPhys
     orthoSliceIm(1:size(imColor_xy,1),1:size(imColor_xy,2),:) = imColor_xy;
     orthoSliceIm(size(imColor_xy,1)+6:size(imColor_xy,1)+5+size(imColor_xzR,1),1:size(imColor_xy,2),:) = imColor_xzR;
     orthoSliceIm(1:size(imColor_xy,1),size(imColor_xy,2)+6:size(imColor_xy,2)+5+size(imColor_yzR,2),:) = imColor_yzR;
+
+    if exist("scaleBar", "var") && ~isempty(scaleBar)
+        scaleBarLength = round(scaleBar / xyPhysicalSize);
+        orthoSliceIm(end-40:end-20, end-20-scaleBarLength+1:end-20, :) = 255;
+    end
 end
