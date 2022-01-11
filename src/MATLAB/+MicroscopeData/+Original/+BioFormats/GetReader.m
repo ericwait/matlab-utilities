@@ -4,7 +4,7 @@ function [ bfReader ] = GetReader( fullPath )
 
 %% read data using bioformats
 MicroscopeData.Original.BioFormats.CheckJavaMemory();
-loci.common.DebugTools.enableLogging('INFO');
+loci.common.DebugTools.enableLogging('OFF');
 
 bfReader = loci.formats.ChannelFiller();
 bfReader = loci.formats.ChannelSeparator(bfReader);
