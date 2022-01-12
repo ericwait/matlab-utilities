@@ -179,7 +179,7 @@ function [ultimateDeltaX, ultimateDeltaY, ultimateDeltaZ, maxNCV, overlapSize, n
                 Utils.PrintTime(tm),maxNcovZ,deltasZ_XY(1),deltasZ_XY(2),deltasZ_XY(3));
             
             if (changeDelta_XY(1)~=0 || changeDelta_XY(2)~=0)
-                fprintf(fHand,'\tA different XY delta was found when looking in Z. Change in deltas from 2D to 3D: (%d,%d,%d). Old NCV:%f, new:%f\n', changeDelta_XY(1),changeDelta_XY(2),changeDelta_XY(3),maxNcovZ,maxNCV);
+                fprintf(fHand,'\tA different XY delta was found when looking in Z. Change in deltas from 2D to 3D: (%d,%d,%d). Old NCV:%f, new:%f\n', changeDelta_XY(1),changeDelta_XY(2),changeDelta_XY(3),maxNCV,maxNcovZ);
             end
             if (fHand~=1)
                 fclose(fHand);
