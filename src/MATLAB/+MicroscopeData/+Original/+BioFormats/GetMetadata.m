@@ -98,7 +98,7 @@ for series=0:bfReader.getSeriesCount()-1
     order = char(omeMetadata.getPixelsDimensionOrder(series));
 
     if (onlyOneSeries)
-        prgs = Utils.CmdlnProgress(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.Dimensions(3),true);
+        prgs = Utils.CmdlnProgress(imageData.NumberOfFrames*imageData.NumberOfChannels*imageData.Dimensions(3),true, 'Getting Metadata');
         i = 1;
     end
     
@@ -135,7 +135,7 @@ for series=0:bfReader.getSeriesCount()-1
     prgs.PrintProgress(series+1);
 end
 
-prgs.ClearProgress();
+prgs.ClearProgress(true);
 
 if (length(seriesMetadata)==1)
     seriesMetadata = seriesMetadata{1};

@@ -5,7 +5,7 @@ function [ seriesImages ] = GetImages( bfReader, seriesNum, varargin )
 numSeries = bfReader.getSeriesCount();
 
 omeMetadata = bfReader.getMetadataStore();
-prgs = Utils.CmdlnProgress(1,true);
+prgs = Utils.CmdlnProgress(1,true, 'Reading Images');
 
 p = inputParser();
 p.StructExpand = false;
@@ -41,7 +41,7 @@ if (length(seriesImages)==1)
     seriesImages = seriesImages{1};
 end
 
-prgs.ClearProgress();
+prgs.ClearProgress(true);
 end
 
 % Inputs are valid if they are empty or if they satisfy their validity function
@@ -99,9 +99,7 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
                 end
             end
         end
-    end
-    
-    
+    end    
 end
 
 function ind = calcPlaneInd(order,z,c,t,imageData)
