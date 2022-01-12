@@ -94,6 +94,7 @@ function [ultimateDeltaX, ultimateDeltaY, ultimateDeltaZ, maxNCV, overlapSize, n
     ultimateDeltaX = 0;
     ultimateDeltaY = 0;
     ultimateDeltaZ = 0;
+    ncvMatrixROI = [];
     
     overlapSize = max(min(imageROI1Org_XY(4)-imageROI1Org_XY(1),imageROI2Org_XY(4)-imageROI2Org_XY(1)),1) *...
         max(min(imageROI1Org_XY(5)-imageROI1Org_XY(2),imageROI2Org_XY(5)-imageROI2Org_XY(2)),1);
@@ -116,9 +117,9 @@ function [ultimateDeltaX, ultimateDeltaY, ultimateDeltaZ, maxNCV, overlapSize, n
     %     % no real info in the image
     %     return
     % end
-    if (overlapSize <= 0.01* min(prod(args.metadata1.Dimensions(1:2)),prod(args.metadata2.Dimensions(1:2))))
+    if (overlapSize < args.minOverlap^2)
         % does not have enough overall overlap
-        warning('No overlap found');
+        warning('Not enough overlap found');
         return
     end
     
