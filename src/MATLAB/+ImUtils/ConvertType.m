@@ -78,10 +78,13 @@ if (normalize)
         minVals = min(imTempNaNs,[],[1,2,3,5],'omitnan');
         maxVals = max(imTempNaNs,[],[1,2,3,5],'omitnan');
     end
-    imTemp = imTemp - minVals;
-    imTemp = imTemp./(maxVals-minVals);
-    imTemp(minMask) = 0;
-    imTemp(maxMask) = 1;
+    
+    if (minVals ~= maxVals)
+        imTemp = imTemp - minVals;
+        imTemp = imTemp./(maxVals-minVals);
+        imTemp(minMask) = 0;
+        imTemp(maxMask) = 1;
+    end
           
     switch typ
         case 'uint8'
