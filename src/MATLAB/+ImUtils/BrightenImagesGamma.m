@@ -24,6 +24,7 @@ function imBright = BrightenImagesGamma(im,outType,gamma,backgroundLevel,verbose
     for t=1:size(im,5)
         for c=1:size(im,4)
             curIm = im(:,:,:,c,t)-backgroundLevel;
+            curIm(curIm(:)<0) = 0;
             curIm = mat2gray(curIm);
             curIm = curIm.^gamma;
 
