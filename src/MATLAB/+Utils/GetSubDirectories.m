@@ -4,5 +4,5 @@ function subDirs = GetSubDirectories(rootDir)
 %   The special directories . and .. are removed from the list
     
     dList = dir(rootDir);
-    subDirs = {dList([dList.isdir] & ~ismember({dList.name},{'.','..'})).name};
+    subDirs = {dList([dList.isdir] & ~ismember({dList.name},{'.','..'})).name}';
 end
