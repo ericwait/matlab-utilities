@@ -5,7 +5,7 @@ function colorIm = ColorImages(imIntensity,colors)
     
     numChans = size(colors,1);
     imColors = zeros(size(imIntensity,1),size(imIntensity,2),3,numChans,'single');
-    imIntensity = double(imIntensity);
+    im = ImUtils.ConvertType(imIntensity, 'double', true);
     
     colorMultiplier = zeros(1,1,3,length(numChans),'single');
     for c=1:numChans
@@ -13,18 +13,22 @@ function colorIm = ColorImages(imIntensity,colors)
     end
     
     for c=1:numChans
-        im = imIntensity(:,:,c);
-        im = mat2gray(im);
-        im = ImUtils.BrightenImages(im,[],0.0005,20);
-        im = ImUtils.BrightenImagesGamma(im,[],0.95,40);
-        im = mat2gray(im);
-        imIntensity(:,:,c) = im;
-        color = repmat(colorMultiplier(1,1,:,c),size(im,1),size(im,2),1);
-        imColors(:,:,:,c) = repmat(im,1,1,3).*color;
+        im_temp = im(:,:,c);
+        color = repmat(colorMultiplier(1,1,:,c), size(im_temp));
+        imColors(:,:,:,c) = repmat(im_temp,1,1,3) .* color;
+
+        if islogical(imIntensity)
+            continue
+        end
+
+        im_temp = ImUtils.BrightenImages(im_temp,[],0.0005,20);
+        im_temp = ImUtils.BrightenImagesGamma(im_temp,[],0.95,40);
+        im_temp = mat2gray(im_temp);
+        im(:,:,c) = im_temp;
     end
             
-    imMax = max(imIntensity,[],3);
-    imIntSum = sum(imIntensity,3);
+    imMax = max(im,[],3);
+    imIntSum = sum(im,3);
     imIntSum(imIntSum==0) = 1;
     imColrSum = sum(imColors,4);
     colorIm = imColrSum.*repmat(imMax./imIntSum,1,1,3);
