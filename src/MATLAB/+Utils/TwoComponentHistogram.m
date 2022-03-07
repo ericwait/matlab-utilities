@@ -1,4 +1,4 @@
-function ax_handles = TwoComponentHistogram(independent_var, dependent_var, varargin)
+function [ax_handles, hist2] = TwoComponentHistogram(independent_var, dependent_var, varargin)
 %TwoComponentHistogram - Creates three histograms: one for each varable,
 %                           and a bivariate histogram in the center.
 %
@@ -46,8 +46,8 @@ function ax_handles = TwoComponentHistogram(independent_var, dependent_var, vara
         num_bins = args.dependent_range(1):step_size:args.dependent_range(2);
     end
     [counts_dep, bins_dep] = histcounts(dependent_var, num_bins);
-    barh(bins_dep(1:end-1), counts_dep)
-    set(gca, 'xscale', 'log')
+    barh(bins_dep(1:end-1), counts_dep, LineStyle="none")
+    set(gca, 'xscale', 'log', 'XDir', 'reverse')
     ylabel(args.dependent_label)
     xlabel(args.count_label)
     
@@ -58,8 +58,8 @@ function ax_handles = TwoComponentHistogram(independent_var, dependent_var, vara
         num_bins = args.independent_range(1):step_size:args.independent_range(2);        
     end
     [counts_ind, bins_ind] = histcounts(independent_var, num_bins);
-    bar(bins_ind(1:end-1), counts_ind)
-    set(gca, 'yscale', 'log')
+    bar(bins_ind(1:end-1), counts_ind, LineStyle="none")
+    set(gca, 'yscale', 'log', 'YDir', 'reverse')
     xlabel(args.independent_label)
     ylabel(args.count_label)
     
@@ -71,4 +71,8 @@ function ax_handles = TwoComponentHistogram(independent_var, dependent_var, vara
 %     colorbar("east")
     
     title(args.title_str)
+
+    hist2.counts = counts_2;
+    hist2.x_edge = x_edge;
+    hist2.y_edge = y_edge;
 end
