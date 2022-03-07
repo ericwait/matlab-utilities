@@ -21,8 +21,8 @@ function colorIm = ColorImages(imIntensity,colors)
             continue
         end
 
-        im_temp = ImUtils.BrightenImages(im_temp,[],0.0005,20);
-        im_temp = ImUtils.BrightenImagesGamma(im_temp,[],0.95,40);
+        im_temp = ImUtils.BrightenImages(im_temp, [], 0.0005, 20);
+        im_temp = ImUtils.BrightenImagesGamma(im_temp, [], 0.95, 0.04);
         im_temp = mat2gray(im_temp);
         im(:,:,c) = im_temp;
     end
