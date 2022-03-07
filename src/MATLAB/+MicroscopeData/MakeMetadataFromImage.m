@@ -1,4 +1,4 @@
-function imageData = MakeMetadataFromImage(im)
+function meta = MakeMetadataFromImage(im)
     colors = [0,1,0;...
               1,0,1;...
               0,1,1;...
@@ -6,19 +6,25 @@ function imageData = MakeMetadataFromImage(im)
               1,0,0;...
               1,1,0];
 
-    imageData = MicroscopeData.GetEmptyMetadata();
+    meta = MicroscopeData.GetEmptyMetadata();
 
-    imageData.DatasetName = 'im';
-    imageData.Dimensions = [size(im,2),size(im,1),size(im,3)];
-    imageData.NumberOfChannels = size(im,4);
-    imageData.NumberOfFrames = size(im,5);
-    imageData.PixelPhysicalSize = [1,1,1];
-    for c=1:imageData.NumberOfChannels
-        imageData.ChannelNames = [imageData.ChannelNames; {sprintf('Channel %d',c)}];
-        colidx = mod(c,size(colors,1))+1;
-        imageData.ChannelColors = vertcat(imageData.ChannelColors,colors(colidx,:));
+    meta.DatasetName = 'im';
+    meta.Dimensions = [size(im,2),size(im,1),size(im,3)];
+    meta.NumberOfChannels = size(im,4);
+    meta.NumberOfFrames = size(im,5);
+    meta.PixelPhysicalSize = [1,1,1];
+    
+    if meta.NumberOfChannels == 1
+        meta.ChannelNames = {'Channel 1'};
+        meta.ChannelColors = [1, 1, 1];
+    else
+        for c=1:meta.NumberOfChannels
+            meta.ChannelNames = [meta.ChannelNames; {sprintf('Channel %d',c)}];
+            colidx = mod(c,size(colors,1))+1;
+            meta.ChannelColors = vertcat(meta.ChannelColors,colors(colidx,:));
+        end
     end
 
-    imageData.StartCaptureDate = datestr(now,'yyyy-mm-dd HH:MM:SS');
-    imageData.PixelFormat = class(im);
+    meta.StartCaptureDate = datestr(now,'yyyy-mm-dd HH:MM:SS');
+    meta.PixelFormat = class(im);
 end
