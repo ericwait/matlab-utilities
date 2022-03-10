@@ -46,8 +46,8 @@ function [ultimateDeltaX, ultimateDeltaY, ultimateDeltaZ, maxNCV, overlapSize, n
     addParameter(p, 'maxSearchSize', 100, validScalar);
     addParameter(p, 'logFile', 1);
     addParameter(p, 'visualize', false, @islogical);
-    addParameter(p, 'imMask1', [], @(x)(all(size(im1)==size(x))));
-    addParameter(p, 'imMask2', [], @(x)(all(size(im1)==size(x))));
+    addParameter(p, 'imMask1', []);
+    addParameter(p, 'imMask2', []);
     addParameter(p, 'unitFactor', 1, validScalar);
     
     parse(p, varargin{:});
