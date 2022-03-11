@@ -53,7 +53,7 @@ function [ultimateDeltaX, ultimateDeltaY, ultimateDeltaZ, maxNCV, overlapSize, n
     parse(p, varargin{:});
     args = p.Results;
     
-    if ~isfield(args, 'metadata1')
+    if isempty(args.metadata1)
         args.metadata1 = MicroscopeData.GetEmptyMetadata();
         sz = [size(im1,1),size(im1,2),size(im1,3),size(im1,4),size(im1,5)];
         args.metadata1.Dimensions = sz([2,1,3]);
@@ -63,7 +63,7 @@ function [ultimateDeltaX, ultimateDeltaY, ultimateDeltaZ, maxNCV, overlapSize, n
         args.metadata1.PixelPhysicalSize = ones(1,3);
     end
     
-    if ~isfield(args, 'metadata2')
+    if isempty(args.metadata2)
         args.metadata2 = MicroscopeData.GetEmptyMetadata();
         sz = [size(im2,1),size(im2,2),size(im2,3),size(im2,4),size(im2,5)];
         args.metadata2.Dimensions = sz([2,1,3]);
