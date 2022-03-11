@@ -112,7 +112,7 @@ function segmentation_table = TrackRAB(segmentation_table, max_distance, dimensi
             end
          end
 
-         assign = assignmentoptimal(similarity_matrix);
+         assign = Track.AssignmentOptimal(similarity_matrix);
          assign_mask = assign>0;
          assign_ind = assign(assign_mask);
 
