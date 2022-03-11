@@ -1,4 +1,4 @@
-function ShowTwoImagesOverlap(im1,im1Data,im2,im2Data,deltas,unitFactor)
+function [im,meta] = CombineTwoImages(im1,im1Data,im2,im2Data,deltas,unitFactor,visualize)
     if (~exist('deltas','var') || isempty(deltas))
         deltas = [0,0,0];
     end
@@ -73,14 +73,17 @@ function ShowTwoImagesOverlap(im1,im1Data,im2,im2Data,deltas,unitFactor)
     combinedHeight = abs(im1ROI(2)-im2ROI(2)) + max(size(im1,1),size(im2,1));
     combinedDepth = abs(im1ROI(3)-im2ROI(3)) + max(size(im1,3),size(im2,3));
     
-    im = zeros(combinedHeight,combinedWidth,3,combinedDepth,'uint8');
+    im = zeros(combinedHeight,combinedWidth,combinedDepth,size(im1,4)+size(im2,4),'like',im1);
     
-    im(im1Starts(2):im1Ends(2),im1Starts(1):im1Ends(1),1,im1Starts(3):im1Ends(3)) = im2uint8(mat2gray(im1));
-    im(im2Starts(2):im2Ends(2),im2Starts(1):im2Ends(1),2,im2Starts(3):im2Ends(3)) = im2uint8(mat2gray(im2));
-    im(im1Starts(2):im1Ends(2),im1Starts(1):im1Ends(1),3,im1Starts(3):im1Ends(3)) = im2uint8(mat2gray(im1));
+    im(im1Starts(2):im1Ends(2),im1Starts(1):im1Ends(1),im1Starts(3):im1Ends(3),1:size(im1,4)) = im1;
+    im(im2Starts(2):im2Ends(2),im2Starts(1):im2Ends(1),im2Starts(3):im2Ends(3),size(im1,4)+1:size(im1,4)+size(im2,4)) = im2;
+    meta = im1Data;
+    meta.Dimensions = size(im,[2,1,3]);
+    meta.NumberOfChannels = size(im,4);
     
-    figure
-    imagesc(max(im,[],4));
-    axis image
-    drawnow
+    if visualize
+         imOrtho = ImUtils.MakeOrthoSliceProjections(im,Utils.GetColorByWavelength(1:size(im,4)),meta.PixelPhysicalSize(1), meta.PixelPhysicalSize(3), 50);
+         figure
+         imshow(imOrtho);
+    end
 end
