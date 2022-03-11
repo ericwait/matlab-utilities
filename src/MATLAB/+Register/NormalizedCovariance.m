@@ -142,7 +142,7 @@ function [ NCshiftMatrix ] = NormalizedCovariance( im1,im2, minOverlap, im1Mask,
     clear sqrtVar1Var2;
     
     % Remove noisy peaks.
-    NormCov(abs(NormCov)>1) = 0;
+    NormCov(abs(NormCov)>1.01) = 0;
     NormCov( Noverlap < minOverlap )=0;
     
     % Output.
