@@ -90,10 +90,7 @@ if (showDecisionSurf)
     ylabel('Delta Y')
     zlabel('Normalized Covariance')
     title('Full Search Space')
-    
-    if (saveFrames)
-        zlim([-.3,1.0]);
-    end
+    zlim([-.3,1.0]);
     
     subplot(1,2,2);
     [X,Y] = meshgrid(1:size(ncvMatrixROI,2),1:size(ncvMatrixROI,1));
@@ -112,9 +109,7 @@ if (showDecisionSurf)
     ylabel('Delta Y')
     zlabel('Normalized Covariance')
     title('Restricted Search Space (ROI)')
-    if (saveFrames)
-        zlim([-.3,1.0]);
-    end
+    zlim([-.3,1.0]);
     
     set(gcf,'units','normalized','OuterPosition',[0,0,1,0.5]);
     drawnow
