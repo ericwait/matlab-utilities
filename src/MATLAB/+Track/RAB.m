@@ -1,4 +1,4 @@
-function segmentation_table = TrackRAB(segmentation_table, max_distance, dimension_scale_xyz)
+function segmentation_table = RAB(segmentation_table, max_distance)
 
 % SegmentAndTrack.m - This is the main program function for the RAB tools 
 % application.
@@ -51,12 +51,13 @@ function segmentation_table = TrackRAB(segmentation_table, max_distance, dimensi
 % 
 % ******************************************************************************/
 
-    
+    if ~exist('max_distance', 'var') || isempty(max_distance)
+        max_distance = inf;
+    end
     % Get length of sequence
     max_frame = max(segmentation_table.Frame);
     % Add track IDs to the table
     segmentation_table.Track_ID = [1:size(segmentation_table, 1)]';
-    segmentation_table.Centroid_um = segmentation_table.Centroid .* dimension_scale_xyz;
 
     % loop over every segmentation in frame t and calculate the distance in t+1
     for f = 1:max_frame -1
