@@ -23,9 +23,9 @@ function WriterTif(im, varargin)
     % This is ridiculous, but we assume that the optional path is specified if
     % length(varargin) is odd
     if ( mod(length(varargin),2) == 1 )
-        addOptional(p,'path','',@ischar);
+        addOptional(p,'path','');
     else
-        addParameter(p,'path','',@ischar);
+        addParameter(p,'path','');
     end
 
     addParameter(p,'datasetName',[],@ischar);
@@ -42,7 +42,7 @@ function WriterTif(im, varargin)
     args = p.Results;
 
     % If a path is specified we will use that instead of imageDir in matadata
-    [outDir,datasetName] = MicroscopeData.Helper.ParsePathArg(args.path,'.klb');
+    [outDir,datasetName] = MicroscopeData.Helper.ParsePathArg(args.path,'.tif');
 
     if ( ~isempty(args.datasetName) )
         datasetName = args.datasetName;
@@ -61,8 +61,12 @@ function WriterTif(im, varargin)
         args.imageData.NumberOfFrames = chkSize(5);
 
         args.imageData.PixelPhysicalSizes = [1.0, 1.0, 1.0];
-    elseif ( ~isempty(datasetName) )
+    end
+    if ( ~isempty(datasetName) )
         args.imageData.DatasetName = datasetName;
+    end
+    if ( isfield(args.imageData,'imageDir') && ~isempty(args.imageData.imageDir))
+        outDir = args.imageData.imageDir;
     end
 
     % Remove any quotes from the dataset name
