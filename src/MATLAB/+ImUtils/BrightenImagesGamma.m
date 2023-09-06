@@ -25,7 +25,7 @@ function imBright = BrightenImagesGamma(im,outType,gamma,backgroundLevel,verbose
         for c=1:size(im,4)
             curIm = im(:,:,:,c,t)-backgroundLevel;
             curIm(curIm(:)<0) = 0;
-            curIm = mat2gray(curIm);
+            curIm = ImUtils.ConvertType(curIm,'single', true);
             curIm = curIm.^gamma;
 
             imBright(:,:,:,c,t) = ImUtils.ConvertType(curIm,outType,true);

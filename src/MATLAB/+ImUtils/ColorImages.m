@@ -5,7 +5,7 @@ function colorIm = ColorImages(imIntensity,colors)
     
     numChans = size(colors,1);
     imColors = zeros(size(imIntensity,1),size(imIntensity,2),3,numChans,'single');
-    im = ImUtils.ConvertType(imIntensity, 'double', true);
+    im = ImUtils.ConvertType(imIntensity, 'single', true);
     
     colorMultiplier = zeros(1,1,3,length(numChans),'single');
     for c=1:numChans

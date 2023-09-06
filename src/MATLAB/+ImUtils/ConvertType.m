@@ -29,11 +29,11 @@ if (strcmpi(w.class,typ) && ~normalize)
     return
 end
 
-if (~strcmpi(typ,'logical'))
-    imageOut = zeros(size(imageIn),typ);
-else
-    imageOut = false(size(imageIn));
-end
+% if (~strcmpi(typ,'logical'))
+%     imageOut = zeros(size(imageIn),typ);
+% else
+%     imageOut = false(size(imageIn));
+% end
 
 % deal with images that come in as 16 bit but are really a lesser bit depth
 if (strcmpi(w.class,'uint16') && ~normalize)
@@ -60,16 +60,11 @@ end
 
 if (normalize)
     inType = class(imageIn);
-    if (strcmpi(inType,'double') || strcmpi(inType,'uint64') || strcmpi(inType,'int64'))
-        imTemp = double(imageIn);
-    else
-        imTemp = single(imageIn);
-    end
     
-    minMask = imageIn <= openInterval(1);
-    maxMask = imageIn >= openInterval(2);
-    imTempNaNs = imTemp;
-    imTempNaNs(minMask & maxMask) = NaN;
+    mask = uint8(imageIn <= openInterval(1));
+    mask = mask + uint8(imageIn >= openInterval(2));
+    imTempNaNs = imageIn;
+    imTempNaNs(mask(:) > 0) = NaN;
     
     if (normByFrame)
         minVals = min(imTempNaNs,[],[1,2,3],'omitnan');
@@ -78,12 +73,24 @@ if (normalize)
         minVals = min(imTempNaNs,[],[1,2,3,5],'omitnan');
         maxVals = max(imTempNaNs,[],[1,2,3,5],'omitnan');
     end
+
+    clear imTempNaNs
+
+    if (strcmpi(inType,'double') || strcmpi(inType,'uint64') || strcmpi(inType,'int64'))
+        imTemp = double(imageIn);
+        minVals = double(minVals);
+        maxVals = double(maxVals);
+    else
+        imTemp = single(imageIn);
+        minVals = single(minVals);
+        maxVals = single(maxVals);
+    end
     
     if (minVals ~= maxVals)
         imTemp = imTemp - minVals;
         imTemp = imTemp./(maxVals-minVals);
-        imTemp(minMask) = 0;
-        imTemp(maxMask) = 1;
+        imTemp(mask(:) == 1) = 0;
+        imTemp(mask(:) == 2) = 1;
     end
           
     switch typ
