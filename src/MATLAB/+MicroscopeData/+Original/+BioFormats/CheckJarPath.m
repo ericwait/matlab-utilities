@@ -3,11 +3,11 @@ function CheckJarPath()
 %   Detailed explanation goes here
 
 %% ensure that the bioformats jar file is on the path
-dynamicPaths = javaclasspath('-dynamic');
+javaPaths = javaclasspath('-all');
 bfIsLoaded = false;
-if (~isempty(dynamicPaths))
-    for i=1:length(dynamicPaths)
-        [~,name,~] = fileparts(dynamicPaths{i});
+if (~isempty(javaPaths))
+    for i=1:length(javaPaths)
+        [~,name,~] = fileparts(javaPaths{i});
         if (strcmpi('bioformats_package',name))
             bfIsLoaded = true;
             break

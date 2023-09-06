@@ -1,4 +1,22 @@
-function data = ParseJSON(json)
+% Utils.ParseJson - Parse JSON formatted text into matlab arrays/structures
+%   data = Utils.ParseJson(json, varargin)
+%
+% Inputs:
+%   json - Text to be parsed
+%
+% Optional Parameters:
+%   'StructArrays' - Automatically convert cell arrays of structures (with same field layout)
+%                    into array of structure elements (default: true)
+
+function data = ParseJSON(json, varargin)
+    %% Parse optional parameters
+    p = inputParser();
+    addParameter(p, 'StructArrays',true, @islogical);
+    
+    parse(p,varargin{:});
+    args = p.Results;
+
+    %% Begin parsing json
     quoteIdx = regexp(json,'\"', 'start');
     escStart = regexp(json,'\\([/\"\\bfnrt]|u[a-fA-F\d]{4})', 'start');
     
@@ -9,15 +27,17 @@ function data = ParseJSON(json)
     assertChar('parse', {'{','['}, json,parsePos);
     
     if ( json(parsePos) == '{' )
-        [data parsePos] = parseObjectJSON(json,parsePos+1, quoteMap);
+        [data,parsePos] = parseObjectJSON(json,parsePos+1, quoteMap);
     elseif ( json(parsePos) == '[' )
-        [data parsePos] = parseArrayJSON(json,parsePos+1, quoteMap);
+        [data,parsePos] = parseArrayJSON(json,parsePos+1, quoteMap);
     end
     
-    data = postprocessObjects(data);
+    % TODO: Error handling for parsepos ~= EOF
+    
+    data = postprocessObjects(data, args);
 end
 
-function [objData parsePos] = parseObjectJSON(json, startPos, quoteMap)
+function [objData,parsePos] = parseObjectJSON(json, startPos, quoteMap)
     parsePos = ignoreSpace(json,startPos);
     
     objData = [];
@@ -29,10 +49,10 @@ function [objData parsePos] = parseObjectJSON(json, startPos, quoteMap)
     
     while ( parsePos <= length(json) )
         assertChar('parseObject', '"', json,parsePos);
-        [keyStr parsePos] = parseStringJSON(json,parsePos, quoteMap);
+        [keyStr,parsePos] = parseStringJSON(json,parsePos, quoteMap);
         
         assertChar('parseObject', ':', json,parsePos);
-        [value parsePos] = parseValueJSON(json,parsePos+1, quoteMap);
+        [value,parsePos] = parseValueJSON(json,parsePos+1, quoteMap);
 %         if ( isempty(value) )
 %             throwError('parseObject','Expecting ''STRING'', ''NUMBER'', ''NULL'', ''TRUE'', ''FALSE'', ''{'', ''[''', json, parsePos);
 %         end
@@ -52,7 +72,7 @@ function [objData parsePos] = parseObjectJSON(json, startPos, quoteMap)
     throwError('parseObject','Expecting closing ''}''', json, parsePos);
 end
 
-function [arrayData parsePos] = parseArrayJSON(json, startPos, quoteMap)
+function [arrayData,parsePos] = parseArrayJSON(json, startPos, quoteMap)
     parsePos = ignoreSpace(json,startPos);
     
     arrayData = cell(0,1);
@@ -62,7 +82,7 @@ function [arrayData parsePos] = parseArrayJSON(json, startPos, quoteMap)
     end
     
     while ( parsePos <= length(json) )
-        [value parsePos] = parseValueJSON(json,parsePos, quoteMap);
+        [value,parsePos] = parseValueJSON(json,parsePos, quoteMap);
 %         if ( isempty(value) )
 %             throwError('parseArray','Expecting ''STRING'', ''NUMBER'', ''NULL'', ''TRUE'', ''FALSE'', ''{'', ''[''', json, parsePos);
 %         end
@@ -83,7 +103,7 @@ function [arrayData parsePos] = parseArrayJSON(json, startPos, quoteMap)
     throwError('parseArray','Expecting closing '']''', json, parsePos);
 end
 
-function [valueData parsePos] = parseValueJSON(json, startPos, quoteMap)
+function [valueData,parsePos] = parseValueJSON(json, startPos, quoteMap)
     parsePos = ignoreSpace(json,startPos);
     
     assertInStr('parseValue', '''STRING'', ''NUMBER'', ''NULL'', ''TRUE'', ''FALSE'', ''{'', ''[''', json, parsePos);
@@ -93,16 +113,16 @@ function [valueData parsePos] = parseValueJSON(json, startPos, quoteMap)
     
     switch(chkChar)
         case '['
-            [valueData parsePos] = parseArrayJSON(json,parsePos+1, quoteMap);
+            [valueData,parsePos] = parseArrayJSON(json,parsePos+1, quoteMap);
         case '{'
-            [valueData parsePos] = parseObjectJSON(json,parsePos+1, quoteMap);
+            [valueData,parsePos] = parseObjectJSON(json,parsePos+1, quoteMap);
         case '"'
-            [valueData parsePos] = parseStringJSON(json,parsePos, quoteMap);
+            [valueData,parsePos] = parseStringJSON(json,parsePos, quoteMap);
         case {'-','0','1','2','3','4','5','6','7','8','9'}
-            [valueData parsePos] = parseNumberJSON(json,parsePos);
+            [valueData,parsePos] = parseNumberJSON(json,parsePos);
         otherwise
             for i=1:size(keywordMap,1)
-                [bMatched parsePos] = matchKeyword(json,parsePos,keywordMap{i,1});
+                [bMatched,parsePos] = matchKeyword(json,parsePos,keywordMap{i,1});
                 if ( bMatched )
                     valueData = keywordMap{i,2};
                     return;
@@ -112,9 +132,9 @@ function [valueData parsePos] = parseValueJSON(json, startPos, quoteMap)
     end
 end
 
-function [stringData parsePos] = parseStringJSON(json, startPos, quoteMap)
+function [stringData,parsePos] = parseStringJSON(json, startPos, quoteMap)
     if ( ~isKey(quoteMap,startPos) )
-        throwError('parseString','Expecting ''STRING''', json, parsePos);
+        throwError('parseString','Expecting ''STRING''', json, startPos);
     end
     
     startQuote = startPos;
@@ -125,7 +145,7 @@ function [stringData parsePos] = parseStringJSON(json, startPos, quoteMap)
     parsePos = ignoreSpace(json,endQuote + 1);
 end
 
-function [numberData parsePos] = parseNumberJSON(json, startPos)
+function [numberData,parsePos] = parseNumberJSON(json, startPos)
     % Recommended float string representation suggests a max of 24 chars (padded to 30)
     numPad = 30;
     chkEnd = min(startPos+numPad,length(json));
@@ -139,7 +159,7 @@ function [numberData parsePos] = parseNumberJSON(json, startPos)
     parsePos = ignoreSpace(json,startPos+length(matchStr));
 end
 
-function [bMatched parsePos] = matchKeyword(json,parsePos, keywordStr)
+function [bMatched,parsePos] = matchKeyword(json,parsePos, keywordStr)
     bMatched = false;
     if ( length(json) < parsePos+length(keywordStr) )
         return;
@@ -203,54 +223,95 @@ function expandStr = validExpandString(escapedStr, json,strPos)
     end
 end
 
-function dataOut = postprocessObjects(dataEntry)
+function dataOut = postprocessObjects(dataEntry, args)
     if ( isstruct(dataEntry) )
         fields = fieldnames(dataEntry);
         for i=1:length(fields)
-            dataEntry.(fields{i}) = postprocessObjects(dataEntry.(fields{i}));
+            dataEntry.(fields{i}) = postprocessObjects(dataEntry.(fields{i}), args);
         end
     elseif ( iscell(dataEntry) )
-        dataEntry = postprocessArrays(dataEntry);
+        dataEntry = postprocessArrays(dataEntry, args);
     end
     
     dataOut = dataEntry;
 end
 
-function dataEntry = postprocessArrays(dataEntry)
+function dataEntry = postprocessArrays(dataEntry, args)
     finalDims = length(dataEntry);
     
-    [bCanExpand expandDims expandTypes] = canExpandArray(dataEntry);
+    [bCanExpand,expandDims] = checkExpandArray(dataEntry);
+    %% Force column array if it's not further expandable
     if ( ~bCanExpand )
         finalDims = [finalDims 1];
     end
     
+    %% Recursively flatten array keeping track of dimensions
     while ( bCanExpand )
         dataEntry = reshape(dataEntry, numel(dataEntry),1);
         dataEntry = vertcat(dataEntry{:});
         
         finalDims = [finalDims expandDims];
-        [bCanExpand expandDims expandTypes] = canExpandArray(dataEntry);
+        [bCanExpand,expandDims] = checkExpandArray(dataEntry);
     end
     
+    %% Always recursively post-process sub-objects after array expansion
+    for i=1:numel(dataEntry)
+        dataEntry{i} = postprocessObjects(dataEntry{i}, args);
+    end
+    
+    %% Convert array to final dimensions
     dataEntry = reshape(dataEntry, finalDims);
-    if ( length(expandDims) > 1 )
-        for i=1:numel(dataEntry)
-            dataEntry{i} = postprocessObjects(dataEntry{i});
-        end
-    elseif ( length(expandTypes) == 1 && strcmpi(expandTypes{1},'double') )
+    
+    %% Check if types are trivially mergeable using cell2mat
+    bMerge = checkMergeCells(dataEntry, args.StructArrays);
+    if ( bMerge )
         dataEntry = cell2mat(dataEntry);
     end
 end
 
-function [bCanExpand expandDims expandTypes] = canExpandArray(cellArray)
-    chkType = unique(cellfun(@(x)(class(x)), cellArray(:), 'UniformOutput',0));
+function [bCanExpand,expandDims] = checkExpandArray(cellArray)
     chkDims = unique(cellfun(@(x)(length(x)), cellArray(:)));
     
-    bCanExpand = (length(chkDims) == 1) && (length(chkType) == 1) && strcmpi(chkType{1},'cell');
+    chkTypes = cellfun(@(x)(class(x)), cellArray(:), 'UniformOutput',0);
+    sharedType = getSharedType(chkTypes);
     
-    expandTypes = chkType;
+    bCanExpand = isscalar(chkDims) && strcmpi(sharedType,'cell');
     expandDims = chkDims;
 end
+
+function bMerge = checkMergeCells(cellArray, bStructArrays)
+    bMerge = true;
+    
+    % TODO: Don't dump unit cell arrays?
+    chkTypes = cellfun(@(x)(class(x)), cellArray(:), 'UniformOutput',0);
+    sharedType = getSharedType(chkTypes);
+    
+    % Always merge numerical arrays
+    if ( strcmpi(sharedType,'double') )
+        return;
+    end
+        
+    % Can also trivially merge structure arrays with exact same field layout
+    if ( bStructArrays && strcmpi(sharedType,'struct') )
+        chkFields = cellfun(@(x)(strjoin(fieldnames(x),',')), cellArray(:), 'UniformOutput',0);
+        sharedFields = getSharedType(chkFields);
+        if ( ~isempty(sharedFields) )
+            return;
+        end
+    end
+    
+    bMerge = false;
+end
+
+function type = getSharedType(typeList)
+    type = '';
+    
+    chkTypes = unique(typeList);
+    if ( isscalar(chkTypes) )
+        type = chkTypes{1};
+    end
+end 
+
 
 function parsePos = ignoreSpace(json,startPos)
     for parsePos=startPos:length(json)
@@ -307,7 +368,7 @@ function throwError(type,message, json, pos)
     arrowSpace = repmat(' ',1,arrowPos);
     
     contextStr = json(contextStart:contextEnd);
-    contextStr = strtok(contextStr,sprintf('\n'));
+    contextStr = strtok(contextStr, newline());
     
     ME = MException(['json:' type],'Parse error: %s\n\n%s\n%s^', message,contextStr,arrowSpace);
     ME.throw;

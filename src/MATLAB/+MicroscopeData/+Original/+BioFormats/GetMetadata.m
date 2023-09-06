@@ -94,6 +94,13 @@ for series=0:bfReader.getSeriesCount()-1
     end
 
     imageData.TimeStampDelta = 0;
+    
+    try
+        pxtype = char(omeMetadata.getPixelsType(series));
+    catch err
+        pxtype = '';
+    end
+    imageData.PixelFormat = pxtype;
 
     order = char(omeMetadata.getPixelsDimensionOrder(series));
 
