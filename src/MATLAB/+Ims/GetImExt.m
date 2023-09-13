@@ -1,15 +1,26 @@
-function ext_xyz = GetImExt(ims_file_path)
-    x_min = Ims.GetAttValue(ims_file_path,'/DataSetInfo/Image','ExtMin0');
-    y_min = Ims.GetAttValue(ims_file_path,'/DataSetInfo/Image','ExtMin1');
-    z_min = Ims.GetAttValue(ims_file_path,'/DataSetInfo/Image','ExtMin2');
+% GETIMEXT Get the extent of the image in XYZ dimensions.
+%
+%   ext_xyz = GETIMEXT(ims_file_path) returns the extent of the image in XYZ.
+%   ext_xyz = GETIMEXT(ims_file_path, datasetInfoNum) allows specifying which dataset to consider.
+%
+% Parameters:
+%   ims_file_path   - Path to the .ims file (string).
+%   datasetInfoNum  - Optional dataset index for multiple datasets in the .ims file (numeric).
+%
+% Returns:
+%   ext_xyz - 1x3 array [x_ext, y_ext, z_ext] specifying the extent in XYZ dimensions.
 
-    x_max = Ims.GetAttValue(ims_file_path,'/DataSetInfo/Image','ExtMax0');
-    y_max = Ims.GetAttValue(ims_file_path,'/DataSetInfo/Image','ExtMax1');
-    z_max = Ims.GetAttValue(ims_file_path,'/DataSetInfo/Image','ExtMax2');
+function ext_xyz = GetImExt(ims_file_path, dataset_num)
+    if nargin < 2
+        dataset_num = [];
+    end
 
-    x_ext = x_max-x_min;
-    y_ext = y_max-y_min;
-    z_ext = z_max-z_min;
-    
-    ext_xyz = [x_ext, y_ext, z_ext];
+    dataset_info_str = Ims.CreateImageInfoStr_(dataset_num);
+    ext_xyz = zeros(1, 3);
+
+    for i = 1:3
+        min_val = Ims.GetAttScalar_(ims_file_path, dataset_info_str, ['ExtMin', num2str(i-1)]);
+        max_val = Ims.GetAttScalar_(ims_file_path, dataset_info_str, ['ExtMax', num2str(i-1)]);
+        ext_xyz(i) = max_val - min_val;
+    end
 end

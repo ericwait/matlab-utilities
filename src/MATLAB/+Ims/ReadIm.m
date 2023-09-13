@@ -1,33 +1,34 @@
-function image = ReadIm(ims_file_path, frame, channel, error_check, resolution_level, dataset)
-    % Handle optional arguments
-    if ~exist('error_check','var') || isempty(error_check)
-        error_check = true;
-    end
-    
-    if ~exist('resolution_level','var') || isempty(resolution_level)
-        resolution_level = 0; % Default value
-    end
-    
-    if ~exist('dataset','var') || isempty(dataset)
-        dataset = ''; % Default value
-    else
-        dataset = num2str(dataset); % Convert integer to string
-    end
+% READIM Reads an image from an IMS file.
+%
+%   image = READIM(ims_file_path, 'TimePoint', 0, 'Channel', 0, 'ErrorCheck', true, 'ResolutionLevel', 0, 'DatasetInfoNum', '') 
+%   reads a specific time point and channel from the IMS file.
+%
+% Parameters:
+%   ims_file_path     - Full path to the IMS file (string).
+%   TimePoint         - Optional time point number (numeric, default=0).
+%   Channel           - Optional channel number (numeric, default=0).
+%   ErrorCheck        - Optional flag for error checking (logical, default=true).
+%   ResolutionLevel   - Optional resolution level (numeric, default=0).
+%   Dataset    - Optional dataset index (numeric, default='').
+%
+% Returns:
+%   image - The read image data.
 
+function image = ReadIm(ims_file_path, varargin)
+    [channel, time_point, resolution_level, dataset_num, error_check] = Ims.DefaultArgParse_(varargin{:});
+    
     if error_check
-        max_frame = Ims.GetNumberOfImages(ims_file_path);
-        max_channel = Ims.GetNumberOfChannels(ims_file_path);
+        max_TimePoint = Ims.GetNumberOfTimePoints(ims_file_path, dataset_num); 
+        max_Channel = Ims.GetNumberOfChannels(ims_file_path, dataset_num); 
         
-        if frame > max_frame
-            error('Requesting a frame larger than %d', max_frame);
+        if time_point > max_TimePoint
+            error('Requesting a time point larger than %d', max_TimePoint);
         end
-        
-        if channel > max_channel
-            error('Requesting a channel larger than %d', max_channel);
+        if channel > max_Channel
+            error('Requesting a channel larger than %d', max_Channel);
         end
     end
     
-    dataset_path = sprintf('/DataSet%s/ResolutionLevel %d/TimePoint %d/Channel %d/Data', ...
-                            dataset, resolution_level, frame - 1, channel - 1);
+    dataset_path = Ims.GetFullDataPath('Dataset', dataset_num, 'Resolution', resolution_level, 'TimePoint', time_point, 'Channel', channel);
     image = h5read(ims_file_path, dataset_path);
 end
