@@ -6,6 +6,8 @@ function im_val_type = GetImValueType(ims_file_path)
     switch typ
         case 'H5T_NATIVE_UCHAR'
             im_val_type = 'uint8';
+        case 'H5T_STD_U8LE'
+            im_val_type = 'uint8';
         case 'H5T_NATIVE_USHORT'
             im_val_type = 'uint16';
         case 'H5T_NATIVE_UINT32'
