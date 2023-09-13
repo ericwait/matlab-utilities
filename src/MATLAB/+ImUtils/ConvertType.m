@@ -29,11 +29,9 @@ if (strcmpi(w.class,typ) && ~normalize)
     return
 end
 
-% if (~strcmpi(typ,'logical'))
-%     imageOut = zeros(size(imageIn),typ);
-% else
-%     imageOut = false(size(imageIn));
-% end
+if (strcmpi(w.class,'logical'))
+    imageIn = single(imageIn);
+end
 
 % deal with images that come in as 16 bit but are really a lesser bit depth
 if (strcmpi(w.class,'uint16') && ~normalize)
