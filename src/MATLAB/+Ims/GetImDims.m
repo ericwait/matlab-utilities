@@ -48,7 +48,7 @@ function dims_xyz = GetImDims(ims_file_path, varargin)
         sz = size(im,[2,1,3]);
         if any(dims_xyz ~= sz)
             fprintf('Metadata and image data size mismatch -- ');
-            fprintf('metadata:(%d, %d, %d),', x_size, y_size, z_size);
+            fprintf('metadata:(%d, %d, %d), ', x_size, y_size, z_size);
             fprintf('image size:(%d, %d, %d)\n', sz(1), sz(2), sz(3));
             dims_xyz = sz;
         end
