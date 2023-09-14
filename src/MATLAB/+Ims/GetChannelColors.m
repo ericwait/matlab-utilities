@@ -37,6 +37,6 @@ function colors = GetChannelColors(ims_file_path, num_channels, varargin)
     % Loop over channels to get colors
     for c = 1:num_channels
         color_path = Ims.CreateChannelInfoStr_('Dataset', dataset_num, 'Channel', c);
-        colors(c, :) = Ims.GetAttScalar_(ims_file_path, color_path, 'Color');
+        colors(c, :) = Ims.GetAttArray_(ims_file_path, color_path, 'Color');
     end
 end
