@@ -1,4 +1,4 @@
-function orthoSliceIm = MakeOrthoSliceProjections(im, colors, xyPhysicalSize, zPhysicalSize, scaleBar, projectionType)
+function orthoSliceIm = MakeOrthoSliceProjections(im, colors, physicalSize_xyz, scaleBar, projectionType)
 % MakeOrthoSliceProjections - Create orthogonal slice projections from 3D microscopy data.
 %
 % Syntax:
@@ -11,7 +11,7 @@ function orthoSliceIm = MakeOrthoSliceProjections(im, colors, xyPhysicalSize, zP
 % xyPhysicalSize - Physical size in the XY plane. Required.
 % zPhysicalSize  - Physical size in the Z direction. Required.
 % scaleBar     - Scale bar to be displayed on the image. Optional.
-% projectionType - Type of projection ('max', 'min', 'mean', 'median', 'sum'). Optional, default: 'max'.
+% projectionType - Type of projection ('max', 'min', 'mean', 'median', 'mode', 'sum'). Optional, default: 'max'.
 %
 % Outputs:
 % orthoSliceIm - Image containing orthogonal projections.
@@ -28,7 +28,12 @@ function orthoSliceIm = MakeOrthoSliceProjections(im, colors, xyPhysicalSize, zP
         projectionType = 'max'; % Default projection type is 'max'
     end
     
-    zRatio = zPhysicalSize / xyPhysicalSize;
+    xPhysicalSize = physicalSize_xyz(1);
+    yPhysicalSize = physicalSize_xyz(2);
+    zPhysicalSize = physicalSize_xyz(3);
+    
+    zRatioX = zPhysicalSize / xPhysicalSize;
+    zRatioY = zPhysicalSize / yPhysicalSize;
     
     % Determine the type of projection to perform
     switch lower(projectionType)
@@ -42,8 +47,12 @@ function orthoSliceIm = MakeOrthoSliceProjections(im, colors, xyPhysicalSize, zP
             projFunc = @(x, dim) median(x, dim);
         case 'sum'
             projFunc = @(x, dim) sum(x, dim);
+        case 'mode'
+            projFunc = @(x, dim) mode(x, dim);
+        case 'std'
+            projFunc = @(x, dim) std(single(x), [], dim);
         otherwise
-            error('Invalid projectionType. Valid options are "max", "min", "mean", "median", "sum".');
+            error('Invalid projectionType. Valid options are "max", "min", "mean", "median", "mode", "std", "sum".');
     end
 
     % Compute the XY projection
@@ -60,8 +69,8 @@ function orthoSliceIm = MakeOrthoSliceProjections(im, colors, xyPhysicalSize, zP
     imColor_yz = ImUtils.ColorImages(im_yz, colors);
     
     % Resize the XZ and YZ projections
-    imColor_xzR = imresize(imColor_xz, [round(size(imColor_xz, 1) * zRatio), size(imColor_xz, 2)]);
-    imColor_yzR = imresize(imColor_yz, [size(imColor_yz, 1), round(size(imColor_yz, 2) * zRatio)]);
+    imColor_xzR = imresize(imColor_xz, [round(size(imColor_xz, 1) * zRatioX), size(imColor_xz, 2)]);
+    imColor_yzR = imresize(imColor_yz, [size(imColor_yz, 1), round(size(imColor_yz, 2) * zRatioY)]);
 
     % Create an empty image for the orthogonal slices
     orthoSliceIm = im2uint8(ones(size(imColor_xy, 1) + size(imColor_xzR, 1) + 5, size(imColor_xy, 2) + size(imColor_yzR, 2) + 5, 3, 'single') * 0.35);
@@ -73,7 +82,7 @@ function orthoSliceIm = MakeOrthoSliceProjections(im, colors, xyPhysicalSize, zP
     
     % Add the scale bar if it exists
     if exist("scaleBar", "var") && ~isempty(scaleBar)
-        scaleBarLength = round(scaleBar / xyPhysicalSize);
+        scaleBarLength = round(scaleBar / xPhysicalSize);
         orthoSliceIm(end - 40 : end - 20, end - 20 - scaleBarLength + 1 : end - 20, :) = 255;
     end
 end
