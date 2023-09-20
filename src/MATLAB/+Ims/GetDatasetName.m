@@ -4,12 +4,12 @@
 %   from the specified .ims file. If the name is not specified, the file name
 %   is used as the dataset name.
 %
-%   dataset_name = GETDATASETNAME(ims_file_path, 'datasetinfonum', 2) retrieves
+%   dataset_name = GETDATASETNAME(ims_file_path, 'Dataset', 2) retrieves
 %   the name from a specific DataSet (for instance, the third one) in the .ims file.
 %
 % Parameters:
 %   ims_file_path  - Path to the .ims file (string).
-%   datasetinfonum - Dataset index if the .ims file contains multiple datasets (numeric, default='').
+%   Dataset - Dataset index if the .ims file contains multiple datasets (numeric, default='').
 %
 % Returns:
 %   dataset_name - The name of the dataset.

@@ -1,4 +1,4 @@
-function [all_metadata, all_images] = Read(ims_file_path, varargin)
+function [all_images, all_metadata] = Read(ims_file_path, varargin)
     % Read all datasets within an IMS file and return their metadata and images
     % in cell arrays.
     %

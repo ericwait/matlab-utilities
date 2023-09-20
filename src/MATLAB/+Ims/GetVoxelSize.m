@@ -15,7 +15,7 @@ function pixelPitch = GetVoxelSize(filePath, varargin)
     try
         % Retrieve the image extents and dimensions using existing functions
         ext_xyz = Ims.GetImExt(filePath, dataset_num);
-        dims_xyz = Ims.GetImDims(filePath, 'Dataset', dataset_num);
+        dims_xyz = Ims.GetImDims(filePath, 'Dataset', dataset_num, 'ErrorCheck', false);
         
         % Compute the pixel pitch
         pixelPitch = ext_xyz ./ dims_xyz;

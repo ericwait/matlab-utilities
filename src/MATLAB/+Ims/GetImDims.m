@@ -28,8 +28,9 @@
 % See also: OTHER_RELATED_FUNCTIONS
 %
 
-function dims_xyz = GetImDims(ims_file_path, varargin)
+function [dims_xyz, permute_inds, image_size_xyz] = GetImDims(ims_file_path, varargin)
     [~, ~, ~, dataset_num, error_check] = Ims.DefaultArgParse_(varargin{:});
+    permute_inds = [1,2,3];
 
     % Construct attribute paths
     dataset_info_str = Ims.CreateImageInfoStr_('Dataset', dataset_num);
@@ -45,12 +46,13 @@ function dims_xyz = GetImDims(ims_file_path, varargin)
     % Optionally perform error check
     if error_check
         im = Ims.ReadIm(ims_file_path, 'ErrorCheck', false, varargin{:});
-        sz = size(im,[2,1,3]);
-        if any(dims_xyz ~= sz)
+        image_size_xyz = size(im,[2,1,3]);
+        permute_inds = Utils.OrderByReference(dims_xyz, image_size_xyz);
+        if any(permute_inds ~= 1:3) && image_size_xyz(1)~=image_size_xyz(2) && dims_xyz(1)~=dims_xyz(2)
             fprintf('Metadata and image data size mismatch -- ');
             fprintf('metadata:(%d, %d, %d), ', x_size, y_size, z_size);
-            fprintf('image size:(%d, %d, %d)\n', sz(1), sz(2), sz(3));
-            dims_xyz = sz;
+            fprintf('image size:(%d, %d, %d)\n', image_size_xyz(1), image_size_xyz(2), image_size_xyz(3));
+            permute_inds = Utils.OrderByReference(dims_xyz, image_size_xyz);
         end
     end
 end

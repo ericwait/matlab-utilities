@@ -59,12 +59,8 @@ function [channel, time_point, resolution_level, dataset_num, error_check] = Def
     parse(p, varargin{:});
     
     % Retrieve the values
-    if (~exist('time_point', 'var'))
-        time_point = p.Results.TimePoint;
-    end
-    if (~exist('channel', 'var'))
-        channel = p.Results.Channel;
-    end
+    time_point = p.Results.TimePoint;
+    channel = p.Results.Channel;
 
     error_check = p.Results.ErrorCheck;
     resolution_level = p.Results.ResolutionLevel;

@@ -24,10 +24,11 @@ function images = ReadAllImages(ims_file_path, time_points, channels, varargin)
 
     [~, ~, resolution_level, dataset, error_check] = Ims.DefaultArgParse_(varargin{:});
     
-    dims = Ims.GetImDims(ims_file_path, 'Dataset', dataset);
+    [dims, permute_ind, image_size_xyz] = Ims.GetImDims(ims_file_path, 'Dataset', dataset);
     im_val_type = Ims.GetImValueType(ims_file_path, 'Dataset', dataset);
     
-    images = zeros([dims([2, 1, 3]), numel(channels), numel(time_points)], im_val_type);
+%     dims = dims(permute_ind);
+    images = zeros([image_size_xyz([2,1,3]), numel(channels), numel(time_points)], im_val_type);
     
     for t_idx = 1:numel(time_points)
         for c_idx = 1:numel(channels)

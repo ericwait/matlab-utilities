@@ -31,4 +31,5 @@ function image = ReadIm(ims_file_path, varargin)
     
     dataset_path = Ims.GetFullDataPath('Dataset', dataset_num, 'Resolution', resolution_level, 'TimePoint', time_point, 'Channel', channel);
     image = h5read(ims_file_path, dataset_path);
+    image = permute(image, [2,1,3]);
 end
