@@ -1,44 +1,56 @@
-function [im_frag_iso, padded_image_size] = CreateIsometricImage(im, pixel_physical_size, padding)
-    % createIsometricImage - Create an isometric version of a 3D image.
+function [im_iso, original_image_size] = CreateIsometricImage(im, pixel_physical_size, target_voxel_size, resize_method)
+    % CreateIsometricImage - Create an isometric version of a 2D or 3D image.
     %
     % Syntax:
-    %   im_frag_iso = createIsometricImage(im, pixelPhysicalSize)
-    %   im_frag_iso = createIsometricImage(im, pixelPhysicalSize, padding)
+    %   [im_iso, original_image_size] = CreateIsometricImage(im, pixel_physical_size)
+    %   [im_iso, original_image_size] = CreateIsometricImage(im, pixel_physical_size, target_voxel_size, resize_method)
     %
     % Inputs:
-    %   im              - A 3D image array.
-    %   pixelPhysicalSize - A vector [row, col, z] representing the physical size 
-    %                       of the voxels in the image along each dimension.
-    %   padding         - (Optional) An integer defining the padding size for the image. 
-    %                     Default is 0.
+    %   im                  - A 2D or 3D image array.
+    %   pixel_physical_size - A vector [row, col, (z)] representing the physical size 
+    %                         of the pixels/voxels in the image along each dimension.
+    %   target_voxel_size   - (Optional) The desired pixel/voxel size for the isotropic image. 
+    %                         Default is the minimum pixel/voxel size.
+    %   resize_method       - (Optional) Method used for resizing. Default is 'nearest'.
     %
     % Outputs:
-    %   im_frag_iso     - The isometric version of the input image.
+    %   im_iso              - The isometric version of the input image.
+    %   original_image_size - The size of the original image.
     %
-    % Example:
-    %   isoImage = createIsometricImage(originalImage, [1, 1, 2]);
-    %   isoImage = createIsometricImage(originalImage, [1, 1, 2], 10);
+    % Example for 3D image:
+    %   [iso_image, orig_size] = CreateIsometricImage(original_image, [1, 1, 2]);
+    %   [iso_image, orig_size] = CreateIsometricImage(original_image, [1, 1, 2], 0.5, 'cubic');
     %
-    % Other m-files required: ImUtils.PadImage
+    % Example for 2D image:
+    %   [iso_image, orig_size] = CreateIsometricImage(original_image, [1, 1]);
+    %   [iso_image, orig_size] = CreateIsometricImage(original_image, [1, 1], 0.5, 'cubic');
     %
     % Note:
-    %   The function assumes that 'ImUtils.PadImage' is available in your workspace.
-    
-    % Set default padding to 0 if not provided
-    if nargin < 3
-        padding = 0;
-    end
+    %   The function assumes that 'ImUtils.PadImage' is not required for this version.
 
-    % Compute the isometric voxel size
-    iso_voxel_size = min(pixel_physical_size);
+    % Determine if the image is 2D or 3D
+    is_3D = ndims(im) == 3;
+
+    % Set default values if not provided
+    if nargin < 3 || isempty(target_voxel_size)
+        target_voxel_size = min(pixel_physical_size);
+    end
+    
+    if nargin < 4 || isempty(resize_method)
+        resize_method = 'nearest';
+    end
+    
+    % Store the original image size for return
+    original_image_size = size(im);
 
     % Compute the new dimensions for the isometric image
-    new_size = round(size(im, 1:3) .* pixel_physical_size ./ iso_voxel_size) + padding * 2;
-
-    % Pad the original image
-    im_padded = ImUtils.PadImage(im, [], padding);
-    padded_image_size = size(im_padded);
-
-    % Resize the image to make it isometric
-    im_frag_iso = imresize3(im_padded, new_size, 'method', 'nearest');
+    if is_3D
+        new_size = round(size(im, 1:3) .* pixel_physical_size ./ target_voxel_size);
+        % Resize the image to make it isometric
+        im_iso = imresize3(im, new_size, 'method', resize_method);
+    else
+        new_size = round(size(im, 1:2) .* pixel_physical_size(1:2) ./ target_voxel_size);
+        % Resize the image to make it isometric
+        im_iso = imresize(im, new_size, 'method', resize_method);
+    end
 end
