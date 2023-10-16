@@ -15,7 +15,7 @@ function ext_xyz = GetImExt(ims_file_path, dataset_num)
         dataset_num = [];
     end
 
-    dataset_info_str = Ims.CreateImageInfoStr_(dataset_num);
+    dataset_info_str = Ims.CreateImageInfoStr_('Dataset', dataset_num);
     ext_xyz = zeros(1, 3);
 
     for i = 1:3
