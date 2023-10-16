@@ -16,10 +16,10 @@
 
 function images = ReadAllImages(ims_file_path, time_points, channels, varargin)
     if (~exist('time_points', 'var') || isempty(time_points))
-        time_points = 0:Ims.GetNumberOfTimePoints(ims_file_path) - 1;
+        time_points = 1:Ims.GetNumberOfTimePoints(ims_file_path);
     end
     if (~exist('channels', 'var') || isempty(channels))
-        channels = 0:Ims.GetNumberOfChannels(ims_file_path) - 1;
+        channels = 1:Ims.GetNumberOfChannels(ims_file_path);
     end
 
     [~, ~, resolution_level, dataset, error_check] = Ims.DefaultArgParse_(varargin{:});
