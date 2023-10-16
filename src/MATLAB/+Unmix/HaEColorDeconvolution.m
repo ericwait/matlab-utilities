@@ -28,16 +28,16 @@ function [im_hematoxylin_final, im_eosin_final, im_residual_final] = HaEColorDec
 %
 
     % Check for the optional arguments
-    if nargin < 2
+    if nargin < 2 || isempty(vector_hematoxylin)
         vector_hematoxylin = [0.63401; 0.72504; 0.26897]; % Default Hematoxylin
     end
-    if nargin < 3
+    if nargin < 3 || isempty(vector_eosin)
         vector_eosin = [0.28808; 0.84773; 0.44538]; % Default Eosin
     end
-    if nargin < 4
+    if nargin < 4 || isempty(vector_residual)
         vector_residual = [0.238; -0.514; 0.824]; % Default Residual
     end
-    if nargin < 5
+    if nargin < 5 || isempty(displayResults)
         displayResults = false; % Default is not to display results
     end
     
