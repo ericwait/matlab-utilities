@@ -12,7 +12,7 @@ p.StructExpand = false;
 
 addParameter(p,'zList',[], @(x)(validOrEmpty(@isvector,x)));
 addParameter(p,'cList',[], @(x)(validOrEmpty(@isvector,x)));
-addParameter(p,'timeRange',[], @(x)(validOrEmpty(@isvector,x)));
+addParameter(p,'timeRange',[1,1], @(x)(validOrEmpty(@isvector,x)));
 
 parse(p,varargin{:});
 argStruct = p.Results;
@@ -84,7 +84,11 @@ function im = readSeriesImage(bfReader, series, omeMetadata, onlyOneSeries, prgs
     
     imageData.Dimensions(3) = length(argStruct.zList);
     imageData.NumberOfChannels = length(argStruct.cList);
-    imageData.NumberOfFrames = argStruct.timeRange(2)-argStruct.timeRange(1)+1;
+    if (isempty(argStruct.timeRange))
+        imageData.NumberOfFrames = 1;
+    else
+        imageData.NumberOfFrames = argStruct.timeRange(2)-argStruct.timeRange(1)+1;
+    end
     
     im = zeros([Utils.SwapXY_RC(imageData.Dimensions'),imageData.NumberOfChannels,imageData.NumberOfFrames],pixelType);
 
