@@ -65,7 +65,7 @@ function WriterTif(im, varargin)
     if ( ~isempty(datasetName) )
         args.imageData.DatasetName = datasetName;
     end
-    if ( isfield(args.imageData,'imageDir') && ~isempty(args.imageData.imageDir))
+    if (isempty(outDir) && isfield(args.imageData,'imageDir') && ~isempty(args.imageData.imageDir))
         outDir = args.imageData.imageDir;
     end
 
