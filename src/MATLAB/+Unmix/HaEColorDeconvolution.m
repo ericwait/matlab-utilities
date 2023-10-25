@@ -82,22 +82,6 @@ function [im_hematoxylin_final, im_eosin_final, im_residual_final] = HaEColorDec
     im_hematoxylin_final = ImUtils.ConvertType(im_hematoxylin_final, 'uint16', false);
     im_eosin_final = ImUtils.ConvertType(im_eosin_final, 'uint16', false);
     im_residual_final = ImUtils.ConvertType(im_residual_final, 'uint16', false);
-
-    % Make a mask for the background
-%     mask = false(size(image_rgb));
-%     for chan = 1:3
-%         im_color = image_rgb(:,:,chan);
-% 
-%         gm = fitgmdist(single(im_color(:)), 1);
-%         sigma = sqrt(squeeze(gm.Sigma));
-%         mask_color = im_color <= gm.mu+3*sigma & im_color >= gm.mu-3*sigma;
-%         mask = mask | mask_color;
-%     end
-% 
-%     mask = mask(:,:,1) | mask(:,:,2) | mask(:,:,3);
-%     im_hematoxylin_final(~mask) = 0;
-%     im_eosin_final(~mask) = 0;
-%     im_residual_final(~mask) = 0;
     
     % Optionally display the separated channels
     if displayResults
