@@ -1,4 +1,4 @@
-function [im_iso, original_image_size] = CreateIsometricImage(im, pixel_physical_size, target_voxel_size, resize_method)
+function [im_iso, original_image_size, target_voxel_size] = CreateIsometricImage(im, pixel_physical_size, target_voxel_size, resize_method)
     % CreateIsometricImage - Create an isometric version of a 2D or 3D image.
     %
     % Syntax:
