@@ -7,13 +7,13 @@ function zStackIndices = FindZStackIndices(positions, precision)
     %
     % Inputs:
     % positions - M x 3 matrix, where each row contains the (x, y, z) position
-    % precision - Optional, precision for x, y comparison (default = 1e-5)
+    % precision - Optional, precision for x, y comparison (default = 1)
     %
     % Outputs:
     % zStackIndices - Cell array containing the indices of the unique XY points
     
     if nargin < 2
-        precision = 1e-5;  % Default precision
+        precision = 1;  % Default precision
     end
 
     % Round x,y coordinates to the given precision
