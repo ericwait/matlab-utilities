@@ -4,6 +4,7 @@ function overlaidImage = OverlayGrayscaleWithLabels(im_gray, im_label)
         error('im_cd8 must be a 2D grayscale image.');
     end
 
+    im_gray = ImUtils.ConvertType(im_gray, 'uint8', false);
     % Convert the grayscale image to RGB
     im_rgb = repmat(im_gray, [1, 1, 3]);
 
@@ -12,7 +13,7 @@ function overlaidImage = OverlayGrayscaleWithLabels(im_gray, im_label)
     boundaries = bwboundaries(im_label, 'noholes');
 
     % Choose colors for each label
-    colors = jet(max(im_label(:))); % Jet colormap for labels
+    colors = lines(max(im_label(:))); % lines colormap for labels
 
     % Overlay boundaries on the grayscale image
     for k = 1:length(boundaries)
