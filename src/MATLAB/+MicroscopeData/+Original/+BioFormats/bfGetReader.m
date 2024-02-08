@@ -44,10 +44,10 @@ ip.parse(varargin{:});
 id = ip.Results.id;
 
 % verify that enough memory is allocated
-bfCheckJavaMemory();
+MicroscopeData.Original.BioFormats.bfCheckJavaMemory();
 
 % load the Bio-Formats library into the MATLAB environment
-status = bfCheckJavaPath();
+status = MicroscopeData.Original.BioFormats.bfCheckJavaPath();
 assert(status, ['Missing Bio-Formats library. Either add bioformats_package.jar '...
     'to the static Java path or add it to the Matlab path.']);
 

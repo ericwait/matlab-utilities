@@ -49,12 +49,12 @@ ip.addRequired('r', isValidReader);
 ip.parse(r);
 
 % Plane check
-isValidPlane = @(p) bfTestInRange(p,'iPlane',r.getImageCount());
+isValidPlane = @(p) MicroscopeData.Original.BioFormats.bfTestInRange(p,'iPlane',r.getImageCount());
 % Optional tile arguments check
-isValidX = @(x) bfTestInRange(x,'x',r.getSizeX());
-isValidY = @(y) bfTestInRange(y,'y',r.getSizeY());
-isValidWidth = @(w) bfTestInRange(w,'width',r.getSizeX()-varargin{2}+1);
-isValidHeight = @(h) bfTestInRange(h,'height',r.getSizeY()-varargin{3}+1);
+isValidX = @(x) MicroscopeData.Original.BioFormats.bfTestInRange(x,'x',r.getSizeX());
+isValidY = @(y) MicroscopeData.Original.BioFormats.bfTestInRange(y,'y',r.getSizeY());
+isValidWidth = @(w) MicroscopeData.Original.BioFormats.bfTestInRange(w,'width',r.getSizeX()-varargin{2}+1);
+isValidHeight = @(h) MicroscopeData.Original.BioFormats.bfTestInRange(h,'height',r.getSizeY()-varargin{3}+1);
 
 ip.addRequired('iPlane', isValidPlane);
 ip.addOptional('x', 1, isValidX);

@@ -33,7 +33,7 @@ function bfInitLogging(varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 % Check Bio-Formats is set in the Java class path
-bfCheckJavaPath();
+MicroscopeData.Original.BioFormats.bfCheckJavaPath();
 
 % Input check
 levels = {'ALL', 'DEBUG', 'ERROR', 'FATAL', 'INFO', 'OFF', 'TRACE', 'WARN'};
