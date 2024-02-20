@@ -20,7 +20,10 @@ function [idx, labelIm] = SplitByPixelRep( imSize_rc, indList, K, subsamplePrct)
     end
     ptsReplicated = Segmentation.PixelReplicate(imSize_rc, indList, subsamplePrct);
 
+
+    warning('off', 'all')
     objPR = fitgmdist(ptsReplicated, K, 'replicates',5);
+    warning('on', 'all')
 
     coord_xy = Utils.SwapXY_RC(Utils.IndToCoord(imSize_rc,indList));
     idx = objPR.cluster(coord_xy);
