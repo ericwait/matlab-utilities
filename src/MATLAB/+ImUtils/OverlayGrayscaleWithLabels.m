@@ -1,4 +1,4 @@
-function overlaidImage = OverlayGrayscaleWithLabels(im_gray, im_label)
+function overlaidImage = OverlayGrayscaleWithLabels(im_gray, im_label, add_labels)
     % Check if im_cd8 is a 2D matrix
     if ~ismatrix(im_gray) || size(im_gray,3) ~= 1
         error('im_cd8 must be a 2D grayscale image.');
@@ -30,4 +30,41 @@ function overlaidImage = OverlayGrayscaleWithLabels(im_gray, im_label)
 
     % Return the overlaid image
     overlaidImage = im_rgb;
+
+    if nargin > 2 && add_labels
+        stats = regionprops(im_label, 'BoundingBox');
+        % Create an invisible figure
+        f = figure('visible', 'off');
+        
+        % Display the image in this off-screen figure
+        imshow(overlaidImage);%, 'InitialMagnification', 'fit'); % Display the image
+        hold on;
+
+        % Overlay text at the lower right corner of each bounding box
+        for i = 1:numel(stats)
+            bbox = stats(i).BoundingBox;
+            % Calculate the lower right corner of the bounding box
+            lowerRightCornerX = bbox(1) + bbox(3); % X-coordinate
+            lowerRightCornerY = bbox(2) + bbox(4); % Y-coordinate
+
+            text(lowerRightCornerX, lowerRightCornerY, sprintf('%d', i), ...
+                'HorizontalAlignment', 'left', ...
+                'VerticalAlignment', 'top', ...
+                'FontSize', 6, 'Color', 'r');
+        end
+        
+        hold off;
+
+        % Ensure the axes limits are set correctly
+        axis tight;
+        axis on; % Temporarily turn on the axis to ensure 'getframe' captures the whole image
+    
+        % Save the figure to a file
+        im_frame = getframe(gca);
+        overlaidImage = im_frame.cdata;
+        
+        % Close the figure
+        close(f);
+    end
+
 end
