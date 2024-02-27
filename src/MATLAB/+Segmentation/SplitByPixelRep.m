@@ -22,11 +22,21 @@ function [idx, labelIm] = SplitByPixelRep( imSize_rc, indList, K, subsamplePrct)
 
 
     warning('off', 'all')
-    objPR = fitgmdist(ptsReplicated, K, 'replicates',5);
+    try
+        objPR = fitgmdist(ptsReplicated, K, 'replicates',5);
+    catch err
+        [idx, labelIm] = Default(imSize_rc, indList);
+        return
+    end
     warning('on', 'all')
 
     coord_xy = Utils.SwapXY_RC(Utils.IndToCoord(imSize_rc,indList));
+    try
     idx = objPR.cluster(coord_xy);
+    catch err
+        [idx, labelIm] = Default(imSize_rc, indList);
+        return
+    end
 
     if (nargout>1)
         labelIm = zeros(imSize_rc);
@@ -35,4 +45,10 @@ function [idx, labelIm] = SplitByPixelRep( imSize_rc, indList, K, subsamplePrct)
             labelIm(curInds) = i;
         end
     end
+end
+
+function [idx, labelIm] = Default(imSize_rc, indList)
+    idx = ones(size(indList));
+    labelIm = zeros(imSize_rc, 'uint16');
+    labelIm(indList) = 1;
 end
