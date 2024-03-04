@@ -26,9 +26,7 @@ classdef CmdlnProgress<handle
     
     methods
         function obj = CmdlnProgress(iterations,useBackspace,optionalTitle,useGUI)
-            % Check if the parallel computing toolbox function getCurrentTask() exists
-            chkgct = which('getCurrentTask');
-            if (~isempty(chkgct) && ~isempty(getCurrentTask())) %if in parpool, don't use these options
+            if (isinparfor) %if in parpool, don't use these options
                 useBackspace = false;
                 useGUI = false;
             end
@@ -103,7 +101,7 @@ classdef CmdlnProgress<handle
             end
             
             if(obj.useBs)
-                fprintf([obj.backspaces,doneStr]);
+                fprintf([obj.backspaces, doneStr]);
                 obj.backspaces = repmat(sprintf('\b'),1,length(doneStr)-1);
             else
                 fprintf('%s',doneStr);
