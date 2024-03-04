@@ -16,7 +16,7 @@ function im = LoGShowPair(im,showResults)
         imshowpair(imMax,imMin);
     end
     
-    imMax2 = ImUtils.BrightenImages(imMax,[],0.999);
-    imMin2 = ImUtils.BrightenImages(imMin,[],0.999);
+    imMax2 = ImUtils.BrightenImagesGamma(imMax,'uint8', 1.0);
+    imMin2 = ImUtils.BrightenImagesGamma(imMin,'uint8', 1.0);
     im = cat(3,imMin2,imMax2,imMin2);
 end

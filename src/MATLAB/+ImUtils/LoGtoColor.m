@@ -15,8 +15,8 @@ function [ imC, imMin, imMax ] = LoGtoColor(imLoG)
             curMax = imMax(:,:,:,c,t);
             curMin = imMin(:,:,:,c,t);
             
-            curMax = ImUtils.BrightenImages(curMax,[],0.999);
-            curMin = ImUtils.BrightenImages(curMin,[],0.999);
+            curMax = ImUtils.BrightenImagesGamma(curMax, 'uint8', 1.0);
+            curMin = ImUtils.BrightenImagesGamma(curMin, 'uint8', 1.0);
 
             %negative in magenta
             imC(:,:,:,c,t,1) = curMin;
