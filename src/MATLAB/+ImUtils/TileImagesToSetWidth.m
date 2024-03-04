@@ -20,7 +20,7 @@ function stitchedImg = TileImagesToSetWidth(images, maxWidth)
     rowEnds = []; % Array to store indices of the last image in each row
     maxWidthUsed = 0; % To track the maximum width used across all rows
 
-    images = cellfun(@(x)(ImUtils.ConvertType(x, 'uint8', false)), images);
+    images = cellfun(@(x)(ImUtils.ConvertType(x, 'uint8', false)), images, 'UniformOutput', false);
     
     % Loop through images to store their sizes
     for i = 1:numImages
