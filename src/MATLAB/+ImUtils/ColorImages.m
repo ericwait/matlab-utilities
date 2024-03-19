@@ -1,36 +1,36 @@
-function colorIm = ColorImages(imIntensity,colors)
-    if (ndims(imIntensity)>3)
-        error('Wrong size image');% Make this a better message
-    end
-    
-    numChans = size(colors,1);
-    imColors = zeros(size(imIntensity,1),size(imIntensity,2),3,numChans,'single');
-    im = ImUtils.ConvertType(imIntensity, 'single', true);
-    
-    colorMultiplier = zeros(1,1,3,length(numChans),'single');
-    for c=1:numChans
-        colorMultiplier(1,1,:,c) = colors(c,:);
-    end
-    
-    for c=1:numChans
-        im_temp = im(:,:,c);
-        color = repmat(colorMultiplier(1,1,:,c), size(im_temp));
-        imColors(:,:,:,c) = repmat(im_temp,1,1,3) .* color;
+function colorIm = ColorImages(imIntensity, colors)
+   
+    numZ = size(imIntensity, 3);
+    numChans = size(imIntensity, 4);
+    numFrames = size(imIntensity, 5);
+    numColors = size(colors, 1);
 
-        if islogical(imIntensity)
-            continue
-        end
-
-        im_temp = ImUtils.BrightenImages(im_temp, [], 0.0005, 20);
-        im_temp = ImUtils.BrightenImagesGamma(im_temp, [], 0.95, 0.04);
-        im_temp = mat2gray(im_temp);
-        im(:,:,c) = im_temp;
+    if numChans ~= numColors
+        error('The number of colors need to match the number of channels (forth dimension) of the image.')
     end
-            
-    imMax = max(im,[],3);
-    imIntSum = sum(im,3);
-    imIntSum(imIntSum==0) = 1;
-    imColrSum = sum(imColors,4);
-    colorIm = imColrSum.*repmat(imMax./imIntSum,1,1,3);
-    colorIm = im2uint8(colorIm);
+
+    % Check to see if the third dimension is singleton.
+    % If not, move it to the 6th.
+
+    if numZ ~=1
+        imIntensity = permute(imIntensity, [1, 2, 6, 4, 5, 3]);
+    end
+    
+    colorsPerm = permute(colors, [3,4,2,1]);
+    colorMultiplier = repmat(colorsPerm, [size(imIntensity, 1:2), 1, 1, numFrames, numZ]);
+
+    im = ImUtils.ConvertType(imIntensity, 'single', true);  % normalize and convert to single precision
+    im = repmat(im, [1, 1, 3, 1, 1, 1]);
+    imColors = im .* colorMultiplier;
+    
+    % Combine colorized images into a single image
+    imMax = max(im, [], 4);
+    imIntSum = sum(im, 4);
+    imIntSum(imIntSum == 0) = 1;  % Avoid division by zero
+    imColrSum = sum(imColors, 4);
+    
+    % Final image calculation
+    imNormalizer = imMax ./ imIntSum;
+    colorIm = imColrSum .* imNormalizer;
+    colorIm = im2uint8(colorIm);  % Convert back to uint8 for display
 end
