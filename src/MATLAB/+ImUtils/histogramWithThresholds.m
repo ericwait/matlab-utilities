@@ -1,4 +1,4 @@
-function histogramWithThresholds(im, threshs, varargin)
+function HistogramWithThresholds(im, threshs, varargin)
 %histogramWithThresholds Plots the histogram of an image and marks thresholds.
 %
 % Syntax:
