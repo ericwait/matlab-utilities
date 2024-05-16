@@ -6,6 +6,10 @@ function subDirs = GetSubDirectories(rootDir, pattern)
 %   Returns:
 %       subDirs: Cell array of subdirectories sorted in alternating lexicographic and numeric order.
 
+    if ~exist("pattern", "var") || isempty(pattern)
+        pattern = '.*';
+    end
+
     dList = dir(rootDir);
     subDirs = {dList([dList.isdir] & ~ismember({dList.name},{'.','..'})).name}';
     
