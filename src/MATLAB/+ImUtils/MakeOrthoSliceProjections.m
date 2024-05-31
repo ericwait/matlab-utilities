@@ -83,12 +83,9 @@ function orthoSliceIm = MakeOrthoSliceProjections(im, colors, physicalSize_xyz, 
     orthoSliceIm(size(imColor_xyR, 1) + 6 : size(imColor_xyR, 1) + 5 + size(imColor_xzR, 1), 1:size(imColor_xyR, 2), :) = imColor_xzR;
     orthoSliceIm(1:size(imColor_xyR, 1), size(imColor_xyR, 2) + 6 : size(imColor_xyR, 2) + 5 + size(imColor_yzR, 2), :) = imColor_yzR;
     
+    
     % Add the scale bar if it exists
     if exist("scaleBar", "var") && ~isempty(scaleBar)
-        scaleBarLength = round(scaleBar / xRatio);
-        orthoSliceIm(end - 40 : end - 20, end - 20 - scaleBarLength + 1 : end - 20, :) = 255;
-        text_str = [projectionType, ''];
-        position = [size(orthoSliceIm,2)-55, size(orthoSliceIm,1)-60];  % Adjust as needed for padding
-        orthoSliceIm = insertText(orthoSliceIm, position, text_str, 'FontSize', 18, 'TextColor', 'white', 'BoxOpacity', 0, 'AnchorPoint', 'Center');
+        orthoSliceIm = ImUtils.AddScaleBarToImage(orthoSliceIm, physicalSize_xyz(fixedDimension), scaleBar, 'um', false);
     end
 end
