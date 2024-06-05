@@ -1,4 +1,4 @@
-function img = AddTextToImageUpperLeft(img, titleText, padding)
+function img = AddTextToImageUpperLeft(img, titleText, padding, fontSize)
     % AddTextToImageUpperLeft Overlays text on an image in the upper left corner.
     %
     % This function overlays specified text onto an image at a position determined by padding.
@@ -11,13 +11,17 @@ function img = AddTextToImageUpperLeft(img, titleText, padding)
     %   titleText - The text string to be overlaid onto the image.
     %   padding - Optional; A 2-element vector [horizontalPadding, verticalPadding] specifying the
     %             padding from the top and left edges of the image. Default is [10, 10].
+    %   fontSize - Optional;
     %
     % Returns:
     %   img - The modified image with the text overlaid in the upper left corner.
     
     % Validate input arguments and set default padding if not provided
-    if nargin < 3
+    if ~exist("padding", "var") || isempty(padding)
         padding = [10, 10]; % Default padding from the top and left edges
+    end
+    if ~exist("fontSize", "var") || isempty(fontSize)
+        fontSize = 12;
     end
 
     % Determine the maximum intensity value in the image to use for the text
@@ -33,7 +37,8 @@ function img = AddTextToImageUpperLeft(img, titleText, padding)
     % Overlay the specified text onto the blank RGB canvas
     textRGB = insertText(blankRGB, padding, titleText, ...
                          'TextColor', 'white', 'BoxOpacity', 0, ...
-                         'FontSize', 12, 'AnchorPoint', 'LeftTop');
+                         'FontSize', fontSize, 'Font', 'Arial',...
+                         'AnchorPoint', 'LeftTop');
     
     % Convert the RGB image with the text overlay to a binary mask. The mask identifies
     % where the text pixels are located based on the change from the blank canvas.
