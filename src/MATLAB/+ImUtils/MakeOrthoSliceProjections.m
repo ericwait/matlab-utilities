@@ -58,16 +58,16 @@ function orthoSliceIm = MakeOrthoSliceProjections(im, colors, physicalSize_xyz, 
     end
 
     % Compute the XY projection
-    imColor_xy = ImUtils.ColorImages(squeeze(projFunc(im, 3)), colors);
+    imColor_xy = ImUtils.ColorImages(projFunc(im, 3), colors);
 
     % Compute the XZ projection
     im_xz = projFunc(im, 1);
-    im_xz = permute(im_xz, [3, 2, 4, 1]); % zxc
+    im_xz = permute(im_xz, [3, 2, 1, 4, 5]); % zxc
     imColor_xz = ImUtils.ColorImages(im_xz, colors);
     
     % Compute the YZ projection
     im_yz = projFunc(im, 2);
-    im_yz = permute(im_yz, [1, 3, 4, 2]); % yzc
+    im_yz = permute(im_yz, [1, 3, 2, 4, 5]); % yzc
     imColor_yz = ImUtils.ColorImages(im_yz, colors);
     
     % Resize the projections to match the fixed X dimension
