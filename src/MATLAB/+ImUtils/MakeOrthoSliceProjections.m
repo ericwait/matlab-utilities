@@ -22,11 +22,11 @@ function orthoSliceIm = MakeOrthoSliceProjections(im, colors, physicalSize_xyz, 
 % - The specified dimension (X, Y, or Z) is fixed, and other dimensions are rescaled to match it.
 
     % Check for the optional arguments
-    if nargin < 5
+    if ~exist("projectionType", "var") || isempty(projectionType)
         projectionType = 'max'; % Default projection type is 'max'
     end
     
-    if nargin < 6
+    if ~exist("fixedDimension", "var") || isempty(fixedDimension)
         [~, fixedDimension] = min(physicalSize_xyz); % Default to fixing X dimension
     end
     
