@@ -50,13 +50,13 @@ function [im, imD] = Reader(varargin)
         return;
     end
     
-    if ( strcmpi(matchType,'.klb') )
+    if ( strcmpi(matchType,'klb') )
         [im,imD] = MicroscopeData.ReaderKLB('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz, 'getMIP',args.getMIP,...
             'outType',args.outType, 'normalize',args.normalize, 'imVersion',args.imVersion, 'verbose',args.verbose, 'prompt',false);
-    elseif ( strcmpi(matchType,'.h5') )
+    elseif ( strcmpi(matchType,'h5') )
         [im,imD] = MicroscopeData.ReaderH5('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz, 'getMIP',args.getMIP,...
                 'outType',args.outType, 'normalize',args.normalize, 'imVersion',args.imVersion, 'verbose',args.verbose, 'prompt',false);
-    elseif ( strcmpi(matchType,'.tif') )
+    elseif ( strcmpi(matchType,'tif') )
         [im,imD] = MicroscopeData.ReaderTIF('imageData',imD, 'chanList',args.chanList, 'timeRange',args.timeRange, 'roi_xyz',args.roi_xyz, 'getMIP',args.getMIP,...
                 'outType',args.outType, 'normalize',args.normalize, 'verbose',args.verbose, 'prompt',false);
 
