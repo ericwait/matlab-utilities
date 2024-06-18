@@ -75,14 +75,14 @@ function [im,meta] = CombineTwoImages(im1,im1Data,im2,im2Data,deltas,unitFactor,
     
     im = zeros(combinedHeight,combinedWidth,combinedDepth,size(im1,4)+size(im2,4),'like',im1);
     
-    im(im1Starts(2):im1Ends(2),im1Starts(1):im1Ends(1),im1Starts(3):im1Ends(3),1:size(im1,4)) = im1;
-    im(im2Starts(2):im2Ends(2),im2Starts(1):im2Ends(1),im2Starts(3):im2Ends(3),size(im1,4)+1:size(im1,4)+size(im2,4)) = im2;
+    im(im1Starts(2):im1Ends(2), im1Starts(1):im1Ends(1), im1Starts(3):im1Ends(3),             1:size(im1,4))             = im1;
+    im(im2Starts(2):im2Ends(2), im2Starts(1):im2Ends(1), im2Starts(3):im2Ends(3), size(im1,4)+1:size(im1,4)+size(im2,4)) = im2;
     meta = im1Data;
     meta.Dimensions = size(im,[2,1,3]);
     meta.NumberOfChannels = size(im,4);
     
     if visualize
-         imOrtho = ImUtils.MakeOrthoSliceProjections(im,Utils.GetColorByWavelength(1:size(im,4)),meta.PixelPhysicalSize(1), meta.PixelPhysicalSize(3), 50);
+         imOrtho = ImUtils.MakeOrthoSliceProjections(im,Utils.GetColorByWavelength(1:size(im,4)),meta.PixelPhysicalSize, 50);
          figure
          imshow(imOrtho);
     end
