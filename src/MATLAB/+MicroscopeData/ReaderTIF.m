@@ -136,11 +136,11 @@ function [im, imD] = ReaderTIF(varargin)
                     
                     tifName = fullfile(imPath,sprintf('%s_c%02d_t%04d_z%04d.tif',imD.DatasetName,args.chanList(c),timeVal,zVal));
                     
-                    tempIm(:,:,z) = imread(tifName,'TIF');
+                    tempIm(:,:,z) = MicroscopeData.ReadTiffImage(tifName);
                 end
             else
                 tifName = fullfile(imPath,sprintf('%s_c%02d_t%04d.tif',imD.DatasetName,args.chanList(c),timeVal));
-                tempIm = MicroscopeData.LoadTif(tifName);
+                tempIm = MicroscopeData.ReadTiffImage(tifName);
             end
             
             if (useROI)
