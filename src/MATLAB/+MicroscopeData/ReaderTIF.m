@@ -155,7 +155,7 @@ function [im, imD] = ReaderTIF(varargin)
                 tempIm = ImUtils.ConvertType(tempIm,args.outType,args.normalize);
             end
             
-            im(:,:,:,c,t) = tempIm;
+            im(1:size(tempIm,1),1:size(tempIm,2),1:size(tempIm,3),c,t) = tempIm;
 
             if ( args.verbose )
                 prgs.PrintProgress(c+(t-1)*length(args.chanList));
