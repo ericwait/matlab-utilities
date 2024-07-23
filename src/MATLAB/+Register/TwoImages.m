@@ -101,6 +101,23 @@ function [ultimateDeltaX, ultimateDeltaY, ultimateDeltaZ, maxNCV, overlapSize, n
     
     im1ROI = im1(imageROI1_XY(2):imageROI1_XY(5),imageROI1_XY(1):imageROI1_XY(4),imageROI1_XY(3):imageROI1_XY(6),:,:);
     im2ROI = im2(imageROI2_XY(2):imageROI2_XY(5),imageROI2_XY(1):imageROI2_XY(4),imageROI2_XY(3):imageROI2_XY(6),:,:);
+    
+    if args.visualize
+        figure
+        nexttile
+        imshow(ImUtils.MakeOrthoSliceProjections(im1, Utils.GetColorByWavelength(1:size(im1, 4)), args.metadata1.PixelPhysicalSize, 50));
+        title('Image 1 Full');
+        nexttile
+        imshow(ImUtils.MakeOrthoSliceProjections(im1ROI, Utils.GetColorByWavelength(1:size(im1ROI, 4)), args.metadata1.PixelPhysicalSize, 50));
+        title('Image 1 ROI');
+        nexttile
+        imshow(ImUtils.MakeOrthoSliceProjections(im2, Utils.GetColorByWavelength(1:size(im2, 4)), args.metadata2.PixelPhysicalSize, 50));
+        title('Image 2 Full');
+        nexttile
+        imshow(ImUtils.MakeOrthoSliceProjections(im2ROI, Utils.GetColorByWavelength(1:size(im2ROI, 4)), args.metadata2.PixelPhysicalSize, 50));
+        title('Image 2 ROI');
+    end
+
     if (~isempty(args.imMask1))
         args.imMask1ROI = args.imMask1(imageROI1_XY(2):imageROI1_XY(5),imageROI1_XY(1):imageROI1_XY(4),imageROI1_XY(3):imageROI1_XY(6),:,:);
     else
