@@ -40,7 +40,7 @@ function blendedImage = BlendImagesLinear(inputImage, numChannels)
         end
     end
 
-    blendedImage = zeros([size(inputImage,1:3), numChannels, size(inputImage,5)], 'like', inputImage);
+    blendedImage = zeros([size(inputImage,1:3), numChannels, size(inputImage,5)], 'single');
     % figure
     for img = 1:numImages
         % nexttile
@@ -61,7 +61,7 @@ function blendedImage = BlendImagesLinear(inputImage, numChannels)
         curSum = curDist + incomingDist;
         curSum(~overlapMask) = 0;
 
-        curMul = zeros(size(curMask));
+        curMul = zeros(size(curMask), 'single');
         curMul(overlapMask(:)) = curDist(overlapMask(:)) ./ curSum(overlapMask(:));
 
         incomingMul = zeros(size(curMask));
@@ -71,7 +71,7 @@ function blendedImage = BlendImagesLinear(inputImage, numChannels)
         curMul = repmat(curMul, [1, 1, size(blendedImage,3:5)]);
         incomingMul = repmat(incomingMul, [1, 1, size(blendedImage,3:5)]);
 
-        blendedImage(overlapMask(:)) = blendedImage(overlapMask(:)) .* curMul(overlapMask(:)) + incomingIm(overlapMask(:)) .* incomingMul(overlapMask(:));
+        blendedImage(overlapMask(:)) = single(blendedImage(overlapMask(:))) .* curMul(overlapMask(:)) + single(incomingIm(overlapMask(:))) .* incomingMul(overlapMask(:));
         % nexttile
         % imshow(squeeze(max(blendedImage, [], 3:5)))
     end
