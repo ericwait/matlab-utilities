@@ -7,6 +7,9 @@ function [im,meta] = CombineTwoImages(im1,im1Data,im2,im2Data,deltas,unitFactor,
     end
     
     [im1ROI,im2ROI,~,~] = Register.CalculateOverlapXY(im1Data,im2Data,unitFactor);
+    if (any(im1ROI(4:6) - im1ROI(1:3) == 0)) || (any(im2ROI(4:6) - im2ROI(1:3) == 0))
+        error('There is no overlap');
+    end
     
     im1Starts = [1,1,1];
     im1Ends = [size(im1,2),size(im1,1),size(im1,3)];
