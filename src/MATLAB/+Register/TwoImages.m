@@ -139,6 +139,8 @@ function [ultimateDeltaX, ultimateDeltaY, ultimateDeltaZ, maxNCV, overlapSize, n
         warning('Not enough overlap found');
         return
     end
+
+    numberOfChannels = max(size(im1, 4), size(im2, 4));
     
 %% run 2-D case
     newOrgin_RC = Utils.SwapXY_RC(padding_XY);
@@ -146,7 +148,7 @@ function [ultimateDeltaX, ultimateDeltaY, ultimateDeltaZ, maxNCV, overlapSize, n
     
     im1MaxROI = squeeze(max(im1ROI,[],3));
     im2MaxROI = squeeze(max(im2ROI,[],3));
-    for c=1:args.metadata1.NumberOfChannels   
+    for c=1:numberOfChannels   
         [deltas_RC,curNCV,ncvMatrixROI] = Register.GetMaxNCVdeltas(im1MaxROI(:,:,c),im2MaxROI(:,:,c),args.minOverlap^2,args.maxSearchSize,newOrgin_RC([1,2]),args.visualize,c,[],args.imMask1ROI, args.imMask2ROI);
         deltas_XY = Utils.SwapXY_RC(deltas_RC);
         if (curNCV>maxNCV)
