@@ -55,7 +55,7 @@ function WriterTif(im, varargin)
     if ( isempty(args.imageData) )
         args.imageData.DatasetName = datasetName;
 
-        chkSize = size(im);
+        chkSize = ImUtils.Size(im);
         args.imageData.Dimensions = Utils.SwapXY_RC(chkSize(1:3));
         args.imageData.NumberOfChannels = chkSize(4);
         args.imageData.NumberOfFrames = chkSize(5);
