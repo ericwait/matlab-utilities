@@ -11,21 +11,19 @@ function WriteTiffImage(filePath, imageData)
         error('Expected imageData to be a 2D, 3D, or 4D array in XYZC format.');
     end
 
-
-
     % Handle different dimensions by padding with singletons if necessary
     switch dims
         case 2
-            [sizeX, sizeY] = size(imageData);
+            [sizeY, sizeX] = size(imageData);
             sizeZ = 1;
             numChannels = 1;
-            imageData = reshape(imageData, [sizeX, sizeY, sizeZ, numChannels]);
+            imageData = reshape(imageData, [sizeY, sizeX, sizeZ, numChannels]);
         case 3
-            [sizeX, sizeY, sizeZ] = size(imageData);
+            [sizeY, sizeX, sizeZ] = size(imageData);
             numChannels = 1;
-            imageData = reshape(imageData, [sizeX, sizeY, sizeZ, numChannels]);
+            imageData = reshape(imageData, [sizeY, sizeX, sizeZ, numChannels]);
         case 4
-            [sizeX, sizeY, sizeZ, numChannels] = size(imageData);
+            [sizeY, sizeX, sizeZ, numChannels] = size(imageData);
     end
 
     % Create a Tiff object
