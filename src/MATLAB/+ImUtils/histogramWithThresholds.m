@@ -43,7 +43,7 @@ function HistogramWithThresholds(im, threshs, varargin)
     end
     
     % Plot the histogram on the specified or new axes
-    histogram(ax, im, numBins)
+    histogram(ax, im, numBins, 'EdgeColor', 'none')
     set(ax, 'yscale', 'log');
     
     % Hold on for overlaying the threshold lines
