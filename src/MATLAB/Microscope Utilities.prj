@@ -1,0 +1,134 @@
+<deployment-project plugin="plugin.toolbox" plugin-version="1.0">
+  <configuration build-checksum="2401624234" file="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB\Microscope Utilities.prj" location="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB" name="Microscope Utilities" target="target.toolbox" target-name="Package Toolbox">
+    <param.appname>MicroscopeUtilities</param.appname>
+    <param.authnamewatermark>Eric Wait</param.authnamewatermark>
+    <param.email>eric@waitphoto.com</param.email>
+    <param.company>Passion Project</param.company>
+    <param.summary>A collection of more than a decade of functions that help with manipulating microscope data.</param.summary>
+    <param.description />
+    <param.screenshot>\\tsclient\Downloads\matlab-utils.png</param.screenshot>
+    <param.version>0.1</param.version>
+    <param.output>${PROJECT_ROOT}\MicroscopeUtilities.mltbx</param.output>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.guid>d907fce2-4552-4cca-8731-899c9d74f4c5</param.guid>
+    <param.exclude.filters />
+    <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
+    <param.examples />
+    <param.demosxml />
+    <param.apps />
+    <param.registered.apps />
+    <param.docs />
+    <param.getting.started.guide />
+    <param.matlabpath.excludes />
+    <param.javaclasspath.excludes>
+      <item>/+MicroscopeData/+Original/+BioFormats/bioformats_package.jar</item>
+      <item>/+Utils/sqlite.jar</item>
+    </param.javaclasspath.excludes>
+    <param.exported.on.package>false</param.exported.on.package>
+    <param.required.addons>
+      <requiredaddons>
+        <requiredAddOn earliest="earliest" fromRepository="true" id="e59f7e94-4a80-11e4-9553-005056977bd0" include="true" latest="latest">FFmpeg Toolbox</requiredAddOn>
+      </requiredaddons>
+    </param.required.addons>
+    <param.matlab.project.id />
+    <param.matlab.project.name />
+    <param.release.start>R2019b</param.release.start>
+    <param.release.end>latest</param.release.end>
+    <param.release.current.only>false</param.release.current.only>
+    <param.compatiblity.windows>true</param.compatiblity.windows>
+    <param.compatiblity.macos>true</param.compatiblity.macos>
+    <param.compatiblity.linux>true</param.compatiblity.linux>
+    <param.compatiblity.matlabonline>true</param.compatiblity.matlabonline>
+    <param.installation.map />
+    <param.additional.sw.names />
+    <param.additional.sw.licenses />
+    <param.additional.sw.win.url />
+    <param.additional.sw.mac.url />
+    <param.additional.sw.linux.url />
+    <unset>
+      <param.authnamewatermark />
+      <param.email />
+      <param.company />
+      <param.description />
+      <param.output />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+      <param.exclude.filters />
+      <param.exclude.pcodedmfiles />
+      <param.examples />
+      <param.demosxml />
+      <param.apps />
+      <param.registered.apps />
+      <param.docs />
+      <param.getting.started.guide />
+      <param.matlabpath.excludes />
+      <param.exported.on.package />
+      <param.matlab.project.id />
+      <param.matlab.project.name />
+      <param.release.current.only />
+      <param.compatiblity.windows />
+      <param.compatiblity.macos />
+      <param.compatiblity.linux />
+      <param.compatiblity.matlabonline />
+      <param.installation.map />
+      <param.additional.sw.names />
+      <param.additional.sw.licenses />
+      <param.additional.sw.win.url />
+      <param.additional.sw.mac.url />
+      <param.additional.sw.linux.url />
+    </unset>
+    <fileset.rootdir>
+      <file>${PROJECT_ROOT}</file>
+    </fileset.rootdir>
+    <fileset.rootfiles>
+      <file>${PROJECT_ROOT}\+Denoise</file>
+      <file>${PROJECT_ROOT}\+Dev</file>
+      <file>${PROJECT_ROOT}\+Ims</file>
+      <file>${PROJECT_ROOT}\+ImUtils</file>
+      <file>${PROJECT_ROOT}\+Math</file>
+      <file>${PROJECT_ROOT}\+MicroscopeData</file>
+      <file>${PROJECT_ROOT}\+MovieUtils</file>
+      <file>${PROJECT_ROOT}\+Polygons</file>
+      <file>${PROJECT_ROOT}\+Register</file>
+      <file>${PROJECT_ROOT}\+Segmentation</file>
+      <file>${PROJECT_ROOT}\+Threading</file>
+      <file>${PROJECT_ROOT}\+Track</file>
+      <file>${PROJECT_ROOT}\+Unmix</file>
+      <file>${PROJECT_ROOT}\+Utils</file>
+      <file>${PROJECT_ROOT}\load_bioformats.m</file>
+    </fileset.rootfiles>
+    <fileset.depfun.included>
+      <file>${MATLAB_ROOT}\toolbox\local\userpath.m</file>
+    </fileset.depfun.included>
+    <fileset.depfun.excluded />
+    <fileset.package />
+    <build-deliverables>
+      <file location="${PROJECT_ROOT}" name="MicroscopeUtilities.mltbx" optional="false">D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB\MicroscopeUtilities.mltbx</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\Program Files\MATLAB\R2023b</root>
+      <toolboxes />
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.0</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
