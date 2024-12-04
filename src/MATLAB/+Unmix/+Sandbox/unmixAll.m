@@ -10,7 +10,7 @@ end
 for chan1=1:imageData.NumberOfChannels
     for chan2=1:imageData.NumberOfChannels
         if (chan1==chan2),continue,end
-        factor(chan1,chan2,:) = regress(double(im(:,:,:,1,chan1)
+        factor(chan1,chan2,:) = regress(double(im(:,:,:,1,chan1)));
     end
 end
 end
