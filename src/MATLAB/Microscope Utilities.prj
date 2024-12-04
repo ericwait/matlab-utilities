@@ -1,14 +1,14 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="3337064746" file="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB\Microscope Utilities.prj" location="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB" name="Microscope Utilities" target="target.toolbox" target-name="Package Toolbox">
-    <param.appname>MicroscopeUtilities</param.appname>
+  <configuration build-checksum="3958288451" file="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB\Microscope Utilities.prj" location="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB" name="Microscope Utilities" target="target.toolbox" target-name="Package Toolbox">
+    <param.appname>Microscope Utilities</param.appname>
     <param.authnamewatermark>Eric Wait</param.authnamewatermark>
     <param.email>eric@waitphoto.com</param.email>
     <param.company>Passion Project</param.company>
     <param.summary>A collection of more than a decade of functions that help with manipulating microscope data.</param.summary>
     <param.description />
     <param.screenshot>\\tsclient\Downloads\matlab-utils.png</param.screenshot>
-    <param.version>2.0</param.version>
-    <param.output>${PROJECT_ROOT}\MicroscopeUtilities.mltbx</param.output>
+    <param.version>2.0.1</param.version>
+    <param.output>${PROJECT_ROOT}\Microscope Utilities.mltbx</param.output>
     <param.products.name />
     <param.products.id />
     <param.products.version />
@@ -49,9 +49,6 @@
     <param.additional.sw.mac.url />
     <param.additional.sw.linux.url />
     <unset>
-      <param.authnamewatermark />
-      <param.email />
-      <param.company />
       <param.description />
       <param.output />
       <param.products.name />
@@ -108,7 +105,7 @@
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="MicroscopeUtilities.mltbx" optional="false">D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB\MicroscopeUtilities.mltbx</file>
+      <file location="${PROJECT_ROOT}" name="Microscope Utilities.mltbx" optional="false">D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB\Microscope Utilities.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
