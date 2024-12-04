@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="2401624234" file="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB\Microscope Utilities.prj" location="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB" name="Microscope Utilities" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="3337064746" file="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB\Microscope Utilities.prj" location="D:\Users\ewait\git\programming\matlab-utilities\src\MATLAB" name="Microscope Utilities" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>MicroscopeUtilities</param.appname>
     <param.authnamewatermark>Eric Wait</param.authnamewatermark>
     <param.email>eric@waitphoto.com</param.email>
@@ -7,7 +7,7 @@
     <param.summary>A collection of more than a decade of functions that help with manipulating microscope data.</param.summary>
     <param.description />
     <param.screenshot>\\tsclient\Downloads\matlab-utils.png</param.screenshot>
-    <param.version>0.1</param.version>
+    <param.version>2.0</param.version>
     <param.output>${PROJECT_ROOT}\MicroscopeUtilities.mltbx</param.output>
     <param.products.name />
     <param.products.id />
