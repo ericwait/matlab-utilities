@@ -44,15 +44,15 @@ function orthoSliceIm = MakeOrthoSliceProjections(im, colors, physicalSize_xyz, 
         case 'min'
             projFunc = @(x, dim) min(x, [], dim);
         case 'mean'
-            projFunc = @(x, dim) mean(x, dim);
+            projFunc = @(x, dim) mean(x, dim, 'omitmissing');
         case 'median'
-            projFunc = @(x, dim) median(x, dim);
+            projFunc = @(x, dim) median(x, dim, 'omitmissing');
         case 'sum'
-            projFunc = @(x, dim) sum(x, dim);
+            projFunc = @(x, dim) sum(x, dim, 'omitnan');
         case 'mode'
             projFunc = @(x, dim) mode(x, dim);
         case 'std'
-            projFunc = @(x, dim) std(single(x), [], dim);
+            projFunc = @(x, dim) std(single(x), [], dim, 'omitmissing');
         otherwise
             error('Invalid projectionType. Valid options are "max", "min", "mean", "median", "mode", "std", "sum".');
     end
