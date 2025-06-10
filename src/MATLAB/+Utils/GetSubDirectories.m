@@ -47,6 +47,11 @@ function subDirs = GetSubDirectories(rootDir, pattern)
             sortedNumDirs = {};
             return;
         end
+
+        if isscalar(numDirs)
+            sortedNumDirs = numDirs;
+            return;
+        end
         
         % Extract numeric components from directory names
         numericParts = regexp(numDirs, '\d+', 'match');
