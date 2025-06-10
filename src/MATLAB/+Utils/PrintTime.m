@@ -7,6 +7,9 @@ strOut = string(elapsed_sec);
 
 if (exist('n','var') && ~isempty(n))
     avgTime = timeIn/n;
+    if isnan(avgTime)
+        avgTime = 0;
+    end
     strOut = sprintf('%s, average: %s',strOut, Utils.PrintTime(avgTime));
 end
 end
