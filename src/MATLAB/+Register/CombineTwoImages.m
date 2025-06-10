@@ -16,18 +16,27 @@ function [im,meta] = CombineTwoImages(im1,im1Data,im2,im2Data,deltas,unitFactor,
     %   - meta: Metadata for the combined image
     
     % Set default values for optional inputs
+    if (isempty(im1Data))
+        im1Data = MicroscopeData.MakeMetadataFromImage(im1);
+    end
+    if (isempty(im2Data))
+        im2Data = MicroscopeData.MakeMetadataFromImage(im2);
+    end
     if (~exist('deltas','var') || isempty(deltas))
         deltas = [0,0,0];
     end
     if (~exist('unitFactor','var'))
         unitFactor = [];
     end
+    if (~exist('visualize', 'var') || isempty(visualize))
+        visualize = false;
+    end
     
     % Calculate the overlap regions for the two images in XY plane
     [im1ROI,im2ROI,~,~] = Register.CalculateOverlapXY(im1Data,im2Data,unitFactor);
     
     % Check if there is any overlap; if not, throw an error
-    if (any(im1ROI(4:6) - im1ROI(1:3) == 0)) || (any(im2ROI(4:6) - im2ROI(1:3) == 0))
+    if (any(im1ROI(4:5) - im1ROI(1:2) == 0)) || (any(im2ROI(4:5) - im2ROI(1:2) == 0))
         error('There is no overlap');
     end
     
