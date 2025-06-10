@@ -7,7 +7,7 @@ function X = RejectionSim(numPointsOut,pdfIm)
     d = ndims(pdfIm);
     
     % Generate only near non-zero pixels
-    bwIm = ImProc.MaxFilterNeighborhood(pdfIm,[3,3,3]);
+    bwIm = HIP.MaxFilter(pdfIm, ones([3,3,3]), 1, []);
     validIdx = find(bwIm);
     
     validCoords = Utils.IndToCoord(size(pdfIm), validIdx);
